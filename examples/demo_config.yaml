@@ -1,0 +1,60 @@
+input:
+  mode: embeddings_only
+  embeddings_path: examples/demo_data/chunk_embeddings.npy
+  metadata_path: examples/demo_data/chunk_metadata.json
+  metric: cosine
+
+index:
+  type: flat
+  params: {}
+  save_path: examples/demo_data/chunk_index.index
+
+scan:
+  k: 10
+  num_queries: 200
+  query_sampling: mixed
+  batch_size: 64
+  mixed_proportions:
+    real_queries: 0.0
+    random_docs_as_queries: 0.5
+    cluster_centroids: 0.5
+  seed: 42
+
+detectors:
+  hubness:
+    enabled: true
+    validate_exact: false
+  cluster_spread:
+    enabled: true
+    num_clusters: 50
+    batch_size: 100
+  stability:
+    enabled: false
+    candidates_top_x: 50
+    perturbations: 3
+    sigma: 0.01
+    normalize: true
+  dedup:
+    enabled: true
+    text_hash_field: text_hash
+    duplicate_threshold: 0.95
+    suppress_boilerplate: true
+
+scoring:
+  weights:
+    hub_z: 0.6
+    cluster_spread: 0.2
+    stability: 0.2
+    boilerplate: 0.3
+
+thresholds:
+  policy: hybrid
+  hub_z: 3.0
+  percentile: 0.05
+
+output:
+  out_dir: examples/demo_data/reports/
+  privacy_mode: false
+  emit_embeddings: false
+  max_example_queries: 10
+

@@ -1,0 +1,89 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "hubscan"
+version = "0.1.0"
+description = "Scanner for detecting adversarial hubs in FAISS vector indices and RAG systems"
+readme = "README.md"
+requires-python = ">=3.11"
+license = {text = "Apache-2.0"}
+authors = [
+    {name = "Cisco AI Defense"},
+]
+keywords = [
+    "security",
+    "rag",
+    "vector-search",
+    "faiss",
+    "adversarial-hubness",
+    "ai-security",
+    "retrieval-security",
+    "embedding-security",
+]
+classifiers = [
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "Topic :: Security",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "License :: OSI Approved :: Apache Software License",
+]
+dependencies = [
+    "numpy>=1.24.0",
+    "scipy>=1.10.0",
+    "scikit-learn>=1.3.0",
+    "faiss-cpu>=1.7.4",
+    "pydantic>=2.0.0",
+    "pydantic-settings>=2.0.0",
+    "rich>=13.0.0",
+    "jinja2>=3.1.0",
+    "pyyaml>=6.0",
+    "pandas>=2.0.0",
+    "tqdm>=4.65.0",
+    "click>=8.1.0",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=7.4.0",
+    "pytest-cov>=4.1.0",
+    "mypy>=1.5.0",
+    "ruff>=0.1.0",
+]
+
+[project.scripts]
+hubscan = "hubscan.cli:main"
+
+[project.urls]
+Homepage = "https://github.com/cisco-ai-defense/hubscan"
+Repository = "https://github.com/cisco-ai-defense/hubscan"
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+testpaths = ["tests"]
+addopts = "--maxfail=1"
+
+[tool.setuptools.packages.find]
+include = ["hubscan*"]
+exclude = ["examples*", "tests*"]
+
+[tool.black]
+line-length = 88
+target-version = ['py311', 'py312']
+include = '\.pyi?$'
+
+[tool.isort]
+profile = "black"
+line_length = 88
+multi_line_output = 3
+
+[tool.mypy]
+python_version = "3.11"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = false
+disallow_incomplete_defs = false
+
