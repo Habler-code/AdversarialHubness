@@ -17,12 +17,15 @@
 """Stability detector - detects stability under query perturbations."""
 
 import numpy as np
-from typing import Optional, Dict, Any
+from typing import Optional, Dict, Any, TYPE_CHECKING
 
 from .base import Detector, DetectorResult
 from ..io.metadata import Metadata
 from ...utils.metrics import normalize_vectors
 from ...utils.logging import get_logger
+
+if TYPE_CHECKING:
+    from ..io.vector_index import VectorIndex
 
 logger = get_logger()
 
@@ -56,7 +59,7 @@ class StabilityDetector(Detector):
     
     def detect(
         self,
-        index: Any,
+        index: "VectorIndex",
         doc_embeddings: np.ndarray,
         queries: np.ndarray,
         k: int,
@@ -68,7 +71,7 @@ class StabilityDetector(Detector):
         Detect stability by perturbing queries and checking retrieval consistency.
         
         Args:
-            index: FAISS index
+            index: VectorIndex instance (supports FAISS, Pinecone, Qdrant, Weaviate, etc.)
             doc_embeddings: Document embeddings (N, D)
             queries: Query embeddings (M, D)
             k: Number of nearest neighbors

@@ -53,7 +53,7 @@ class DedupDetector(Detector):
     
     def detect(
         self,
-        index: Any,
+        index: "VectorIndex",
         doc_embeddings: np.ndarray,
         queries: np.ndarray,
         k: int,
@@ -102,9 +102,12 @@ class DedupDetector(Detector):
             
             # Build a small index for fast similarity search
             import faiss
+            from ..io.adapters import FAISSIndex
+            
             d = doc_embeddings.shape[1]
-            search_index = faiss.IndexFlatL2(d)
-            search_index.add(sample_embeddings)
+            faiss_search_index = faiss.IndexFlatL2(d)
+            faiss_search_index.add(sample_embeddings)
+            search_index = FAISSIndex(faiss_search_index)
             
             # For each sampled doc, find nearest neighbors
             k_search = min(10, sample_size)

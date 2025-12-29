@@ -177,11 +177,56 @@ Rich-formatted summary with tables and progress bars (if `rich` is installed).
 See `examples/toy_config.yaml` for a complete configuration example.
 
 Key configuration sections:
-- `input`: Input data configuration
-- `index`: FAISS index configuration
+- `input`: Input data configuration (supports FAISS, Pinecone, Qdrant, Weaviate)
+- `index`: FAISS index configuration (for embeddings_only and faiss_index modes)
 - `scan`: Scan parameters
 - `detectors`: Detector settings
 - `scoring`: Score combination weights
 - `thresholds`: Verdict thresholds
 - `output`: Output settings
+
+### Vector Database Backends
+
+HubScan supports multiple vector database backends:
+
+#### FAISS (Default)
+```yaml
+input:
+  mode: embeddings_only  # or faiss_index
+  embeddings_path: data/embeddings.npy
+```
+
+#### Pinecone
+```yaml
+input:
+  mode: pinecone
+  pinecone_index_name: my-index
+  pinecone_api_key: your-api-key
+  dimension: 128  # Required
+```
+
+#### Qdrant
+```yaml
+input:
+  mode: qdrant
+  qdrant_collection_name: my-collection
+  qdrant_url: http://localhost:6333  # Optional
+  qdrant_api_key: your-api-key  # Optional, for Qdrant Cloud
+```
+
+#### Weaviate
+```yaml
+input:
+  mode: weaviate
+  weaviate_class_name: MyClass
+  weaviate_url: http://localhost:8080  # Optional
+  weaviate_api_key: your-api-key  # Optional, for Weaviate Cloud
+```
+
+**Note**: For external vector databases (Pinecone, Qdrant, Weaviate), you may need to install additional dependencies:
+```bash
+pip install pinecone-client  # For Pinecone
+pip install qdrant-client    # For Qdrant
+pip install weaviate-client  # For Weaviate
+```
 

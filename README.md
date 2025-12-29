@@ -62,6 +62,9 @@ HubScan uses robust statistical methods (median/MAD-based z-scores) to identify 
 - **Flexible Input Modes**:
   - `embeddings_only`: Build FAISS index on-the-fly from embeddings
   - `faiss_index`: Use pre-built FAISS indices
+  - `pinecone`: Connect to Pinecone vector database
+  - `qdrant`: Connect to Qdrant vector database
+  - `weaviate`: Connect to Weaviate vector database
   - `vector_db_export`: Import from vector database exports (planned)
 
 - **Scalable Architecture**:

@@ -18,14 +18,18 @@
 
 import numpy as np
 import faiss
-from typing import Optional, Dict, Any, List
+from typing import Optional, Dict, Any, List, TYPE_CHECKING
 from collections import defaultdict
 
 from .base import Detector, DetectorResult
 from ..io.metadata import Metadata
+from ..io.adapters import FAISSIndex
 from ...utils.metrics import robust_zscore, compute_percentile
 from ...utils.batching import batch_iterator
 from ...utils.logging import get_logger
+
+if TYPE_CHECKING:
+    from ..io.vector_index import VectorIndex
 
 logger = get_logger()
 
@@ -53,7 +57,7 @@ class HubnessDetector(Detector):
     
     def detect(
         self,
-        index: faiss.Index,
+        index: "VectorIndex",
         doc_embeddings: np.ndarray,
         queries: np.ndarray,
         k: int,
@@ -65,7 +69,7 @@ class HubnessDetector(Detector):
         Detect hubness by counting reverse-kNN frequency.
         
         Args:
-            index: FAISS index
+            index: VectorIndex instance (supports FAISS, Pinecone, Qdrant, Weaviate, etc.)
             doc_embeddings: Document embeddings (N, D)
             queries: Query embeddings (M, D)
             k: Number of nearest neighbors
@@ -118,12 +122,19 @@ class HubnessDetector(Detector):
         logger.info(f"Hubness detection complete. Median hub_rate: {median:.6f}, MAD: {mad:.6f}")
         logger.info(f"Max hub_rate: {hub_rate.max():.6f}, Max hub_z: {hub_z.max():.2f}")
         
-        # Optional exact validation
+        # Optional exact validation (only for FAISS)
         validation_results = None
         if self.validate_exact:
-            validation_results = self._validate_exact(
-                doc_embeddings, queries, k, hits, hub_rate
-            )
+            # Check if we have a FAISS index for exact validation
+            if hasattr(index, 'faiss_index'):
+                validation_results = self._validate_exact(
+                    doc_embeddings, queries, k, hits, hub_rate, index.faiss_index
+                )
+            else:
+                logger.warning(
+                    "Exact validation requested but index is not FAISS. "
+                    "Skipping exact validation."
+                )
         
         # Prepare metadata
         result_metadata: Dict[str, Any] = {
@@ -147,6 +158,7 @@ class HubnessDetector(Detector):
         k: int,
         approx_hits: np.ndarray,
         approx_hub_rate: np.ndarray,
+        faiss_index: faiss.Index,
     ) -> Dict[str, Any]:
         """Validate approximate results with exact search."""
         logger.info("Running exact validation...")

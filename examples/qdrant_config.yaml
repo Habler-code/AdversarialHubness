@@ -1,0 +1,45 @@
+# Example configuration for Qdrant backend
+# Requires: pip install qdrant-client
+
+input:
+  mode: qdrant
+  qdrant_collection_name: your-collection-name
+  qdrant_url: http://localhost:6333  # Change for Qdrant Cloud
+  qdrant_api_key: null  # Optional, required for Qdrant Cloud
+  metadata_path: examples/toy_metadata.json  # Optional
+
+scan:
+  k: 20
+  num_queries: 10000
+  query_sampling: mixed
+  batch_size: 2048
+  seed: 42
+
+detectors:
+  hubness:
+    enabled: true
+  cluster_spread:
+    enabled: true
+    num_clusters: 1024
+  stability:
+    enabled: false
+  dedup:
+    enabled: true
+
+scoring:
+  weights:
+    hub_z: 0.6
+    cluster_spread: 0.2
+    stability: 0.2
+    boilerplate: 0.3
+
+thresholds:
+  policy: hybrid
+  hub_z: 6.0
+  percentile: 0.001
+
+output:
+  out_dir: reports/
+  privacy_mode: false
+  emit_embeddings: false
+

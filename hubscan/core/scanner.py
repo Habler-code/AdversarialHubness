@@ -32,6 +32,8 @@ from .io import (
     load_metadata,
     Metadata,
 )
+from .io.vector_index import VectorIndex
+from .io.adapters import FAISSIndex, create_index
 from .sampling import sample_queries
 from .detectors import (
     HubnessDetector,
@@ -56,7 +58,7 @@ class Scanner:
     def __init__(self, config: Config):
         """Initialize scanner with configuration."""
         self.config = config
-        self.index: Optional[faiss.Index] = None
+        self.index: Optional[VectorIndex] = None
         self.doc_embeddings: Optional[np.ndarray] = None
         self.metadata: Optional[Metadata] = None
     
@@ -78,17 +80,20 @@ class Scanner:
             )
             
             logger.info(f"Building {self.config.index.type} index...")
-            self.index = build_faiss_index(
+            faiss_index = build_faiss_index(
                 self.doc_embeddings,
                 self.config.index.type,
                 self.config.input.metric,
                 self.config.index.params,
             )
             
+            # Wrap in adapter
+            self.index = FAISSIndex(faiss_index)
+            
             # Save index if requested
             if self.config.index.save_path:
                 logger.info(f"Saving index to {self.config.index.save_path}")
-                save_faiss_index(self.index, self.config.index.save_path)
+                save_faiss_index(faiss_index, self.config.index.save_path)
         
         elif input_mode == "faiss_index":
             # Load pre-built index
@@ -96,7 +101,10 @@ class Scanner:
                 raise ValueError("index_path required for faiss_index mode")
             
             logger.info(f"Loading index from {self.config.input.index_path}")
-            self.index = load_faiss_index(self.config.input.index_path)
+            faiss_index = load_faiss_index(self.config.input.index_path)
+            
+            # Wrap in adapter
+            self.index = FAISSIndex(faiss_index)
             
             # Optionally load embeddings if needed for clustering/validation
             if self.config.input.embeddings_path:
@@ -108,6 +116,23 @@ class Scanner:
             else:
                 # Infer dimension from index
                 self.doc_embeddings = None  # Will need to be provided or inferred
+        
+        elif input_mode in ["pinecone", "qdrant", "weaviate"]:
+            # Load from external vector database
+            logger.info(f"Connecting to {input_mode} backend...")
+            self.index = create_index(self.config.input)
+            
+            # Optionally load embeddings if provided
+            if self.config.input.embeddings_path:
+                logger.info(f"Loading embeddings from {self.config.input.embeddings_path}")
+                self.doc_embeddings = load_embeddings(
+                    self.config.input.embeddings_path,
+                    normalize=(self.config.input.metric == "cosine")
+                )
+            else:
+                # For external DBs, embeddings may not be available
+                # Detectors that need embeddings will need to handle this
+                self.doc_embeddings = None
         
         elif input_mode == "vector_db_export":
             # Load from vector DB export (generic JSONL adapter)

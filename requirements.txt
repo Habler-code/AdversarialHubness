@@ -11,6 +11,12 @@ pandas>=2.0.0
 tqdm>=4.65.0
 click>=8.1.0
 
+# Optional vector database adapters
+# Install these only if you need support for specific backends:
+# pinecone-client>=3.0.0  # For Pinecone support
+# qdrant-client>=1.7.0     # For Qdrant support
+# weaviate-client>=4.0.0  # For Weaviate support
+
 # Development
 pytest>=7.4.0
 pytest-cov>=4.1.0

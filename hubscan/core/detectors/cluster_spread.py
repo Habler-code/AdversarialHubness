@@ -19,11 +19,14 @@
 import numpy as np
 from sklearn.cluster import MiniBatchKMeans
 from scipy.stats import entropy
-from typing import Optional, Dict, Any
+from typing import Optional, Dict, Any, TYPE_CHECKING
 
 from .base import Detector, DetectorResult
 from ..io.metadata import Metadata
 from ...utils.logging import get_logger
+
+if TYPE_CHECKING:
+    from ..io.vector_index import VectorIndex
 
 logger = get_logger()
 
@@ -51,7 +54,7 @@ class ClusterSpreadDetector(Detector):
     
     def detect(
         self,
-        index: Any,
+        index: "VectorIndex",
         doc_embeddings: np.ndarray,
         queries: np.ndarray,
         k: int,
@@ -63,7 +66,7 @@ class ClusterSpreadDetector(Detector):
         Detect cluster spread by analyzing which query clusters retrieve each document.
         
         Args:
-            index: FAISS index (not used directly here)
+            index: VectorIndex instance (supports FAISS, Pinecone, Qdrant, Weaviate, etc.)
             doc_embeddings: Document embeddings (N, D)
             queries: Query embeddings (M, D)
             k: Number of nearest neighbors

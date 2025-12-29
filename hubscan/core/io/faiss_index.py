@@ -22,6 +22,7 @@ from pathlib import Path
 from typing import Optional, Dict, Any
 
 from ...utils.metrics import normalize_vectors
+from .adapters.faiss_adapter import FAISSIndex
 
 
 def build_faiss_index(
@@ -104,4 +105,20 @@ def save_faiss_index(index: faiss.Index, path: str):
     path_obj = Path(path)
     path_obj.parent.mkdir(parents=True, exist_ok=True)
     faiss.write_index(index, path)
+
+
+def wrap_faiss_index(index: faiss.Index) -> FAISSIndex:
+    """
+    Wrap a FAISS index in a VectorIndex adapter.
+    
+    This helper function provides backward compatibility and makes it
+    easy to convert existing FAISS indices to the VectorIndex interface.
+    
+    Args:
+        index: FAISS index object
+        
+    Returns:
+        FAISSIndex adapter wrapping the FAISS index
+    """
+    return FAISSIndex(index)
 
