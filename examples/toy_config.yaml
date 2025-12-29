@@ -24,6 +24,8 @@ detectors:
   hubness:
     enabled: true
     validate_exact: false
+    use_rank_weights: true  # Weight hits by rank position (rank 1 > rank k)
+    use_distance_weights: true  # Weight hits by similarity/distance scores
   cluster_spread:
     enabled: true
     num_clusters: 10

@@ -42,6 +42,9 @@ class HubnessDetector(Detector):
         enabled: bool = True,
         validate_exact: bool = False,
         exact_validation_queries: Optional[int] = None,
+        use_rank_weights: bool = True,
+        use_distance_weights: bool = True,
+        metric: str = "cosine",
     ):
         """
         Initialize hubness detector.
@@ -50,10 +53,16 @@ class HubnessDetector(Detector):
             enabled: Whether detector is enabled
             validate_exact: Whether to validate with exact search
             exact_validation_queries: Number of queries for exact validation
+            use_rank_weights: Whether to weight hits by rank position (rank 1 > rank k)
+            use_distance_weights: Whether to weight hits by similarity/distance scores
+            metric: Distance metric ("cosine", "ip", "l2")
         """
         super().__init__(enabled)
         self.validate_exact = validate_exact
         self.exact_validation_queries = exact_validation_queries
+        self.use_rank_weights = use_rank_weights
+        self.use_distance_weights = use_distance_weights
+        self.metric = metric
     
     def detect(
         self,
@@ -91,8 +100,18 @@ class HubnessDetector(Detector):
             logger.warning("No queries provided for hubness detection")
             return DetectorResult(scores=np.zeros(N))
         
-        # Count hits per document
-        hits = np.zeros(N, dtype=np.int32)
+        # Initialize rank weights if using rank-aware scoring
+        if self.use_rank_weights:
+            # Weight by inverse rank (rank 1 gets weight 1.0, rank k gets weight 1/k)
+            rank_weights = 1.0 / np.arange(1, k + 1, dtype=np.float32)
+        else:
+            rank_weights = np.ones(k, dtype=np.float32)
+        
+        # Determine if metric is similarity-based (higher is better) or distance-based (lower is better)
+        is_similarity_metric = self.metric in ["cosine", "ip"]
+        
+        # Count weighted hits per document
+        weighted_hits = np.zeros(N, dtype=np.float32)
         example_queries: Dict[int, List[int]] = defaultdict(list)
         max_examples = 10  # Store up to 10 example queries per doc
         
@@ -104,12 +123,44 @@ class HubnessDetector(Detector):
             # Search
             distances, indices = index.search(batch_queries_array, k)
             
-            # Count hits
+            # Count weighted hits
             for i, query_id in enumerate(batch_queries):
                 neighbors = indices[i]
-                for neighbor_idx in neighbors:
+                neighbor_distances = distances[i]
+                
+                for rank_pos, (neighbor_idx, dist) in enumerate(zip(neighbors, neighbor_distances)):
                     if neighbor_idx < N:  # Valid index
-                        hits[neighbor_idx] += 1
+                        # Start with rank weight
+                        weight = rank_weights[rank_pos]
+                        
+                        # Apply distance/similarity weight if enabled
+                        if self.use_distance_weights:
+                            if is_similarity_metric:
+                                # For cosine/IP: higher similarity = more suspicious
+                                # Normalize to [0, 1] range (assuming values are typically in [0, 1] for cosine/IP)
+                                # For IP, values can be negative, so we clip and normalize
+                                if self.metric == "cosine":
+                                    # Cosine similarity is typically [0, 1] after normalization
+                                    similarity_weight = np.clip(dist, 0.0, 1.0)
+                                else:  # IP
+                                    # IP can be negative, normalize to [0, 1] using sigmoid-like function
+                                    # Use tanh to map to [0, 1] range
+                                    similarity_weight = (np.tanh(dist) + 1.0) / 2.0
+                                weight *= similarity_weight
+                            else:  # L2
+                                # For L2: lower distance = more suspicious
+                                # Convert distance to similarity-like score (inverse, normalized)
+                                # Use exp(-distance) to convert distance to similarity
+                                # Normalize by typical distance range (use max distance in batch as reference)
+                                max_dist_in_batch = np.max(neighbor_distances[neighbor_distances < np.inf])
+                                if max_dist_in_batch > 0:
+                                    similarity_weight = np.exp(-dist / (max_dist_in_batch + 1e-6))
+                                else:
+                                    similarity_weight = 1.0 if dist < 1e-6 else 0.0
+                                weight *= similarity_weight
+                        
+                        weighted_hits[neighbor_idx] += weight
+                        
                         # Store example query
                         if len(example_queries[neighbor_idx]) < max_examples:
                             example_queries[neighbor_idx].append(query_id)
@@ -118,8 +169,10 @@ class HubnessDetector(Detector):
             if query_idx % (batch_size * 10) == 0:
                 logger.info(f"Processed {query_idx}/{M} queries")
         
-        # Compute hub rate
-        hub_rate = hits.astype(np.float32) / M
+        # Compute weighted hub rate
+        # Normalize by sum of weights for a single query to get rate
+        max_weight_per_query = np.sum(rank_weights) if self.use_rank_weights else float(k)
+        hub_rate = weighted_hits / (M * max_weight_per_query)
         
         # Compute robust z-score
         hub_z, median, mad = robust_zscore(hub_rate)
@@ -133,7 +186,7 @@ class HubnessDetector(Detector):
             # Check if we have a FAISS index for exact validation
             if hasattr(index, 'faiss_index'):
                 validation_results = self._validate_exact(
-                    doc_embeddings, queries, k, hits, hub_rate, index.faiss_index
+                    doc_embeddings, queries, k, weighted_hits, hub_rate, index.faiss_index
                 )
             else:
                 logger.warning(
@@ -143,12 +196,15 @@ class HubnessDetector(Detector):
         
         # Prepare metadata
         result_metadata: Dict[str, Any] = {
-            "hits": hits.tolist(),
+            "weighted_hits": weighted_hits.tolist(),
             "hub_rate": hub_rate.tolist(),
             "hub_z": hub_z.tolist(),
             "example_queries": {str(k): v for k, v in example_queries.items()},
             "median": float(median),
             "mad": float(mad),
+            "use_rank_weights": self.use_rank_weights,
+            "use_distance_weights": self.use_distance_weights,
+            "metric": self.metric,
         }
         
         if validation_results:
@@ -161,7 +217,7 @@ class HubnessDetector(Detector):
         doc_embeddings: np.ndarray,
         queries: np.ndarray,
         k: int,
-        approx_hits: np.ndarray,
+        approx_weighted_hits: np.ndarray,
         approx_hub_rate: np.ndarray,
         faiss_index: faiss.Index,
     ) -> Dict[str, Any]:
@@ -178,29 +234,68 @@ class HubnessDetector(Detector):
         validation_indices = rng.choice(len(queries), num_validation, replace=False)
         validation_queries = queries[validation_indices]
         
-        # Exact search
-        exact_hits = np.zeros(len(doc_embeddings), dtype=np.int32)
-        _, exact_indices = exact_index.search(validation_queries, k)
+        # Initialize rank weights for validation
+        if self.use_rank_weights:
+            rank_weights = 1.0 / np.arange(1, k + 1, dtype=np.float32)
+        else:
+            rank_weights = np.ones(k, dtype=np.float32)
+        max_weight_per_query = np.sum(rank_weights) if self.use_rank_weights else float(k)
         
-        for neighbors in exact_indices:
-            for neighbor_idx in neighbors:
+        is_similarity_metric = self.metric in ["cosine", "ip"]
+        
+        # Exact search
+        exact_weighted_hits = np.zeros(len(doc_embeddings), dtype=np.float32)
+        exact_distances, exact_indices = exact_index.search(validation_queries, k)
+        
+        for i, (neighbors, dists) in enumerate(zip(exact_indices, exact_distances)):
+            for rank_pos, (neighbor_idx, dist) in enumerate(zip(neighbors, dists)):
                 if neighbor_idx < len(doc_embeddings):
-                    exact_hits[neighbor_idx] += 1
+                    weight = rank_weights[rank_pos]
+                    if self.use_distance_weights:
+                        if is_similarity_metric:
+                            if self.metric == "cosine":
+                                similarity_weight = np.clip(dist, 0.0, 1.0)
+                            else:  # IP
+                                similarity_weight = (np.tanh(dist) + 1.0) / 2.0
+                            weight *= similarity_weight
+                        else:  # L2
+                            max_dist = np.max(dists[dists < np.inf])
+                            if max_dist > 0:
+                                similarity_weight = np.exp(-dist / (max_dist + 1e-6))
+                            else:
+                                similarity_weight = 1.0 if dist < 1e-6 else 0.0
+                            weight *= similarity_weight
+                    exact_weighted_hits[neighbor_idx] += weight
         
         # Calculate exact hub_rate using same validation queries for fair comparison
-        exact_hub_rate = exact_hits.astype(np.float32) / num_validation
+        exact_hub_rate = exact_weighted_hits / (num_validation * max_weight_per_query)
         
         # Calculate approximate hub_rate using same validation queries for fair comparison
-        validation_approx_hits = np.zeros(len(doc_embeddings), dtype=np.int32)
+        validation_approx_weighted_hits = np.zeros(len(doc_embeddings), dtype=np.float32)
         validation_approx_queries = queries[validation_indices]
-        _, validation_approx_indices = faiss_index.search(validation_approx_queries, k)
+        validation_approx_distances, validation_approx_indices = faiss_index.search(validation_approx_queries, k)
         
-        for neighbors in validation_approx_indices:
-            for neighbor_idx in neighbors:
+        for i, (neighbors, dists) in enumerate(zip(validation_approx_indices, validation_approx_distances)):
+            for rank_pos, (neighbor_idx, dist) in enumerate(zip(neighbors, dists)):
                 if neighbor_idx < len(doc_embeddings):
-                    validation_approx_hits[neighbor_idx] += 1
+                    weight = rank_weights[rank_pos]
+                    if self.use_distance_weights:
+                        if is_similarity_metric:
+                            if self.metric == "cosine":
+                                similarity_weight = np.clip(dist, 0.0, 1.0)
+                            else:  # IP
+                                similarity_weight = (np.tanh(dist) + 1.0) / 2.0
+                            weight *= similarity_weight
+                        else:  # L2
+                            max_dist = np.max(dists[dists < np.inf])
+                            if max_dist > 0:
+                                similarity_weight = np.exp(-dist / (max_dist + 1e-6))
+                            else:
+                                similarity_weight = 1.0 if dist < 1e-6 else 0.0
+                            weight *= similarity_weight
+                    validation_approx_weighted_hits[neighbor_idx] += weight
         
-        validation_approx_hub_rate = validation_approx_hits.astype(np.float32) / num_validation
+        validation_approx_hub_rate = validation_approx_weighted_hits / (num_validation * max_weight_per_query)
         
         # Compare top hubs
         top_k = 100

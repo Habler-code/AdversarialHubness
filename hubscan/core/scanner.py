@@ -181,6 +181,9 @@ class Scanner:
                 enabled=True,
                 validate_exact=self.config.detectors.hubness.validate_exact,
                 exact_validation_queries=self.config.detectors.hubness.exact_validation_queries,
+                use_rank_weights=self.config.detectors.hubness.use_rank_weights,
+                use_distance_weights=self.config.detectors.hubness.use_distance_weights,
+                metric=self.config.input.metric,
             )
         
         if self.config.detectors.cluster_spread.enabled:

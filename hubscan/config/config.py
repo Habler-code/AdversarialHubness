@@ -99,6 +99,8 @@ class HubnessDetectorConfig(BaseModel):
     enabled: bool = Field(default=True, description="Enable hubness detector")
     validate_exact: bool = Field(default=False, description="Validate with exact search on subset")
     exact_validation_queries: Optional[int] = Field(default=None, description="Number of queries for exact validation")
+    use_rank_weights: bool = Field(default=True, description="Weight hits by rank position (rank 1 > rank k)")
+    use_distance_weights: bool = Field(default=True, description="Weight hits by similarity/distance scores")
 
 
 class ClusterSpreadDetectorConfig(BaseModel):

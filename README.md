@@ -41,7 +41,7 @@ In vector search systems, **hubness** is a natural phenomenon where some documen
 3. **Stability**: Consistently appear under query perturbations
 4. **Statistical Anomaly**: Hub rates that are 5-10+ standard deviations above the median
 
-HubScan uses robust statistical methods (median/MAD-based z-scores) to identify these anomalies while being resistant to false positives from legitimate popular content.
+HubScan uses robust statistical methods (median/MAD-based z-scores) to identify these anomalies while being resistant to false positives from legitimate popular content. The detection system employs rank-aware and distance-based scoring to provide more accurate identification of adversarial hubs by weighting documents that appear at higher ranks and with higher similarity scores more heavily.
 
 ### Detection Metrics
 
@@ -61,6 +61,8 @@ HubScan uses robust statistical methods (median/MAD-based z-scores) to identify 
 
 - **Multiple Detection Strategies**:
   - **Hubness Detection**: Reverse-kNN frequency analysis with robust z-scores
+    - Rank-aware scoring: Higher weights for documents appearing at top ranks (rank 1 > rank k)
+    - Distance-based scoring: Incorporates similarity/distance scores for more accurate detection
   - **Cluster Spread Analysis**: Entropy-based detection of multi-cluster proximity
   - **Stability Testing**: Consistency analysis under query perturbations
   - **Deduplication**: Boilerplate and duplicate detection
@@ -292,6 +294,8 @@ detectors:
   hubness:
     enabled: true
     validate_exact: false  # Validate with exact search (expensive)
+    use_rank_weights: true  # Weight hits by rank position (rank 1 > rank k)
+    use_distance_weights: true  # Weight hits by similarity/distance scores
   
   cluster_spread:
     enabled: true
@@ -353,11 +357,13 @@ thresholds:
 
 | Metric | Description | Normal Range | Suspicious |
 |--------|-------------|--------------|------------|
-| **Hub Rate** | Fraction of queries retrieving document | 0.02-0.05 | >0.15 |
-| **Hub Z-Score** | Robust z-score of hub rate | -2 to 2 | >5 |
+| **Hub Rate** | Weighted fraction of queries retrieving document (rank & distance weighted) | 0.02-0.05 | >0.15 |
+| **Hub Z-Score** | Robust z-score of weighted hub rate | -2 to 2 | >5 |
 | **Cluster Spread** | Normalized entropy across clusters | 0.2-0.5 | >0.7 |
 | **Stability** | Consistency under perturbations | 0.3-0.6 | >0.8 |
 | **Risk Score** | Combined weighted score | 0.0-2.0 | >4.0 |
+
+**Note**: Hub rate and hub z-score now use rank-aware and distance-based weighting by default. Documents appearing at higher ranks (rank 1) and with higher similarity scores are weighted more heavily than those appearing at lower ranks or with lower similarity. This provides more accurate detection by distinguishing between documents that consistently appear at top ranks versus those that barely make it into the top-k results.
 
 ### Recommended Actions
 
