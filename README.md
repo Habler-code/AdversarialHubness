@@ -43,6 +43,12 @@ In vector search systems, **hubness** is a natural phenomenon where some documen
 
 HubScan uses robust statistical methods (median/MAD-based z-scores) to identify these anomalies while being resistant to false positives from legitimate popular content.
 
+### Visualizing Adversarial Hubness
+
+![Adversarial Hubness Concept](docs/images/adversarial-hubness-concept.png)
+
+*An adversarial hub (red) appears in top-k results for queries from multiple diverse semantic clusters, making it statistically anomalous compared to normal documents (blue).*
+
 ## Features
 
 ### Core Capabilities
@@ -75,6 +81,12 @@ HubScan uses robust statistical methods (median/MAD-based z-scores) to identify 
   - Python SDK for programmatic access
   - Comprehensive test suite
   - Well-documented API
+
+### Detection Pipeline Architecture
+
+![HubScan Detection Pipeline](docs/images/detection-pipeline.png)
+
+*The HubScan detection pipeline processes embeddings through multiple parallel detectors, combines scores, applies thresholds, and generates comprehensive reports.*
 
 ## Installation
 
@@ -300,6 +312,18 @@ thresholds:
 ```
 
 ## Understanding Results
+
+### Score Calculation Flow
+
+![Score Calculation Flow](docs/images/score-calculation.png)
+
+*HubScan calculates risk scores by combining multiple detector outputs with weighted scoring, then applies thresholds to assign verdicts.*
+
+### Normal Document vs Adversarial Hub
+
+![Normal vs Adversarial Comparison](docs/images/normal-vs-adversarial.png)
+
+*Comparison showing how adversarial hubs differ from normal documents in terms of hub rate, z-score, cluster diversity, and final verdict.*
 
 ### Verdict Levels
 
