@@ -17,10 +17,13 @@
 """Base detector interface."""
 
 from abc import ABC, abstractmethod
-from typing import Dict, Any, Optional
+from typing import Dict, Any, Optional, TYPE_CHECKING
 import numpy as np
 
 from ..io.metadata import Metadata
+
+if TYPE_CHECKING:
+    from ..io.vector_index import VectorIndex
 
 
 class DetectorResult:
@@ -67,7 +70,7 @@ class Detector(ABC):
     @abstractmethod
     def detect(
         self,
-        index: Any,  # faiss.Index
+        index: "VectorIndex",
         doc_embeddings: np.ndarray,
         queries: np.ndarray,
         k: int,
@@ -78,7 +81,7 @@ class Detector(ABC):
         Run detection.
         
         Args:
-            index: FAISS index
+            index: VectorIndex instance (supports FAISS, Pinecone, Qdrant, Weaviate, etc.)
             doc_embeddings: Document embeddings (N, D)
             queries: Query embeddings (M, D)
             k: Number of nearest neighbors

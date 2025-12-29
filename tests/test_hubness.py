@@ -22,6 +22,7 @@ import faiss
 
 from hubscan.core.detectors.hubness import HubnessDetector
 from hubscan.core.io.metadata import Metadata
+from hubscan.core.io.adapters import FAISSIndex
 
 
 def test_hubness_detection():
@@ -42,8 +43,9 @@ def test_hubness_detection():
     doc_embeddings[hub_idx] = hub_vector.astype(np.float32)
     
     # Build index
-    index = faiss.IndexFlatIP(embedding_dim)
-    index.add(doc_embeddings)
+    faiss_index = faiss.IndexFlatIP(embedding_dim)
+    faiss_index.add(doc_embeddings)
+    index = FAISSIndex(faiss_index)
     
     # Create queries that are close to the hub
     num_queries = 50

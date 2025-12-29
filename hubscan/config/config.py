@@ -23,7 +23,14 @@ from pydantic_settings import BaseSettings
 
 class InputConfig(BaseModel):
     """Input configuration."""
-    mode: Literal["embeddings_only", "faiss_index", "vector_db_export"] = Field(
+    mode: Literal[
+        "embeddings_only", 
+        "faiss_index", 
+        "vector_db_export",
+        "pinecone",
+        "qdrant",
+        "weaviate",
+    ] = Field(
         default="embeddings_only",
         description="Input mode"
     )
@@ -32,6 +39,22 @@ class InputConfig(BaseModel):
     metadata_path: Optional[str] = Field(default=None, description="Path to metadata file (JSON/JSONL/Parquet)")
     adapter: Optional[str] = Field(default="generic_jsonl", description="Adapter for vector_db_export mode")
     metric: Literal["cosine", "ip", "l2"] = Field(default="cosine", description="Distance metric")
+    dimension: Optional[int] = Field(default=None, description="Vector dimension (required for some backends)")
+    
+    # Pinecone-specific configuration
+    pinecone_index_name: Optional[str] = Field(default=None, description="Pinecone index name")
+    pinecone_api_key: Optional[str] = Field(default=None, description="Pinecone API key")
+    pinecone_environment: Optional[str] = Field(default=None, description="Pinecone environment (deprecated in v3+)")
+    
+    # Qdrant-specific configuration
+    qdrant_collection_name: Optional[str] = Field(default=None, description="Qdrant collection name")
+    qdrant_url: Optional[str] = Field(default="http://localhost:6333", description="Qdrant server URL")
+    qdrant_api_key: Optional[str] = Field(default=None, description="Qdrant API key (for Qdrant Cloud)")
+    
+    # Weaviate-specific configuration
+    weaviate_class_name: Optional[str] = Field(default=None, description="Weaviate class name")
+    weaviate_url: Optional[str] = Field(default="http://localhost:8080", description="Weaviate server URL")
+    weaviate_api_key: Optional[str] = Field(default=None, description="Weaviate API key (for Weaviate Cloud)")
 
 
 class IndexConfig(BaseModel):
