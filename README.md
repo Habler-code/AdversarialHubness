@@ -43,6 +43,12 @@ In vector search systems, **hubness** is a natural phenomenon where some documen
 
 HubScan uses robust statistical methods (median/MAD-based z-scores) to identify these anomalies while being resistant to false positives from legitimate popular content.
 
+### Detection Metrics
+
+![Detection Metrics](docs/images/detection-metrics.png)
+
+*HubScan identifies adversarial hubs through four key detection metrics: unusually high hub rate, cross-cluster spread, stability under perturbations, and statistical anomaly detection using robust z-scores.*
+
 ### Visualizing Adversarial Hubness
 
 ![Adversarial Hubness Concept](docs/images/adversarial-hubness-concept.png)
