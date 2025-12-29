@@ -159,6 +159,10 @@ class Scanner:
         
         num_docs = len(self.doc_embeddings)
         
+        # Check for empty document set
+        if num_docs == 0:
+            raise ValueError("Cannot scan empty document set")
+        
         # Sample queries
         logger.info("Sampling queries...")
         queries = sample_queries(
@@ -208,13 +212,18 @@ class Scanner:
         
         for name, detector in detectors.items():
             logger.info(f"Running {name} detector...")
+            # Pass seed for reproducibility (especially for stability detector)
+            detect_kwargs = {
+                "batch_size": self.config.scan.batch_size,
+                "seed": self.config.scan.seed,
+            }
             result = detector.detect(
                 self.index,
                 self.doc_embeddings,
                 queries,
                 self.config.scan.k,
                 self.metadata,
-                batch_size=self.config.scan.batch_size,
+                **detect_kwargs,
             )
             detector_results[name] = result
         

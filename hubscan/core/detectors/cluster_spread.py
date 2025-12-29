@@ -83,6 +83,11 @@ class ClusterSpreadDetector(Detector):
         N = len(doc_embeddings)
         M = len(queries)
         
+        # Check for empty queries
+        if M == 0:
+            logger.warning("No queries provided for cluster spread detection")
+            return DetectorResult(scores=np.zeros(N))
+        
         # Cluster queries if assignments not provided
         if query_cluster_assignments is None:
             n_clusters = min(self.num_clusters, M // 10, N // 100)
@@ -137,11 +142,15 @@ class ClusterSpreadDetector(Detector):
                     cluster_entropy[doc_idx] = entropy(probs)
         
         # Normalize entropy (max entropy is log(num_clusters))
-        max_entropy = np.log(num_clusters_actual) if num_clusters_actual > 1 else 1.0
-        if max_entropy > 0:
-            normalized_entropy = cluster_entropy / max_entropy
+        if num_clusters_actual <= 1:
+            # No spread possible with single cluster
+            normalized_entropy = np.zeros(N)
         else:
-            normalized_entropy = cluster_entropy
+            max_entropy = np.log(num_clusters_actual)
+            if max_entropy > 0:
+                normalized_entropy = cluster_entropy / max_entropy
+            else:
+                normalized_entropy = cluster_entropy
         
         logger.info(f"Cluster spread detection complete. Mean entropy: {cluster_entropy.mean():.4f}")
         

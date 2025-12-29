@@ -82,6 +82,10 @@ class QuerySampler:
         n = len(self.doc_embeddings)
         num_queries = self.config.num_queries
         
+        # Check for empty document set
+        if n == 0:
+            raise ValueError("Cannot sample queries from empty document set")
+        
         if self.config.stratified_by and self.metadata:
             # Stratified sampling
             return self._stratified_sample(num_queries)
@@ -137,8 +141,14 @@ class QuerySampler:
     
     def _sample_cluster_centroids(self) -> np.ndarray:
         """Sample cluster centroids as queries."""
+        n = len(self.doc_embeddings)
+        
+        # Check for empty document set
+        if n == 0:
+            raise ValueError("Cannot sample cluster centroids from empty document set")
+        
         # Use k-means to cluster documents
-        n_clusters = min(self.config.num_queries, len(self.doc_embeddings) // 10)
+        n_clusters = min(self.config.num_queries, n // 10)
         n_clusters = max(n_clusters, 2)
         
         kmeans = MiniBatchKMeans(

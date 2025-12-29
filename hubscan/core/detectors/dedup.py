@@ -79,6 +79,12 @@ class DedupDetector(Detector):
         logger.info("Running deduplication detection")
         
         N = len(doc_embeddings)
+        
+        # Check for empty document set
+        if N == 0:
+            logger.warning("No documents provided for deduplication detection")
+            return DetectorResult(scores=np.zeros(0))
+        
         boilerplate_scores = np.zeros(N)
         
         # Method 1: Use text hash if available
@@ -115,10 +121,12 @@ class DedupDetector(Detector):
             
             # Count approximate duplicates (within threshold)
             for i, idx in enumerate(sample_indices):
-                # Count neighbors within threshold
-                close_neighbors = np.sum(distances[i] < self.duplicate_threshold)
-                if close_neighbors > 1:  # Exclude self
-                    boilerplate_scores[idx] = min(1.0, close_neighbors / k_search)
+                # Ensure we have valid distance data
+                if i < len(distances) and len(distances[i]) > 0:
+                    # Count neighbors within threshold
+                    close_neighbors = np.sum(distances[i] < self.duplicate_threshold)
+                    if close_neighbors > 1:  # Exclude self
+                        boilerplate_scores[idx] = min(1.0, close_neighbors / k_search)
         
         logger.info(f"Deduplication detection complete. Mean boilerplate score: {boilerplate_scores.mean():.4f}")
         

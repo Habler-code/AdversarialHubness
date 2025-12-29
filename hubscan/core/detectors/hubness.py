@@ -86,6 +86,11 @@ class HubnessDetector(Detector):
         N = len(doc_embeddings)
         M = len(queries)
         
+        # Check for empty queries
+        if M == 0:
+            logger.warning("No queries provided for hubness detection")
+            return DetectorResult(scores=np.zeros(N))
+        
         # Count hits per document
         hits = np.zeros(N, dtype=np.int32)
         example_queries: Dict[int, List[int]] = defaultdict(list)
@@ -182,18 +187,31 @@ class HubnessDetector(Detector):
                 if neighbor_idx < len(doc_embeddings):
                     exact_hits[neighbor_idx] += 1
         
+        # Calculate exact hub_rate using same validation queries for fair comparison
         exact_hub_rate = exact_hits.astype(np.float32) / num_validation
+        
+        # Calculate approximate hub_rate using same validation queries for fair comparison
+        validation_approx_hits = np.zeros(len(doc_embeddings), dtype=np.int32)
+        validation_approx_queries = queries[validation_indices]
+        _, validation_approx_indices = faiss_index.search(validation_approx_queries, k)
+        
+        for neighbors in validation_approx_indices:
+            for neighbor_idx in neighbors:
+                if neighbor_idx < len(doc_embeddings):
+                    validation_approx_hits[neighbor_idx] += 1
+        
+        validation_approx_hub_rate = validation_approx_hits.astype(np.float32) / num_validation
         
         # Compare top hubs
         top_k = 100
-        approx_top = np.argsort(approx_hub_rate)[-top_k:][::-1]
+        approx_top = np.argsort(validation_approx_hub_rate)[-top_k:][::-1]
         exact_top = np.argsort(exact_hub_rate)[-top_k:][::-1]
         
         # Compute overlap
         overlap = len(set(approx_top) & set(exact_top)) / top_k
         
         # Compute correlation
-        correlation = np.corrcoef(approx_hub_rate, exact_hub_rate)[0, 1]
+        correlation = np.corrcoef(validation_approx_hub_rate, exact_hub_rate)[0, 1]
         
         logger.info(f"Exact validation: overlap={overlap:.3f}, correlation={correlation:.3f}")
         
@@ -203,5 +221,6 @@ class HubnessDetector(Detector):
             "correlation": float(correlation),
             "exact_top_hubs": exact_top[:20].tolist(),
             "approx_top_hubs": approx_top[:20].tolist(),
+            "note": "Validation compares approximate vs exact search using the same validation query subset",
         }
 
