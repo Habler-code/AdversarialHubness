@@ -45,13 +45,13 @@ HubScan uses robust statistical methods (median/MAD-based z-scores) to identify 
 
 ### Detection Metrics
 
-![Detection Metrics](docs/images/detection-metrics.png)
+<img src="docs/images/detection-metrics.png" alt="Detection Metrics" width="600"/>
 
 *HubScan identifies adversarial hubs through four key detection metrics: unusually high hub rate, cross-cluster spread, stability under perturbations, and statistical anomaly detection using robust z-scores.*
 
 ### Visualizing Adversarial Hubness
 
-![Adversarial Hubness Concept](docs/images/adversarial-hubness-concept.png)
+<img src="docs/images/adversarial-hubness-concept.png" alt="Adversarial Hubness Concept" width="600"/>
 
 *An adversarial hub (red) appears in top-k results for queries from multiple diverse semantic clusters, making it statistically anomalous compared to normal documents (blue).*
 
@@ -93,13 +93,13 @@ HubScan uses robust statistical methods (median/MAD-based z-scores) to identify 
 
 ### Detection Pipeline Architecture
 
-![HubScan Detection Pipeline](docs/images/detection-pipeline.png)
+<img src="docs/images/detection-pipeline.png" alt="HubScan Detection Pipeline" width="600"/>
 
 *The HubScan detection pipeline processes embeddings through multiple parallel detectors, combines scores, applies thresholds, and generates comprehensive reports.*
 
 ### Vector Database Abstraction Layer
 
-![Vector Database Abstraction](docs/images/vector-db-abstraction.png)
+<img src="docs/images/vector-db-abstraction.png" alt="Vector Database Abstraction" width="600"/>
 
 *HubScan's plug-and-play architecture supports multiple vector databases through a unified VectorIndex interface. Detectors work seamlessly with FAISS, Pinecone, Qdrant, Weaviate, and other backends via adapter pattern.*
 
@@ -330,13 +330,13 @@ thresholds:
 
 ### Score Calculation Flow
 
-![Score Calculation Flow](docs/images/score-calculation.png)
+<img src="docs/images/score-calculation.png" alt="Score Calculation Flow" width="600"/>
 
 *HubScan calculates risk scores by combining multiple detector outputs with weighted scoring, then applies thresholds to assign verdicts.*
 
 ### Normal Document vs Adversarial Hub
 
-![Normal vs Adversarial Comparison](docs/images/normal-vs-adversarial.png)
+<img src="docs/images/normal-vs-adversarial.png" alt="Normal vs Adversarial Comparison" width="600"/>
 
 *Comparison showing how adversarial hubs differ from normal documents in terms of hub rate, z-score, cluster diversity, and final verdict.*
 
