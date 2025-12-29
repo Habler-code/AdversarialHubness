@@ -3,7 +3,7 @@
 [![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](LICENSE)
 [![Python](https://img.shields.io/badge/python-3.11%2B-blue.svg)](https://www.python.org/downloads/)
 
-HubScan is an open-source security scanner that audits FAISS vector indices and embeddings to detect **adversarial hubs** in Retrieval-Augmented Generation (RAG) and vector search systems. It identifies malicious document embeddings that manipulate retrieval results by appearing in top-k results for an unusually large fraction of diverse queries.
+HubScan is an open-source security scanner that audits vector indices and embeddings to detect **adversarial hubs** in Retrieval-Augmented Generation (RAG) and vector search systems. It supports multiple vector databases (FAISS, Pinecone, Qdrant, Weaviate) and identifies malicious document embeddings that manipulate retrieval results by appearing in top-k results for an unusually large fraction of diverse queries.
 
 ## Table of Contents
 
@@ -59,8 +59,8 @@ HubScan uses robust statistical methods (median/MAD-based z-scores) to identify 
   - **Stability Testing**: Consistency analysis under query perturbations
   - **Deduplication**: Boilerplate and duplicate detection
 
-- **Flexible Input Modes**:
-  - `embeddings_only`: Build FAISS index on-the-fly from embeddings
+- **Flexible Input Modes** (Plug-and-Play Architecture):
+  - `embeddings_only`: Build vector index on-the-fly from embeddings (uses FAISS by default)
   - `faiss_index`: Use pre-built FAISS indices
   - `pinecone`: Connect to Pinecone vector database
   - `qdrant`: Connect to Qdrant vector database
@@ -90,6 +90,12 @@ HubScan uses robust statistical methods (median/MAD-based z-scores) to identify 
 ![HubScan Detection Pipeline](docs/images/detection-pipeline.png)
 
 *The HubScan detection pipeline processes embeddings through multiple parallel detectors, combines scores, applies thresholds, and generates comprehensive reports.*
+
+### Vector Database Abstraction Layer
+
+![Vector Database Abstraction](docs/images/vector-db-abstraction.png)
+
+*HubScan's plug-and-play architecture supports multiple vector databases through a unified VectorIndex interface. Detectors work seamlessly with FAISS, Pinecone, Qdrant, Weaviate, and other backends via adapter pattern.*
 
 ## Installation
 
