@@ -72,6 +72,29 @@ class IndexConfig(BaseModel):
     save_path: Optional[str] = Field(default=None, description="Path to save built index")
 
 
+class RankingConfig(BaseModel):
+    """Ranking method configuration."""
+    method: Literal["vector", "hybrid", "lexical", "reranked"] = Field(
+        default="vector",
+        description="Ranking method to use for retrieval"
+    )
+    hybrid_alpha: float = Field(
+        default=0.5,
+        ge=0.0,
+        le=1.0,
+        description="Weight for vector search in hybrid mode (1-alpha for lexical)"
+    )
+    rerank_top_n: int = Field(
+        default=100,
+        ge=1,
+        description="Number of candidates to retrieve before reranking"
+    )
+    lexical_backend: Optional[str] = Field(
+        default=None,
+        description="Lexical search backend (e.g., 'bm25', 'tfidf')"
+    )
+
+
 class ScanConfig(BaseModel):
     """Scan configuration."""
     k: int = Field(default=20, ge=1, description="Number of nearest neighbors to retrieve")
@@ -82,6 +105,7 @@ class ScanConfig(BaseModel):
     )
     batch_size: int = Field(default=2048, ge=1, description="Batch size for query processing")
     query_embeddings_path: Optional[str] = Field(default=None, description="Path to real query embeddings")
+    query_texts_path: Optional[str] = Field(default=None, description="Path to query texts file (for lexical/hybrid search)")
     mixed_proportions: Dict[str, float] = Field(
         default_factory=lambda: {
             "real_queries": 0.0,
@@ -92,6 +116,7 @@ class ScanConfig(BaseModel):
     )
     stratified_by: Optional[str] = Field(default=None, description="Metadata field for stratified sampling")
     seed: int = Field(default=42, description="Random seed")
+    ranking: RankingConfig = Field(default_factory=RankingConfig, description="Ranking method configuration")
 
 
 class HubnessDetectorConfig(BaseModel):

@@ -17,7 +17,7 @@
 """Abstract interface for vector search indices."""
 
 from abc import ABC, abstractmethod
-from typing import Tuple
+from typing import Tuple, Optional, List, Dict, Any
 import numpy as np
 
 
@@ -81,4 +81,112 @@ class VectorIndex(ABC):
             Vector dimension (D)
         """
         pass
+    
+    def search_hybrid(
+        self,
+        query_vectors: Optional[np.ndarray],
+        query_texts: Optional[List[str]],
+        k: int,
+        alpha: float = 0.5,
+    ) -> Tuple[np.ndarray, np.ndarray, Dict[str, Any]]:
+        """
+        Search using hybrid vector + lexical ranking.
+        
+        Args:
+            query_vectors: Optional query embeddings array of shape (M, D)
+            query_texts: Optional list of query text strings (M,)
+            k: Number of nearest neighbors to retrieve per query
+            alpha: Weight for vector search (0.0-1.0), where 1-alpha is weight for lexical
+            
+        Returns:
+            Tuple of (distances, indices, metadata) where:
+            - distances: Array of shape (M, k) containing combined scores
+            - indices: Array of shape (M, k) containing document indices
+            - metadata: Dictionary with ranking_method, alpha, and other metadata
+            
+        Note:
+            Default implementation falls back to vector search if only query_vectors provided,
+            or raises NotImplementedError if only query_texts provided. Adapters should
+            override this method to provide native hybrid search support.
+        """
+        if query_vectors is not None:
+            # Fallback to vector search
+            distances, indices = self.search(query_vectors, k)
+            metadata = {
+                "ranking_method": "vector",
+                "alpha": 1.0,
+                "fallback": True,
+            }
+            return distances, indices, metadata
+        else:
+            raise NotImplementedError(
+                f"{self.__class__.__name__} does not support pure lexical search. "
+                "Provide query_vectors or implement search_hybrid() in adapter."
+            )
+    
+    def search_lexical(
+        self,
+        query_texts: List[str],
+        k: int,
+    ) -> Tuple[np.ndarray, np.ndarray, Dict[str, Any]]:
+        """
+        Search using pure lexical/keyword ranking (BM25, TF-IDF, etc.).
+        
+        Args:
+            query_texts: List of query text strings (M,)
+            k: Number of nearest neighbors to retrieve per query
+            
+        Returns:
+            Tuple of (distances, indices, metadata) where:
+            - distances: Array of shape (M, k) containing lexical scores (higher = better match)
+            - indices: Array of shape (M, k) containing document indices
+            - metadata: Dictionary with ranking_method and other metadata
+            
+        Note:
+            Default implementation raises NotImplementedError. Adapters should override
+            this method to provide lexical search support.
+        """
+        raise NotImplementedError(
+            f"{self.__class__.__name__} does not support lexical search. "
+            "Implement search_lexical() in adapter or use search_hybrid() with alpha=0.0."
+        )
+    
+    def search_reranked(
+        self,
+        query_vectors: np.ndarray,
+        k: int,
+        rerank_top_n: int = 100,
+    ) -> Tuple[np.ndarray, np.ndarray, Dict[str, Any]]:
+        """
+        Search using initial vector retrieval followed by semantic reranking.
+        
+        Args:
+            query_vectors: Query embeddings array of shape (M, D)
+            k: Number of final results to return after reranking
+            rerank_top_n: Number of candidates to retrieve before reranking
+            
+        Returns:
+            Tuple of (distances, indices, metadata) where:
+            - distances: Array of shape (M, k) containing reranked scores
+            - indices: Array of shape (M, k) containing document indices
+            - metadata: Dictionary with ranking_method, rerank_top_n, and other metadata
+            
+        Note:
+            Default implementation performs initial retrieval with rerank_top_n,
+            then returns top k results. Adapters can override for native reranking support.
+        """
+        # Default implementation: retrieve more, return top k
+        distances, indices = self.search(query_vectors, rerank_top_n)
+        
+        # Return top k results
+        distances = distances[:, :k]
+        indices = indices[:, :k]
+        
+        metadata = {
+            "ranking_method": "reranked",
+            "rerank_top_n": rerank_top_n,
+            "fallback": True,
+        }
+        
+        return distances, indices, metadata
 

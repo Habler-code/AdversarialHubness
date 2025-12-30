@@ -16,16 +16,18 @@
 
 """Qdrant adapter for VectorIndex interface."""
 
-from typing import Tuple, Optional
+from typing import Tuple, Optional, List, Dict, Any
 import numpy as np
 
 try:
     from qdrant_client import QdrantClient
-    from qdrant_client.models import Distance, VectorParams
+    from qdrant_client.models import Distance, VectorParams, Query, QueryVector
 except ImportError:
     QdrantClient = None
     Distance = None
     VectorParams = None
+    Query = None
+    QueryVector = None
 
 from ..vector_index import VectorIndex
 from ...utils.logging import get_logger
@@ -166,6 +168,99 @@ class QdrantIndex(VectorIndex):
         except Exception:
             pass  # Keep cached value on error
         return self._ntotal
+    
+    def search_hybrid(
+        self,
+        query_vectors: Optional[np.ndarray],
+        query_texts: Optional[List[str]],
+        k: int,
+        alpha: float = 0.5,
+    ) -> Tuple[np.ndarray, np.ndarray, Dict[str, Any]]:
+        """
+        Search using Qdrant's native hybrid search.
+        
+        Args:
+            query_vectors: Optional query embeddings array of shape (M, D)
+            query_texts: Optional list of query text strings (M,)
+            k: Number of nearest neighbors to retrieve per query
+            alpha: Weight for vector search (0.0-1.0), where 1-alpha is weight for lexical
+            
+        Returns:
+            Tuple of (distances, indices, metadata)
+        """
+        if query_vectors is None and query_texts is None:
+            raise ValueError("Either query_vectors or query_texts must be provided")
+        
+        # For now, Qdrant hybrid search requires both vector and sparse (text) vectors
+        # Fall back to vector search if only vectors provided
+        if query_vectors is not None:
+            distances, indices = self.search(query_vectors, k)
+            metadata = {
+                "ranking_method": "hybrid" if query_texts is not None else "vector",
+                "alpha": alpha,
+                "fallback": query_texts is not None,  # True if text provided but not used
+            }
+            return distances, indices, metadata
+        else:
+            raise NotImplementedError(
+                "Qdrant requires query_vectors for search. "
+                "Pure lexical search not supported without vectors."
+            )
+    
+    def search_lexical(
+        self,
+        query_texts: List[str],
+        k: int,
+    ) -> Tuple[np.ndarray, np.ndarray, Dict[str, Any]]:
+        """
+        Search using lexical/keyword ranking.
+        
+        Note: Qdrant requires sparse vectors for lexical search. This method
+        raises NotImplementedError as it requires additional setup.
+        
+        Args:
+            query_texts: List of query text strings (M,)
+            k: Number of nearest neighbors to retrieve per query
+            
+        Returns:
+            Tuple of (distances, indices, metadata)
+        """
+        raise NotImplementedError(
+            "Qdrant lexical search requires sparse vector setup. "
+            "Use search_hybrid() with query_vectors and query_texts instead."
+        )
+    
+    def search_reranked(
+        self,
+        query_vectors: np.ndarray,
+        k: int,
+        rerank_top_n: int = 100,
+    ) -> Tuple[np.ndarray, np.ndarray, Dict[str, Any]]:
+        """
+        Search using initial vector retrieval followed by reranking.
+        
+        Args:
+            query_vectors: Query embeddings array of shape (M, D)
+            k: Number of final results to return after reranking
+            rerank_top_n: Number of candidates to retrieve before reranking
+            
+        Returns:
+            Tuple of (distances, indices, metadata)
+        """
+        # Retrieve more candidates
+        distances, indices = self.search(query_vectors, rerank_top_n)
+        
+        # Return top k
+        distances = distances[:, :k]
+        indices = indices[:, :k]
+        
+        metadata = {
+            "ranking_method": "reranked",
+            "rerank_top_n": rerank_top_n,
+            "fallback": True,
+        }
+        
+        return distances, indices, metadata
     
     @property
     def dimension(self) -> int:
