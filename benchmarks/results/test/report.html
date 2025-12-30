@@ -1,0 +1,1444 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>HubScan Report - Adversarial Hubness Detection</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            border-bottom: 3px solid #0066cc;
+            padding-bottom: 10px;
+        }
+        h2 {
+            color: #555;
+            margin-top: 30px;
+        }
+        .summary {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+        .summary-card {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 6px;
+            border-left: 4px solid #0066cc;
+        }
+        .summary-card h3 {
+            margin: 0 0 10px 0;
+            font-size: 14px;
+            color: #666;
+            text-transform: uppercase;
+        }
+        .summary-card .value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #333;
+        }
+        .verdict-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+        .verdict-high {
+            background-color: #fee;
+            color: #c33;
+        }
+        .verdict-medium {
+            background-color: #ffe;
+            color: #c93;
+        }
+        .verdict-low {
+            background-color: #efe;
+            color: #3c3;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        th {
+            background-color: #0066cc;
+            color: white;
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+        }
+        td {
+            padding: 10px 12px;
+            border-bottom: 1px solid #eee;
+        }
+        tr:hover {
+            background-color: #f8f9fa;
+        }
+        .score {
+            font-family: monospace;
+            font-weight: bold;
+        }
+        .text-preview {
+            max-width: 300px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .footer {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+            color: #666;
+            font-size: 12px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>HubScan Report - Adversarial Hubness Detection</h1>
+        
+        <div class="summary">
+            <div class="summary-card">
+                <h3>Total Documents</h3>
+                <div class="value">1000</div>
+            </div>
+            <div class="summary-card">
+                <h3>Queries Processed</h3>
+                <div class="value">2100</div>
+            </div>
+            <div class="summary-card">
+                <h3>High Risk</h3>
+                <div class="value">50</div>
+            </div>
+            <div class="summary-card">
+                <h3>Medium Risk</h3>
+                <div class="value">77</div>
+            </div>
+            <div class="summary-card">
+                <h3>Low Risk</h3>
+                <div class="value">873</div>
+            </div>
+            <div class="summary-card">
+                <h3>Runtime</h3>
+                <div class="value">0.26s</div>
+            </div>
+        </div>
+        
+        <h2>Scan Information</h2>
+        <table>
+            <tr>
+                <th>Property</th>
+                <th>Value</th>
+            </tr>
+            <tr>
+                <td>Timestamp</td>
+                <td>2025-12-30T11:45:32.010950</td>
+            </tr>
+            <tr>
+                <td>Index Type</td>
+                <td>flat</td>
+            </tr>
+            <tr>
+                <td>Metric</td>
+                <td>cosine</td>
+            </tr>
+            <tr>
+                <td>k (nearest neighbors)</td>
+                <td>20</td>
+            </tr>
+        </table>
+        
+        <h2>Top Suspicious Documents</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Rank</th>
+                    <th>Doc Index</th>
+                    <th>Risk Score</th>
+                    <th>Verdict</th>
+                    <th>Hub Z-Score</th>
+                    <th>Hub Rate</th>
+                    
+                    <th>Doc ID</th>
+                    <th>Source</th>
+                    
+                </tr>
+            </thead>
+            <tbody>
+                
+                <tr>
+                    <td>1</td>
+                    <td>370</td>
+                    <td class="score">8.2472</td>
+                    <td>
+                        <span class="verdict-badge verdict-high">
+                            HIGH
+                        </span>
+                    </td>
+                    <td class="score">
+                        
+                            14.25
+                        
+                    </td>
+                    <td>
+                        
+                            0.0012
+                        
+                    </td>
+                    
+                    <td>-</td>
+                    <td>-</td>
+                    
+                </tr>
+                
+                <tr>
+                    <td>2</td>
+                    <td>371</td>
+                    <td class="score">6.1069</td>
+                    <td>
+                        <span class="verdict-badge verdict-high">
+                            HIGH
+                        </span>
+                    </td>
+                    <td class="score">
+                        
+                            10.66
+                        
+                    </td>
+                    <td>
+                        
+                            0.0010
+                        
+                    </td>
+                    
+                    <td>-</td>
+                    <td>-</td>
+                    
+                </tr>
+                
+                <tr>
+                    <td>3</td>
+                    <td>499</td>
+                    <td class="score">5.6856</td>
+                    <td>
+                        <span class="verdict-badge verdict-high">
+                            HIGH
+                        </span>
+                    </td>
+                    <td class="score">
+                        
+                            9.93
+                        
+                    </td>
+                    <td>
+                        
+                            0.0010
+                        
+                    </td>
+                    
+                    <td>-</td>
+                    <td>-</td>
+                    
+                </tr>
+                
+                <tr>
+                    <td>4</td>
+                    <td>521</td>
+                    <td class="score">5.5009</td>
+                    <td>
+                        <span class="verdict-badge verdict-high">
+                            HIGH
+                        </span>
+                    </td>
+                    <td class="score">
+                        
+                            9.67
+                        
+                    </td>
+                    <td>
+                        
+                            0.0009
+                        
+                    </td>
+                    
+                    <td>-</td>
+                    <td>-</td>
+                    
+                </tr>
+                
+                <tr>
+                    <td>5</td>
+                    <td>346</td>
+                    <td class="score">5.1188</td>
+                    <td>
+                        <span class="verdict-badge verdict-high">
+                            HIGH
+                        </span>
+                    </td>
+                    <td class="score">
+                        
+                            9.03
+                        
+                    </td>
+                    <td>
+                        
+                            0.0009
+                        
+                    </td>
+                    
+                    <td>-</td>
+                    <td>-</td>
+                    
+                </tr>
+                
+                <tr>
+                    <td>6</td>
+                    <td>513</td>
+                    <td class="score">4.8755</td>
+                    <td>
+                        <span class="verdict-badge verdict-high">
+                            HIGH
+                        </span>
+                    </td>
+                    <td class="score">
+                        
+                            8.63
+                        
+                    </td>
+                    <td>
+                        
+                            0.0009
+                        
+                    </td>
+                    
+                    <td>-</td>
+                    <td>-</td>
+                    
+                </tr>
+                
+                <tr>
+                    <td>7</td>
+                    <td>527</td>
+                    <td class="score">4.8447</td>
+                    <td>
+                        <span class="verdict-badge verdict-high">
+                            HIGH
+                        </span>
+                    </td>
+                    <td class="score">
+                        
+                            8.57
+                        
+                    </td>
+                    <td>
+                        
+                            0.0009
+                        
+                    </td>
+                    
+                    <td>-</td>
+                    <td>-</td>
+                    
+                </tr>
+                
+                <tr>
+                    <td>8</td>
+                    <td>411</td>
+                    <td class="score">4.8356</td>
+                    <td>
+                        <span class="verdict-badge verdict-high">
+                            HIGH
+                        </span>
+                    </td>
+                    <td class="score">
+                        
+                            8.56
+                        
+                    </td>
+                    <td>
+                        
+                            0.0009
+                        
+                    </td>
+                    
+                    <td>-</td>
+                    <td>-</td>
+                    
+                </tr>
+                
+                <tr>
+                    <td>9</td>
+                    <td>319</td>
+                    <td class="score">4.3512</td>
+                    <td>
+                        <span class="verdict-badge verdict-high">
+                            HIGH
+                        </span>
+                    </td>
+                    <td class="score">
+                        
+                            7.75
+                        
+                    </td>
+                    <td>
+                        
+                            0.0008
+                        
+                    </td>
+                    
+                    <td>-</td>
+                    <td>-</td>
+                    
+                </tr>
+                
+                <tr>
+                    <td>10</td>
+                    <td>312</td>
+                    <td class="score">4.1362</td>
+                    <td>
+                        <span class="verdict-badge verdict-high">
+                            HIGH
+                        </span>
+                    </td>
+                    <td class="score">
+                        
+                            7.39
+                        
+                    </td>
+                    <td>
+                        
+                            0.0008
+                        
+                    </td>
+                    
+                    <td>-</td>
+                    <td>-</td>
+                    
+                </tr>
+                
+                <tr>
+                    <td>11</td>
+                    <td>299</td>
+                    <td class="score">3.7513</td>
+                    <td>
+                        <span class="verdict-badge verdict-high">
+                            HIGH
+                        </span>
+                    </td>
+                    <td class="score">
+                        
+                            6.73
+                        
+                    </td>
+                    <td>
+                        
+                            0.0008
+                        
+                    </td>
+                    
+                    <td>-</td>
+                    <td>-</td>
+                    
+                </tr>
+                
+                <tr>
+                    <td>12</td>
+                    <td>328</td>
+                    <td class="score">3.7051</td>
+                    <td>
+                        <span class="verdict-badge verdict-high">
+                            HIGH
+                        </span>
+                    </td>
+                    <td class="score">
+                        
+                            6.68
+                        
+                    </td>
+                    <td>
+                        
+                            0.0008
+                        
+                    </td>
+                    
+                    <td>-</td>
+                    <td>-</td>
+                    
+                </tr>
+                
+                <tr>
+                    <td>13</td>
+                    <td>136</td>
+                    <td class="score">3.5973</td>
+                    <td>
+                        <span class="verdict-badge verdict-high">
+                            HIGH
+                        </span>
+                    </td>
+                    <td class="score">
+                        
+                            6.50
+                        
+                    </td>
+                    <td>
+                        
+                            0.0008
+                        
+                    </td>
+                    
+                    <td>-</td>
+                    <td>-</td>
+                    
+                </tr>
+                
+                <tr>
+                    <td>14</td>
+                    <td>277</td>
+                    <td class="score">2.2880</td>
+                    <td>
+                        <span class="verdict-badge verdict-high">
+                            HIGH
+                        </span>
+                    </td>
+                    <td class="score">
+                        
+                            4.31
+                        
+                    </td>
+                    <td>
+                        
+                            0.0007
+                        
+                    </td>
+                    
+                    <td>-</td>
+                    <td>-</td>
+                    
+                </tr>
+                
+                <tr>
+                    <td>15</td>
+                    <td>59</td>
+                    <td class="score">2.2246</td>
+                    <td>
+                        <span class="verdict-badge verdict-high">
+                            HIGH
+                        </span>
+                    </td>
+                    <td class="score">
+                        
+                            4.19
+                        
+                    </td>
+                    <td>
+                        
+                            0.0007
+                        
+                    </td>
+                    
+                    <td>-</td>
+                    <td>-</td>
+                    
+                </tr>
+                
+                <tr>
+                    <td>16</td>
+                    <td>817</td>
+                    <td class="score">2.1850</td>
+                    <td>
+                        <span class="verdict-badge verdict-high">
+                            HIGH
+                        </span>
+                    </td>
+                    <td class="score">
+                        
+                            4.14
+                        
+                    </td>
+                    <td>
+                        
+                            0.0006
+                        
+                    </td>
+                    
+                    <td>-</td>
+                    <td>-</td>
+                    
+                </tr>
+                
+                <tr>
+                    <td>17</td>
+                    <td>198</td>
+                    <td class="score">2.1095</td>
+                    <td>
+                        <span class="verdict-badge verdict-high">
+                            HIGH
+                        </span>
+                    </td>
+                    <td class="score">
+                        
+                            4.02
+                        
+                    </td>
+                    <td>
+                        
+                            0.0006
+                        
+                    </td>
+                    
+                    <td>-</td>
+                    <td>-</td>
+                    
+                </tr>
+                
+                <tr>
+                    <td>18</td>
+                    <td>101</td>
+                    <td class="score">1.9998</td>
+                    <td>
+                        <span class="verdict-badge verdict-high">
+                            HIGH
+                        </span>
+                    </td>
+                    <td class="score">
+                        
+                            3.83
+                        
+                    </td>
+                    <td>
+                        
+                            0.0006
+                        
+                    </td>
+                    
+                    <td>-</td>
+                    <td>-</td>
+                    
+                </tr>
+                
+                <tr>
+                    <td>19</td>
+                    <td>174</td>
+                    <td class="score">1.8646</td>
+                    <td>
+                        <span class="verdict-badge verdict-high">
+                            HIGH
+                        </span>
+                    </td>
+                    <td class="score">
+                        
+                            3.61
+                        
+                    </td>
+                    <td>
+                        
+                            0.0006
+                        
+                    </td>
+                    
+                    <td>-</td>
+                    <td>-</td>
+                    
+                </tr>
+                
+                <tr>
+                    <td>20</td>
+                    <td>374</td>
+                    <td class="score">1.8269</td>
+                    <td>
+                        <span class="verdict-badge verdict-high">
+                            HIGH
+                        </span>
+                    </td>
+                    <td class="score">
+                        
+                            3.52
+                        
+                    </td>
+                    <td>
+                        
+                            0.0006
+                        
+                    </td>
+                    
+                    <td>-</td>
+                    <td>-</td>
+                    
+                </tr>
+                
+                <tr>
+                    <td>21</td>
+                    <td>737</td>
+                    <td class="score">1.7599</td>
+                    <td>
+                        <span class="verdict-badge verdict-high">
+                            HIGH
+                        </span>
+                    </td>
+                    <td class="score">
+                        
+                            3.41
+                        
+                    </td>
+                    <td>
+                        
+                            0.0006
+                        
+                    </td>
+                    
+                    <td>-</td>
+                    <td>-</td>
+                    
+                </tr>
+                
+                <tr>
+                    <td>22</td>
+                    <td>139</td>
+                    <td class="score">1.7055</td>
+                    <td>
+                        <span class="verdict-badge verdict-high">
+                            HIGH
+                        </span>
+                    </td>
+                    <td class="score">
+                        
+                            3.31
+                        
+                    </td>
+                    <td>
+                        
+                            0.0006
+                        
+                    </td>
+                    
+                    <td>-</td>
+                    <td>-</td>
+                    
+                </tr>
+                
+                <tr>
+                    <td>23</td>
+                    <td>0</td>
+                    <td class="score">1.7018</td>
+                    <td>
+                        <span class="verdict-badge verdict-high">
+                            HIGH
+                        </span>
+                    </td>
+                    <td class="score">
+                        
+                            3.34
+                        
+                    </td>
+                    <td>
+                        
+                            0.0006
+                        
+                    </td>
+                    
+                    <td>-</td>
+                    <td>-</td>
+                    
+                </tr>
+                
+                <tr>
+                    <td>24</td>
+                    <td>280</td>
+                    <td class="score">1.6962</td>
+                    <td>
+                        <span class="verdict-badge verdict-high">
+                            HIGH
+                        </span>
+                    </td>
+                    <td class="score">
+                        
+                            3.31
+                        
+                    </td>
+                    <td>
+                        
+                            0.0006
+                        
+                    </td>
+                    
+                    <td>-</td>
+                    <td>-</td>
+                    
+                </tr>
+                
+                <tr>
+                    <td>25</td>
+                    <td>76</td>
+                    <td class="score">1.6833</td>
+                    <td>
+                        <span class="verdict-badge verdict-high">
+                            HIGH
+                        </span>
+                    </td>
+                    <td class="score">
+                        
+                            3.27
+                        
+                    </td>
+                    <td>
+                        
+                            0.0006
+                        
+                    </td>
+                    
+                    <td>-</td>
+                    <td>-</td>
+                    
+                </tr>
+                
+                <tr>
+                    <td>26</td>
+                    <td>350</td>
+                    <td class="score">1.6693</td>
+                    <td>
+                        <span class="verdict-badge verdict-high">
+                            HIGH
+                        </span>
+                    </td>
+                    <td class="score">
+                        
+                            3.28
+                        
+                    </td>
+                    <td>
+                        
+                            0.0006
+                        
+                    </td>
+                    
+                    <td>-</td>
+                    <td>-</td>
+                    
+                </tr>
+                
+                <tr>
+                    <td>27</td>
+                    <td>128</td>
+                    <td class="score">1.5574</td>
+                    <td>
+                        <span class="verdict-badge verdict-high">
+                            HIGH
+                        </span>
+                    </td>
+                    <td class="score">
+                        
+                            3.10
+                        
+                    </td>
+                    <td>
+                        
+                            0.0006
+                        
+                    </td>
+                    
+                    <td>-</td>
+                    <td>-</td>
+                    
+                </tr>
+                
+                <tr>
+                    <td>28</td>
+                    <td>549</td>
+                    <td class="score">1.5233</td>
+                    <td>
+                        <span class="verdict-badge verdict-high">
+                            HIGH
+                        </span>
+                    </td>
+                    <td class="score">
+                        
+                            3.04
+                        
+                    </td>
+                    <td>
+                        
+                            0.0006
+                        
+                    </td>
+                    
+                    <td>-</td>
+                    <td>-</td>
+                    
+                </tr>
+                
+                <tr>
+                    <td>29</td>
+                    <td>96</td>
+                    <td class="score">1.5173</td>
+                    <td>
+                        <span class="verdict-badge verdict-high">
+                            HIGH
+                        </span>
+                    </td>
+                    <td class="score">
+                        
+                            3.03
+                        
+                    </td>
+                    <td>
+                        
+                            0.0006
+                        
+                    </td>
+                    
+                    <td>-</td>
+                    <td>-</td>
+                    
+                </tr>
+                
+                <tr>
+                    <td>30</td>
+                    <td>282</td>
+                    <td class="score">1.5129</td>
+                    <td>
+                        <span class="verdict-badge verdict-high">
+                            HIGH
+                        </span>
+                    </td>
+                    <td class="score">
+                        
+                            3.02
+                        
+                    </td>
+                    <td>
+                        
+                            0.0006
+                        
+                    </td>
+                    
+                    <td>-</td>
+                    <td>-</td>
+                    
+                </tr>
+                
+                <tr>
+                    <td>31</td>
+                    <td>720</td>
+                    <td class="score">1.4879</td>
+                    <td>
+                        <span class="verdict-badge verdict-high">
+                            HIGH
+                        </span>
+                    </td>
+                    <td class="score">
+                        
+                            2.94
+                        
+                    </td>
+                    <td>
+                        
+                            0.0006
+                        
+                    </td>
+                    
+                    <td>-</td>
+                    <td>-</td>
+                    
+                </tr>
+                
+                <tr>
+                    <td>32</td>
+                    <td>575</td>
+                    <td class="score">1.4837</td>
+                    <td>
+                        <span class="verdict-badge verdict-high">
+                            HIGH
+                        </span>
+                    </td>
+                    <td class="score">
+                        
+                            2.95
+                        
+                    </td>
+                    <td>
+                        
+                            0.0006
+                        
+                    </td>
+                    
+                    <td>-</td>
+                    <td>-</td>
+                    
+                </tr>
+                
+                <tr>
+                    <td>33</td>
+                    <td>845</td>
+                    <td class="score">1.4825</td>
+                    <td>
+                        <span class="verdict-badge verdict-high">
+                            HIGH
+                        </span>
+                    </td>
+                    <td class="score">
+                        
+                            2.97
+                        
+                    </td>
+                    <td>
+                        
+                            0.0006
+                        
+                    </td>
+                    
+                    <td>-</td>
+                    <td>-</td>
+                    
+                </tr>
+                
+                <tr>
+                    <td>34</td>
+                    <td>74</td>
+                    <td class="score">1.4815</td>
+                    <td>
+                        <span class="verdict-badge verdict-high">
+                            HIGH
+                        </span>
+                    </td>
+                    <td class="score">
+                        
+                            2.97
+                        
+                    </td>
+                    <td>
+                        
+                            0.0006
+                        
+                    </td>
+                    
+                    <td>-</td>
+                    <td>-</td>
+                    
+                </tr>
+                
+                <tr>
+                    <td>35</td>
+                    <td>23</td>
+                    <td class="score">1.4634</td>
+                    <td>
+                        <span class="verdict-badge verdict-high">
+                            HIGH
+                        </span>
+                    </td>
+                    <td class="score">
+                        
+                            2.92
+                        
+                    </td>
+                    <td>
+                        
+                            0.0006
+                        
+                    </td>
+                    
+                    <td>-</td>
+                    <td>-</td>
+                    
+                </tr>
+                
+                <tr>
+                    <td>36</td>
+                    <td>797</td>
+                    <td class="score">1.4594</td>
+                    <td>
+                        <span class="verdict-badge verdict-high">
+                            HIGH
+                        </span>
+                    </td>
+                    <td class="score">
+                        
+                            2.91
+                        
+                    </td>
+                    <td>
+                        
+                            0.0006
+                        
+                    </td>
+                    
+                    <td>-</td>
+                    <td>-</td>
+                    
+                </tr>
+                
+                <tr>
+                    <td>37</td>
+                    <td>807</td>
+                    <td class="score">1.3859</td>
+                    <td>
+                        <span class="verdict-badge verdict-high">
+                            HIGH
+                        </span>
+                    </td>
+                    <td class="score">
+                        
+                            2.81
+                        
+                    </td>
+                    <td>
+                        
+                            0.0006
+                        
+                    </td>
+                    
+                    <td>-</td>
+                    <td>-</td>
+                    
+                </tr>
+                
+                <tr>
+                    <td>38</td>
+                    <td>760</td>
+                    <td class="score">1.3471</td>
+                    <td>
+                        <span class="verdict-badge verdict-high">
+                            HIGH
+                        </span>
+                    </td>
+                    <td class="score">
+                        
+                            2.75
+                        
+                    </td>
+                    <td>
+                        
+                            0.0006
+                        
+                    </td>
+                    
+                    <td>-</td>
+                    <td>-</td>
+                    
+                </tr>
+                
+                <tr>
+                    <td>39</td>
+                    <td>297</td>
+                    <td class="score">1.3334</td>
+                    <td>
+                        <span class="verdict-badge verdict-high">
+                            HIGH
+                        </span>
+                    </td>
+                    <td class="score">
+                        
+                            2.70
+                        
+                    </td>
+                    <td>
+                        
+                            0.0006
+                        
+                    </td>
+                    
+                    <td>-</td>
+                    <td>-</td>
+                    
+                </tr>
+                
+                <tr>
+                    <td>40</td>
+                    <td>415</td>
+                    <td class="score">1.3162</td>
+                    <td>
+                        <span class="verdict-badge verdict-high">
+                            HIGH
+                        </span>
+                    </td>
+                    <td class="score">
+                        
+                            2.65
+                        
+                    </td>
+                    <td>
+                        
+                            0.0006
+                        
+                    </td>
+                    
+                    <td>-</td>
+                    <td>-</td>
+                    
+                </tr>
+                
+                <tr>
+                    <td>41</td>
+                    <td>570</td>
+                    <td class="score">1.3146</td>
+                    <td>
+                        <span class="verdict-badge verdict-high">
+                            HIGH
+                        </span>
+                    </td>
+                    <td class="score">
+                        
+                            2.66
+                        
+                    </td>
+                    <td>
+                        
+                            0.0006
+                        
+                    </td>
+                    
+                    <td>-</td>
+                    <td>-</td>
+                    
+                </tr>
+                
+                <tr>
+                    <td>42</td>
+                    <td>322</td>
+                    <td class="score">1.3033</td>
+                    <td>
+                        <span class="verdict-badge verdict-high">
+                            HIGH
+                        </span>
+                    </td>
+                    <td class="score">
+                        
+                            2.65
+                        
+                    </td>
+                    <td>
+                        
+                            0.0006
+                        
+                    </td>
+                    
+                    <td>-</td>
+                    <td>-</td>
+                    
+                </tr>
+                
+                <tr>
+                    <td>43</td>
+                    <td>677</td>
+                    <td class="score">1.3001</td>
+                    <td>
+                        <span class="verdict-badge verdict-high">
+                            HIGH
+                        </span>
+                    </td>
+                    <td class="score">
+                        
+                            2.67
+                        
+                    </td>
+                    <td>
+                        
+                            0.0006
+                        
+                    </td>
+                    
+                    <td>-</td>
+                    <td>-</td>
+                    
+                </tr>
+                
+                <tr>
+                    <td>44</td>
+                    <td>12</td>
+                    <td class="score">1.2760</td>
+                    <td>
+                        <span class="verdict-badge verdict-high">
+                            HIGH
+                        </span>
+                    </td>
+                    <td class="score">
+                        
+                            2.63
+                        
+                    </td>
+                    <td>
+                        
+                            0.0006
+                        
+                    </td>
+                    
+                    <td>-</td>
+                    <td>-</td>
+                    
+                </tr>
+                
+                <tr>
+                    <td>45</td>
+                    <td>616</td>
+                    <td class="score">1.2617</td>
+                    <td>
+                        <span class="verdict-badge verdict-high">
+                            HIGH
+                        </span>
+                    </td>
+                    <td class="score">
+                        
+                            2.60
+                        
+                    </td>
+                    <td>
+                        
+                            0.0006
+                        
+                    </td>
+                    
+                    <td>-</td>
+                    <td>-</td>
+                    
+                </tr>
+                
+                <tr>
+                    <td>46</td>
+                    <td>813</td>
+                    <td class="score">1.2453</td>
+                    <td>
+                        <span class="verdict-badge verdict-high">
+                            HIGH
+                        </span>
+                    </td>
+                    <td class="score">
+                        
+                            2.58
+                        
+                    </td>
+                    <td>
+                        
+                            0.0006
+                        
+                    </td>
+                    
+                    <td>-</td>
+                    <td>-</td>
+                    
+                </tr>
+                
+                <tr>
+                    <td>47</td>
+                    <td>89</td>
+                    <td class="score">1.2442</td>
+                    <td>
+                        <span class="verdict-badge verdict-high">
+                            HIGH
+                        </span>
+                    </td>
+                    <td class="score">
+                        
+                            2.57
+                        
+                    </td>
+                    <td>
+                        
+                            0.0006
+                        
+                    </td>
+                    
+                    <td>-</td>
+                    <td>-</td>
+                    
+                </tr>
+                
+                <tr>
+                    <td>48</td>
+                    <td>210</td>
+                    <td class="score">1.2429</td>
+                    <td>
+                        <span class="verdict-badge verdict-high">
+                            HIGH
+                        </span>
+                    </td>
+                    <td class="score">
+                        
+                            2.57
+                        
+                    </td>
+                    <td>
+                        
+                            0.0006
+                        
+                    </td>
+                    
+                    <td>-</td>
+                    <td>-</td>
+                    
+                </tr>
+                
+                <tr>
+                    <td>49</td>
+                    <td>523</td>
+                    <td class="score">1.2402</td>
+                    <td>
+                        <span class="verdict-badge verdict-high">
+                            HIGH
+                        </span>
+                    </td>
+                    <td class="score">
+                        
+                            2.54
+                        
+                    </td>
+                    <td>
+                        
+                            0.0006
+                        
+                    </td>
+                    
+                    <td>-</td>
+                    <td>-</td>
+                    
+                </tr>
+                
+                <tr>
+                    <td>50</td>
+                    <td>901</td>
+                    <td class="score">1.2307</td>
+                    <td>
+                        <span class="verdict-badge verdict-high">
+                            HIGH
+                        </span>
+                    </td>
+                    <td class="score">
+                        
+                            2.55
+                        
+                    </td>
+                    <td>
+                        
+                            0.0006
+                        
+                    </td>
+                    
+                    <td>-</td>
+                    <td>-</td>
+                    
+                </tr>
+                
+            </tbody>
+        </table>
+        
+        <div class="footer">
+            <p>Generated by HubScan on 2025-12-30T11:45:32.010950</p>
+            <p>For more details, see the JSON report.</p>
+        </div>
+    </div>
+</body>
+</html>

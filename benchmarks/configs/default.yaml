@@ -10,7 +10,7 @@ index:
 
 scan:
   k: 20
-  num_queries: 1000
+  num_queries: 5000  # More queries for better statistics
   query_sampling: mixed
   batch_size: 256
   mixed_proportions:
@@ -50,8 +50,8 @@ scoring:
 
 thresholds:
   policy: hybrid
-  hub_z: 5.0
-  percentile: 0.01
+  hub_z: 4.0  # Lower threshold for more sensitivity
+  percentile: 0.05  # Top 5% instead of 1%
 
 output:
   out_dir: ""  # Will be set by benchmark script

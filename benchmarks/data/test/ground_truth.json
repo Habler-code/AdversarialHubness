@@ -1,0 +1,517 @@
+{
+  "num_total": 1000,
+  "num_adversarial": 48,
+  "hub_rate": 0.048,
+  "hub_positions": [
+    59,
+    76,
+    96,
+    101,
+    136,
+    139,
+    174,
+    198,
+    210,
+    235,
+    277,
+    280,
+    299,
+    312,
+    319,
+    328,
+    346,
+    370,
+    371,
+    411,
+    499,
+    513,
+    521,
+    527,
+    549,
+    584,
+    601,
+    621,
+    626,
+    636,
+    660,
+    678,
+    687,
+    737,
+    740,
+    761,
+    811,
+    859,
+    883,
+    899,
+    901,
+    902,
+    924,
+    938,
+    947,
+    973,
+    974,
+    986
+  ],
+  "hub_ids": [
+    "hub_0000",
+    "hub_0001",
+    "hub_0002",
+    "hub_0003",
+    "hub_0004",
+    "hub_0005",
+    "hub_0006",
+    "hub_0007",
+    "hub_0008",
+    "hub_0009",
+    "hub_0010",
+    "hub_0011",
+    "hub_0012",
+    "hub_0013",
+    "hub_0014",
+    "hub_0015",
+    "hub_0016",
+    "hub_0017",
+    "hub_0018",
+    "hub_0019",
+    "hub_0020",
+    "hub_0021",
+    "hub_0022",
+    "hub_0023",
+    "hub_0024",
+    "hub_0025",
+    "hub_0026",
+    "hub_0027",
+    "hub_0028",
+    "hub_0029",
+    "hub_0030",
+    "hub_0031",
+    "hub_0032",
+    "hub_0033",
+    "hub_0034",
+    "hub_0035",
+    "hub_0036",
+    "hub_0037",
+    "hub_0038",
+    "hub_0039",
+    "hub_0040",
+    "hub_0041",
+    "hub_0042",
+    "hub_0043",
+    "hub_0044",
+    "hub_0045",
+    "hub_0046",
+    "hub_0047"
+  ],
+  "strategies": [
+    "geometric_hub",
+    "geometric_hub",
+    "geometric_hub",
+    "geometric_hub",
+    "geometric_hub",
+    "geometric_hub",
+    "geometric_hub",
+    "geometric_hub",
+    "geometric_hub",
+    "geometric_hub",
+    "geometric_hub",
+    "geometric_hub",
+    "multi_centroid_hub",
+    "multi_centroid_hub",
+    "multi_centroid_hub",
+    "multi_centroid_hub",
+    "multi_centroid_hub",
+    "multi_centroid_hub",
+    "multi_centroid_hub",
+    "multi_centroid_hub",
+    "multi_centroid_hub",
+    "multi_centroid_hub",
+    "multi_centroid_hub",
+    "multi_centroid_hub",
+    "gradient_based_hub",
+    "gradient_based_hub",
+    "gradient_based_hub",
+    "gradient_based_hub",
+    "gradient_based_hub",
+    "gradient_based_hub",
+    "gradient_based_hub",
+    "gradient_based_hub",
+    "gradient_based_hub",
+    "gradient_based_hub",
+    "gradient_based_hub",
+    "gradient_based_hub",
+    "stealth_hub",
+    "stealth_hub",
+    "stealth_hub",
+    "stealth_hub",
+    "stealth_hub",
+    "stealth_hub",
+    "stealth_hub",
+    "stealth_hub",
+    "stealth_hub",
+    "stealth_hub",
+    "stealth_hub",
+    "stealth_hub"
+  ],
+  "hub_metadata": [
+    {
+      "hub_id": "hub_0000",
+      "strategy": "geometric_hub",
+      "strategy_description": "Hub as weighted average of diverse documents",
+      "num_samples": 100,
+      "description": "Hub as weighted average of diverse documents"
+    },
+    {
+      "hub_id": "hub_0001",
+      "strategy": "geometric_hub",
+      "strategy_description": "Hub as weighted average of diverse documents",
+      "num_samples": 100,
+      "description": "Hub as weighted average of diverse documents"
+    },
+    {
+      "hub_id": "hub_0002",
+      "strategy": "geometric_hub",
+      "strategy_description": "Hub as weighted average of diverse documents",
+      "num_samples": 100,
+      "description": "Hub as weighted average of diverse documents"
+    },
+    {
+      "hub_id": "hub_0003",
+      "strategy": "geometric_hub",
+      "strategy_description": "Hub as weighted average of diverse documents",
+      "num_samples": 100,
+      "description": "Hub as weighted average of diverse documents"
+    },
+    {
+      "hub_id": "hub_0004",
+      "strategy": "geometric_hub",
+      "strategy_description": "Hub as weighted average of diverse documents",
+      "num_samples": 100,
+      "description": "Hub as weighted average of diverse documents"
+    },
+    {
+      "hub_id": "hub_0005",
+      "strategy": "geometric_hub",
+      "strategy_description": "Hub as weighted average of diverse documents",
+      "num_samples": 100,
+      "description": "Hub as weighted average of diverse documents"
+    },
+    {
+      "hub_id": "hub_0006",
+      "strategy": "geometric_hub",
+      "strategy_description": "Hub as weighted average of diverse documents",
+      "num_samples": 100,
+      "description": "Hub as weighted average of diverse documents"
+    },
+    {
+      "hub_id": "hub_0007",
+      "strategy": "geometric_hub",
+      "strategy_description": "Hub as weighted average of diverse documents",
+      "num_samples": 100,
+      "description": "Hub as weighted average of diverse documents"
+    },
+    {
+      "hub_id": "hub_0008",
+      "strategy": "geometric_hub",
+      "strategy_description": "Hub as weighted average of diverse documents",
+      "num_samples": 100,
+      "description": "Hub as weighted average of diverse documents"
+    },
+    {
+      "hub_id": "hub_0009",
+      "strategy": "geometric_hub",
+      "strategy_description": "Hub as weighted average of diverse documents",
+      "num_samples": 100,
+      "description": "Hub as weighted average of diverse documents"
+    },
+    {
+      "hub_id": "hub_0010",
+      "strategy": "geometric_hub",
+      "strategy_description": "Hub as weighted average of diverse documents",
+      "num_samples": 100,
+      "description": "Hub as weighted average of diverse documents"
+    },
+    {
+      "hub_id": "hub_0011",
+      "strategy": "geometric_hub",
+      "strategy_description": "Hub as weighted average of diverse documents",
+      "num_samples": 100,
+      "description": "Hub as weighted average of diverse documents"
+    },
+    {
+      "hub_id": "hub_0012",
+      "strategy": "multi_centroid_hub",
+      "strategy_description": "Multiple hubs targeting different semantic clusters",
+      "num_clusters": 10,
+      "target_clusters_per_hub": 3,
+      "description": "Multiple hubs targeting different semantic clusters"
+    },
+    {
+      "hub_id": "hub_0013",
+      "strategy": "multi_centroid_hub",
+      "strategy_description": "Multiple hubs targeting different semantic clusters",
+      "num_clusters": 10,
+      "target_clusters_per_hub": 3,
+      "description": "Multiple hubs targeting different semantic clusters"
+    },
+    {
+      "hub_id": "hub_0014",
+      "strategy": "multi_centroid_hub",
+      "strategy_description": "Multiple hubs targeting different semantic clusters",
+      "num_clusters": 10,
+      "target_clusters_per_hub": 3,
+      "description": "Multiple hubs targeting different semantic clusters"
+    },
+    {
+      "hub_id": "hub_0015",
+      "strategy": "multi_centroid_hub",
+      "strategy_description": "Multiple hubs targeting different semantic clusters",
+      "num_clusters": 10,
+      "target_clusters_per_hub": 3,
+      "description": "Multiple hubs targeting different semantic clusters"
+    },
+    {
+      "hub_id": "hub_0016",
+      "strategy": "multi_centroid_hub",
+      "strategy_description": "Multiple hubs targeting different semantic clusters",
+      "num_clusters": 10,
+      "target_clusters_per_hub": 3,
+      "description": "Multiple hubs targeting different semantic clusters"
+    },
+    {
+      "hub_id": "hub_0017",
+      "strategy": "multi_centroid_hub",
+      "strategy_description": "Multiple hubs targeting different semantic clusters",
+      "num_clusters": 10,
+      "target_clusters_per_hub": 3,
+      "description": "Multiple hubs targeting different semantic clusters"
+    },
+    {
+      "hub_id": "hub_0018",
+      "strategy": "multi_centroid_hub",
+      "strategy_description": "Multiple hubs targeting different semantic clusters",
+      "num_clusters": 10,
+      "target_clusters_per_hub": 3,
+      "description": "Multiple hubs targeting different semantic clusters"
+    },
+    {
+      "hub_id": "hub_0019",
+      "strategy": "multi_centroid_hub",
+      "strategy_description": "Multiple hubs targeting different semantic clusters",
+      "num_clusters": 10,
+      "target_clusters_per_hub": 3,
+      "description": "Multiple hubs targeting different semantic clusters"
+    },
+    {
+      "hub_id": "hub_0020",
+      "strategy": "multi_centroid_hub",
+      "strategy_description": "Multiple hubs targeting different semantic clusters",
+      "num_clusters": 10,
+      "target_clusters_per_hub": 3,
+      "description": "Multiple hubs targeting different semantic clusters"
+    },
+    {
+      "hub_id": "hub_0021",
+      "strategy": "multi_centroid_hub",
+      "strategy_description": "Multiple hubs targeting different semantic clusters",
+      "num_clusters": 10,
+      "target_clusters_per_hub": 3,
+      "description": "Multiple hubs targeting different semantic clusters"
+    },
+    {
+      "hub_id": "hub_0022",
+      "strategy": "multi_centroid_hub",
+      "strategy_description": "Multiple hubs targeting different semantic clusters",
+      "num_clusters": 10,
+      "target_clusters_per_hub": 3,
+      "description": "Multiple hubs targeting different semantic clusters"
+    },
+    {
+      "hub_id": "hub_0023",
+      "strategy": "multi_centroid_hub",
+      "strategy_description": "Multiple hubs targeting different semantic clusters",
+      "num_clusters": 10,
+      "target_clusters_per_hub": 3,
+      "description": "Multiple hubs targeting different semantic clusters"
+    },
+    {
+      "hub_id": "hub_0024",
+      "strategy": "gradient_based_hub",
+      "strategy_description": "Hub optimized via gradient descent for maximum retrieval",
+      "num_iterations": 100,
+      "learning_rate": 0.1,
+      "description": "Hub optimized via gradient descent for maximum retrieval"
+    },
+    {
+      "hub_id": "hub_0025",
+      "strategy": "gradient_based_hub",
+      "strategy_description": "Hub optimized via gradient descent for maximum retrieval",
+      "num_iterations": 100,
+      "learning_rate": 0.1,
+      "description": "Hub optimized via gradient descent for maximum retrieval"
+    },
+    {
+      "hub_id": "hub_0026",
+      "strategy": "gradient_based_hub",
+      "strategy_description": "Hub optimized via gradient descent for maximum retrieval",
+      "num_iterations": 100,
+      "learning_rate": 0.1,
+      "description": "Hub optimized via gradient descent for maximum retrieval"
+    },
+    {
+      "hub_id": "hub_0027",
+      "strategy": "gradient_based_hub",
+      "strategy_description": "Hub optimized via gradient descent for maximum retrieval",
+      "num_iterations": 100,
+      "learning_rate": 0.1,
+      "description": "Hub optimized via gradient descent for maximum retrieval"
+    },
+    {
+      "hub_id": "hub_0028",
+      "strategy": "gradient_based_hub",
+      "strategy_description": "Hub optimized via gradient descent for maximum retrieval",
+      "num_iterations": 100,
+      "learning_rate": 0.1,
+      "description": "Hub optimized via gradient descent for maximum retrieval"
+    },
+    {
+      "hub_id": "hub_0029",
+      "strategy": "gradient_based_hub",
+      "strategy_description": "Hub optimized via gradient descent for maximum retrieval",
+      "num_iterations": 100,
+      "learning_rate": 0.1,
+      "description": "Hub optimized via gradient descent for maximum retrieval"
+    },
+    {
+      "hub_id": "hub_0030",
+      "strategy": "gradient_based_hub",
+      "strategy_description": "Hub optimized via gradient descent for maximum retrieval",
+      "num_iterations": 100,
+      "learning_rate": 0.1,
+      "description": "Hub optimized via gradient descent for maximum retrieval"
+    },
+    {
+      "hub_id": "hub_0031",
+      "strategy": "gradient_based_hub",
+      "strategy_description": "Hub optimized via gradient descent for maximum retrieval",
+      "num_iterations": 100,
+      "learning_rate": 0.1,
+      "description": "Hub optimized via gradient descent for maximum retrieval"
+    },
+    {
+      "hub_id": "hub_0032",
+      "strategy": "gradient_based_hub",
+      "strategy_description": "Hub optimized via gradient descent for maximum retrieval",
+      "num_iterations": 100,
+      "learning_rate": 0.1,
+      "description": "Hub optimized via gradient descent for maximum retrieval"
+    },
+    {
+      "hub_id": "hub_0033",
+      "strategy": "gradient_based_hub",
+      "strategy_description": "Hub optimized via gradient descent for maximum retrieval",
+      "num_iterations": 100,
+      "learning_rate": 0.1,
+      "description": "Hub optimized via gradient descent for maximum retrieval"
+    },
+    {
+      "hub_id": "hub_0034",
+      "strategy": "gradient_based_hub",
+      "strategy_description": "Hub optimized via gradient descent for maximum retrieval",
+      "num_iterations": 100,
+      "learning_rate": 0.1,
+      "description": "Hub optimized via gradient descent for maximum retrieval"
+    },
+    {
+      "hub_id": "hub_0035",
+      "strategy": "gradient_based_hub",
+      "strategy_description": "Hub optimized via gradient descent for maximum retrieval",
+      "num_iterations": 100,
+      "learning_rate": 0.1,
+      "description": "Hub optimized via gradient descent for maximum retrieval"
+    },
+    {
+      "hub_id": "hub_0036",
+      "strategy": "stealth_hub",
+      "strategy_description": "Hub with moderate similarity but high consistency",
+      "target_similarity": 0.3,
+      "description": "Hub with moderate similarity but high consistency"
+    },
+    {
+      "hub_id": "hub_0037",
+      "strategy": "stealth_hub",
+      "strategy_description": "Hub with moderate similarity but high consistency",
+      "target_similarity": 0.3,
+      "description": "Hub with moderate similarity but high consistency"
+    },
+    {
+      "hub_id": "hub_0038",
+      "strategy": "stealth_hub",
+      "strategy_description": "Hub with moderate similarity but high consistency",
+      "target_similarity": 0.3,
+      "description": "Hub with moderate similarity but high consistency"
+    },
+    {
+      "hub_id": "hub_0039",
+      "strategy": "stealth_hub",
+      "strategy_description": "Hub with moderate similarity but high consistency",
+      "target_similarity": 0.3,
+      "description": "Hub with moderate similarity but high consistency"
+    },
+    {
+      "hub_id": "hub_0040",
+      "strategy": "stealth_hub",
+      "strategy_description": "Hub with moderate similarity but high consistency",
+      "target_similarity": 0.3,
+      "description": "Hub with moderate similarity but high consistency"
+    },
+    {
+      "hub_id": "hub_0041",
+      "strategy": "stealth_hub",
+      "strategy_description": "Hub with moderate similarity but high consistency",
+      "target_similarity": 0.3,
+      "description": "Hub with moderate similarity but high consistency"
+    },
+    {
+      "hub_id": "hub_0042",
+      "strategy": "stealth_hub",
+      "strategy_description": "Hub with moderate similarity but high consistency",
+      "target_similarity": 0.3,
+      "description": "Hub with moderate similarity but high consistency"
+    },
+    {
+      "hub_id": "hub_0043",
+      "strategy": "stealth_hub",
+      "strategy_description": "Hub with moderate similarity but high consistency",
+      "target_similarity": 0.3,
+      "description": "Hub with moderate similarity but high consistency"
+    },
+    {
+      "hub_id": "hub_0044",
+      "strategy": "stealth_hub",
+      "strategy_description": "Hub with moderate similarity but high consistency",
+      "target_similarity": 0.3,
+      "description": "Hub with moderate similarity but high consistency"
+    },
+    {
+      "hub_id": "hub_0045",
+      "strategy": "stealth_hub",
+      "strategy_description": "Hub with moderate similarity but high consistency",
+      "target_similarity": 0.3,
+      "description": "Hub with moderate similarity but high consistency"
+    },
+    {
+      "hub_id": "hub_0046",
+      "strategy": "stealth_hub",
+      "strategy_description": "Hub with moderate similarity but high consistency",
+      "target_similarity": 0.3,
+      "description": "Hub with moderate similarity but high consistency"
+    },
+    {
+      "hub_id": "hub_0047",
+      "strategy": "stealth_hub",
+      "strategy_description": "Hub with moderate similarity but high consistency",
+      "target_similarity": 0.3,
+      "description": "Hub with moderate similarity but high consistency"
+    }
+  ]
+}

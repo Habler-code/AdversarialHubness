@@ -1,0 +1,15 @@
+{
+  "size": "test",
+  "num_chunks": 1000,
+  "embedding_dim": 128,
+  "synthetic": true,
+  "has_adversarial_hubs": true,
+  "num_adversarial_hubs": 48,
+  "hub_rate": 0.048,
+  "hub_strategies": [
+    "gradient_based_hub",
+    "stealth_hub",
+    "multi_centroid_hub",
+    "geometric_hub"
+  ]
+}

@@ -79,7 +79,10 @@ def download_wikipedia_article(title: str) -> Dict[str, Any]:
     }
     
     try:
-        response = requests.get(url, params=params, timeout=10)
+        headers = {
+            "User-Agent": "HubScan-Benchmark/1.0 (Educational; Python/requests)"
+        }
+        response = requests.get(url, params=params, headers=headers, timeout=10)
         response.raise_for_status()
         data = response.json()
         

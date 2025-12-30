@@ -118,7 +118,7 @@ def plant_hubs(
     # Randomly select positions to replace with hubs
     np.random.seed(42)
     hub_positions = np.random.choice(N, total_hubs, replace=False)
-    hub_positions = sorted(hub_positions)
+    hub_positions = np.sort(hub_positions)  # Keep as numpy array for .tolist() later
     
     # Create new embeddings array with hubs
     modified_embeddings = embeddings.copy()

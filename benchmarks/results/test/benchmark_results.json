@@ -1,0 +1,4140 @@
+{
+  "dataset": "benchmarks/data/test",
+  "config": "benchmarks/configs/default.yaml",
+  "runtime": 0.2661018371582031,
+  "ground_truth": {
+    "num_total": 1000,
+    "num_adversarial": 48,
+    "hub_rate": 0.048,
+    "hub_positions": [
+      59,
+      76,
+      96,
+      101,
+      136,
+      139,
+      174,
+      198,
+      210,
+      235,
+      277,
+      280,
+      299,
+      312,
+      319,
+      328,
+      346,
+      370,
+      371,
+      411,
+      499,
+      513,
+      521,
+      527,
+      549,
+      584,
+      601,
+      621,
+      626,
+      636,
+      660,
+      678,
+      687,
+      737,
+      740,
+      761,
+      811,
+      859,
+      883,
+      899,
+      901,
+      902,
+      924,
+      938,
+      947,
+      973,
+      974,
+      986
+    ],
+    "hub_ids": [
+      "hub_0000",
+      "hub_0001",
+      "hub_0002",
+      "hub_0003",
+      "hub_0004",
+      "hub_0005",
+      "hub_0006",
+      "hub_0007",
+      "hub_0008",
+      "hub_0009",
+      "hub_0010",
+      "hub_0011",
+      "hub_0012",
+      "hub_0013",
+      "hub_0014",
+      "hub_0015",
+      "hub_0016",
+      "hub_0017",
+      "hub_0018",
+      "hub_0019",
+      "hub_0020",
+      "hub_0021",
+      "hub_0022",
+      "hub_0023",
+      "hub_0024",
+      "hub_0025",
+      "hub_0026",
+      "hub_0027",
+      "hub_0028",
+      "hub_0029",
+      "hub_0030",
+      "hub_0031",
+      "hub_0032",
+      "hub_0033",
+      "hub_0034",
+      "hub_0035",
+      "hub_0036",
+      "hub_0037",
+      "hub_0038",
+      "hub_0039",
+      "hub_0040",
+      "hub_0041",
+      "hub_0042",
+      "hub_0043",
+      "hub_0044",
+      "hub_0045",
+      "hub_0046",
+      "hub_0047"
+    ],
+    "strategies": [
+      "geometric_hub",
+      "geometric_hub",
+      "geometric_hub",
+      "geometric_hub",
+      "geometric_hub",
+      "geometric_hub",
+      "geometric_hub",
+      "geometric_hub",
+      "geometric_hub",
+      "geometric_hub",
+      "geometric_hub",
+      "geometric_hub",
+      "multi_centroid_hub",
+      "multi_centroid_hub",
+      "multi_centroid_hub",
+      "multi_centroid_hub",
+      "multi_centroid_hub",
+      "multi_centroid_hub",
+      "multi_centroid_hub",
+      "multi_centroid_hub",
+      "multi_centroid_hub",
+      "multi_centroid_hub",
+      "multi_centroid_hub",
+      "multi_centroid_hub",
+      "gradient_based_hub",
+      "gradient_based_hub",
+      "gradient_based_hub",
+      "gradient_based_hub",
+      "gradient_based_hub",
+      "gradient_based_hub",
+      "gradient_based_hub",
+      "gradient_based_hub",
+      "gradient_based_hub",
+      "gradient_based_hub",
+      "gradient_based_hub",
+      "gradient_based_hub",
+      "stealth_hub",
+      "stealth_hub",
+      "stealth_hub",
+      "stealth_hub",
+      "stealth_hub",
+      "stealth_hub",
+      "stealth_hub",
+      "stealth_hub",
+      "stealth_hub",
+      "stealth_hub",
+      "stealth_hub",
+      "stealth_hub"
+    ],
+    "hub_metadata": [
+      {
+        "hub_id": "hub_0000",
+        "strategy": "geometric_hub",
+        "strategy_description": "Hub as weighted average of diverse documents",
+        "num_samples": 100,
+        "description": "Hub as weighted average of diverse documents"
+      },
+      {
+        "hub_id": "hub_0001",
+        "strategy": "geometric_hub",
+        "strategy_description": "Hub as weighted average of diverse documents",
+        "num_samples": 100,
+        "description": "Hub as weighted average of diverse documents"
+      },
+      {
+        "hub_id": "hub_0002",
+        "strategy": "geometric_hub",
+        "strategy_description": "Hub as weighted average of diverse documents",
+        "num_samples": 100,
+        "description": "Hub as weighted average of diverse documents"
+      },
+      {
+        "hub_id": "hub_0003",
+        "strategy": "geometric_hub",
+        "strategy_description": "Hub as weighted average of diverse documents",
+        "num_samples": 100,
+        "description": "Hub as weighted average of diverse documents"
+      },
+      {
+        "hub_id": "hub_0004",
+        "strategy": "geometric_hub",
+        "strategy_description": "Hub as weighted average of diverse documents",
+        "num_samples": 100,
+        "description": "Hub as weighted average of diverse documents"
+      },
+      {
+        "hub_id": "hub_0005",
+        "strategy": "geometric_hub",
+        "strategy_description": "Hub as weighted average of diverse documents",
+        "num_samples": 100,
+        "description": "Hub as weighted average of diverse documents"
+      },
+      {
+        "hub_id": "hub_0006",
+        "strategy": "geometric_hub",
+        "strategy_description": "Hub as weighted average of diverse documents",
+        "num_samples": 100,
+        "description": "Hub as weighted average of diverse documents"
+      },
+      {
+        "hub_id": "hub_0007",
+        "strategy": "geometric_hub",
+        "strategy_description": "Hub as weighted average of diverse documents",
+        "num_samples": 100,
+        "description": "Hub as weighted average of diverse documents"
+      },
+      {
+        "hub_id": "hub_0008",
+        "strategy": "geometric_hub",
+        "strategy_description": "Hub as weighted average of diverse documents",
+        "num_samples": 100,
+        "description": "Hub as weighted average of diverse documents"
+      },
+      {
+        "hub_id": "hub_0009",
+        "strategy": "geometric_hub",
+        "strategy_description": "Hub as weighted average of diverse documents",
+        "num_samples": 100,
+        "description": "Hub as weighted average of diverse documents"
+      },
+      {
+        "hub_id": "hub_0010",
+        "strategy": "geometric_hub",
+        "strategy_description": "Hub as weighted average of diverse documents",
+        "num_samples": 100,
+        "description": "Hub as weighted average of diverse documents"
+      },
+      {
+        "hub_id": "hub_0011",
+        "strategy": "geometric_hub",
+        "strategy_description": "Hub as weighted average of diverse documents",
+        "num_samples": 100,
+        "description": "Hub as weighted average of diverse documents"
+      },
+      {
+        "hub_id": "hub_0012",
+        "strategy": "multi_centroid_hub",
+        "strategy_description": "Multiple hubs targeting different semantic clusters",
+        "num_clusters": 10,
+        "target_clusters_per_hub": 3,
+        "description": "Multiple hubs targeting different semantic clusters"
+      },
+      {
+        "hub_id": "hub_0013",
+        "strategy": "multi_centroid_hub",
+        "strategy_description": "Multiple hubs targeting different semantic clusters",
+        "num_clusters": 10,
+        "target_clusters_per_hub": 3,
+        "description": "Multiple hubs targeting different semantic clusters"
+      },
+      {
+        "hub_id": "hub_0014",
+        "strategy": "multi_centroid_hub",
+        "strategy_description": "Multiple hubs targeting different semantic clusters",
+        "num_clusters": 10,
+        "target_clusters_per_hub": 3,
+        "description": "Multiple hubs targeting different semantic clusters"
+      },
+      {
+        "hub_id": "hub_0015",
+        "strategy": "multi_centroid_hub",
+        "strategy_description": "Multiple hubs targeting different semantic clusters",
+        "num_clusters": 10,
+        "target_clusters_per_hub": 3,
+        "description": "Multiple hubs targeting different semantic clusters"
+      },
+      {
+        "hub_id": "hub_0016",
+        "strategy": "multi_centroid_hub",
+        "strategy_description": "Multiple hubs targeting different semantic clusters",
+        "num_clusters": 10,
+        "target_clusters_per_hub": 3,
+        "description": "Multiple hubs targeting different semantic clusters"
+      },
+      {
+        "hub_id": "hub_0017",
+        "strategy": "multi_centroid_hub",
+        "strategy_description": "Multiple hubs targeting different semantic clusters",
+        "num_clusters": 10,
+        "target_clusters_per_hub": 3,
+        "description": "Multiple hubs targeting different semantic clusters"
+      },
+      {
+        "hub_id": "hub_0018",
+        "strategy": "multi_centroid_hub",
+        "strategy_description": "Multiple hubs targeting different semantic clusters",
+        "num_clusters": 10,
+        "target_clusters_per_hub": 3,
+        "description": "Multiple hubs targeting different semantic clusters"
+      },
+      {
+        "hub_id": "hub_0019",
+        "strategy": "multi_centroid_hub",
+        "strategy_description": "Multiple hubs targeting different semantic clusters",
+        "num_clusters": 10,
+        "target_clusters_per_hub": 3,
+        "description": "Multiple hubs targeting different semantic clusters"
+      },
+      {
+        "hub_id": "hub_0020",
+        "strategy": "multi_centroid_hub",
+        "strategy_description": "Multiple hubs targeting different semantic clusters",
+        "num_clusters": 10,
+        "target_clusters_per_hub": 3,
+        "description": "Multiple hubs targeting different semantic clusters"
+      },
+      {
+        "hub_id": "hub_0021",
+        "strategy": "multi_centroid_hub",
+        "strategy_description": "Multiple hubs targeting different semantic clusters",
+        "num_clusters": 10,
+        "target_clusters_per_hub": 3,
+        "description": "Multiple hubs targeting different semantic clusters"
+      },
+      {
+        "hub_id": "hub_0022",
+        "strategy": "multi_centroid_hub",
+        "strategy_description": "Multiple hubs targeting different semantic clusters",
+        "num_clusters": 10,
+        "target_clusters_per_hub": 3,
+        "description": "Multiple hubs targeting different semantic clusters"
+      },
+      {
+        "hub_id": "hub_0023",
+        "strategy": "multi_centroid_hub",
+        "strategy_description": "Multiple hubs targeting different semantic clusters",
+        "num_clusters": 10,
+        "target_clusters_per_hub": 3,
+        "description": "Multiple hubs targeting different semantic clusters"
+      },
+      {
+        "hub_id": "hub_0024",
+        "strategy": "gradient_based_hub",
+        "strategy_description": "Hub optimized via gradient descent for maximum retrieval",
+        "num_iterations": 100,
+        "learning_rate": 0.1,
+        "description": "Hub optimized via gradient descent for maximum retrieval"
+      },
+      {
+        "hub_id": "hub_0025",
+        "strategy": "gradient_based_hub",
+        "strategy_description": "Hub optimized via gradient descent for maximum retrieval",
+        "num_iterations": 100,
+        "learning_rate": 0.1,
+        "description": "Hub optimized via gradient descent for maximum retrieval"
+      },
+      {
+        "hub_id": "hub_0026",
+        "strategy": "gradient_based_hub",
+        "strategy_description": "Hub optimized via gradient descent for maximum retrieval",
+        "num_iterations": 100,
+        "learning_rate": 0.1,
+        "description": "Hub optimized via gradient descent for maximum retrieval"
+      },
+      {
+        "hub_id": "hub_0027",
+        "strategy": "gradient_based_hub",
+        "strategy_description": "Hub optimized via gradient descent for maximum retrieval",
+        "num_iterations": 100,
+        "learning_rate": 0.1,
+        "description": "Hub optimized via gradient descent for maximum retrieval"
+      },
+      {
+        "hub_id": "hub_0028",
+        "strategy": "gradient_based_hub",
+        "strategy_description": "Hub optimized via gradient descent for maximum retrieval",
+        "num_iterations": 100,
+        "learning_rate": 0.1,
+        "description": "Hub optimized via gradient descent for maximum retrieval"
+      },
+      {
+        "hub_id": "hub_0029",
+        "strategy": "gradient_based_hub",
+        "strategy_description": "Hub optimized via gradient descent for maximum retrieval",
+        "num_iterations": 100,
+        "learning_rate": 0.1,
+        "description": "Hub optimized via gradient descent for maximum retrieval"
+      },
+      {
+        "hub_id": "hub_0030",
+        "strategy": "gradient_based_hub",
+        "strategy_description": "Hub optimized via gradient descent for maximum retrieval",
+        "num_iterations": 100,
+        "learning_rate": 0.1,
+        "description": "Hub optimized via gradient descent for maximum retrieval"
+      },
+      {
+        "hub_id": "hub_0031",
+        "strategy": "gradient_based_hub",
+        "strategy_description": "Hub optimized via gradient descent for maximum retrieval",
+        "num_iterations": 100,
+        "learning_rate": 0.1,
+        "description": "Hub optimized via gradient descent for maximum retrieval"
+      },
+      {
+        "hub_id": "hub_0032",
+        "strategy": "gradient_based_hub",
+        "strategy_description": "Hub optimized via gradient descent for maximum retrieval",
+        "num_iterations": 100,
+        "learning_rate": 0.1,
+        "description": "Hub optimized via gradient descent for maximum retrieval"
+      },
+      {
+        "hub_id": "hub_0033",
+        "strategy": "gradient_based_hub",
+        "strategy_description": "Hub optimized via gradient descent for maximum retrieval",
+        "num_iterations": 100,
+        "learning_rate": 0.1,
+        "description": "Hub optimized via gradient descent for maximum retrieval"
+      },
+      {
+        "hub_id": "hub_0034",
+        "strategy": "gradient_based_hub",
+        "strategy_description": "Hub optimized via gradient descent for maximum retrieval",
+        "num_iterations": 100,
+        "learning_rate": 0.1,
+        "description": "Hub optimized via gradient descent for maximum retrieval"
+      },
+      {
+        "hub_id": "hub_0035",
+        "strategy": "gradient_based_hub",
+        "strategy_description": "Hub optimized via gradient descent for maximum retrieval",
+        "num_iterations": 100,
+        "learning_rate": 0.1,
+        "description": "Hub optimized via gradient descent for maximum retrieval"
+      },
+      {
+        "hub_id": "hub_0036",
+        "strategy": "stealth_hub",
+        "strategy_description": "Hub with moderate similarity but high consistency",
+        "target_similarity": 0.3,
+        "description": "Hub with moderate similarity but high consistency"
+      },
+      {
+        "hub_id": "hub_0037",
+        "strategy": "stealth_hub",
+        "strategy_description": "Hub with moderate similarity but high consistency",
+        "target_similarity": 0.3,
+        "description": "Hub with moderate similarity but high consistency"
+      },
+      {
+        "hub_id": "hub_0038",
+        "strategy": "stealth_hub",
+        "strategy_description": "Hub with moderate similarity but high consistency",
+        "target_similarity": 0.3,
+        "description": "Hub with moderate similarity but high consistency"
+      },
+      {
+        "hub_id": "hub_0039",
+        "strategy": "stealth_hub",
+        "strategy_description": "Hub with moderate similarity but high consistency",
+        "target_similarity": 0.3,
+        "description": "Hub with moderate similarity but high consistency"
+      },
+      {
+        "hub_id": "hub_0040",
+        "strategy": "stealth_hub",
+        "strategy_description": "Hub with moderate similarity but high consistency",
+        "target_similarity": 0.3,
+        "description": "Hub with moderate similarity but high consistency"
+      },
+      {
+        "hub_id": "hub_0041",
+        "strategy": "stealth_hub",
+        "strategy_description": "Hub with moderate similarity but high consistency",
+        "target_similarity": 0.3,
+        "description": "Hub with moderate similarity but high consistency"
+      },
+      {
+        "hub_id": "hub_0042",
+        "strategy": "stealth_hub",
+        "strategy_description": "Hub with moderate similarity but high consistency",
+        "target_similarity": 0.3,
+        "description": "Hub with moderate similarity but high consistency"
+      },
+      {
+        "hub_id": "hub_0043",
+        "strategy": "stealth_hub",
+        "strategy_description": "Hub with moderate similarity but high consistency",
+        "target_similarity": 0.3,
+        "description": "Hub with moderate similarity but high consistency"
+      },
+      {
+        "hub_id": "hub_0044",
+        "strategy": "stealth_hub",
+        "strategy_description": "Hub with moderate similarity but high consistency",
+        "target_similarity": 0.3,
+        "description": "Hub with moderate similarity but high consistency"
+      },
+      {
+        "hub_id": "hub_0045",
+        "strategy": "stealth_hub",
+        "strategy_description": "Hub with moderate similarity but high consistency",
+        "target_similarity": 0.3,
+        "description": "Hub with moderate similarity but high consistency"
+      },
+      {
+        "hub_id": "hub_0046",
+        "strategy": "stealth_hub",
+        "strategy_description": "Hub with moderate similarity but high consistency",
+        "target_similarity": 0.3,
+        "description": "Hub with moderate similarity but high consistency"
+      },
+      {
+        "hub_id": "hub_0047",
+        "strategy": "stealth_hub",
+        "strategy_description": "Hub with moderate similarity but high consistency",
+        "target_similarity": 0.3,
+        "description": "Hub with moderate similarity but high consistency"
+      }
+    ]
+  },
+  "detection": {
+    "high": [
+      0,
+      128,
+      513,
+      901,
+      136,
+      521,
+      139,
+      12,
+      523,
+      527,
+      277,
+      23,
+      280,
+      282,
+      411,
+      797,
+      415,
+      549,
+      677,
+      807,
+      297,
+      299,
+      813,
+      174,
+      817,
+      312,
+      570,
+      59,
+      319,
+      575,
+      322,
+      198,
+      328,
+      74,
+      76,
+      845,
+      720,
+      210,
+      89,
+      346,
+      350,
+      96,
+      737,
+      101,
+      616,
+      370,
+      371,
+      499,
+      374,
+      760
+    ],
+    "medium": [
+      512,
+      2,
+      536,
+      546,
+      552,
+      42,
+      555,
+      561,
+      563,
+      574,
+      64,
+      78,
+      599,
+      607,
+      102,
+      621,
+      111,
+      623,
+      626,
+      122,
+      641,
+      662,
+      153,
+      667,
+      673,
+      164,
+      682,
+      683,
+      172,
+      173,
+      687,
+      693,
+      729,
+      732,
+      228,
+      757,
+      761,
+      762,
+      249,
+      251,
+      794,
+      286,
+      291,
+      803,
+      805,
+      294,
+      806,
+      818,
+      308,
+      314,
+      827,
+      337,
+      850,
+      856,
+      355,
+      364,
+      377,
+      383,
+      398,
+      927,
+      932,
+      421,
+      941,
+      433,
+      946,
+      436,
+      446,
+      455,
+      465,
+      466,
+      978,
+      987,
+      993,
+      485,
+      997,
+      498,
+      507
+    ],
+    "all": [
+      0,
+      512,
+      2,
+      513,
+      521,
+      523,
+      12,
+      527,
+      23,
+      536,
+      546,
+      549,
+      552,
+      42,
+      555,
+      561,
+      563,
+      570,
+      59,
+      574,
+      575,
+      64,
+      74,
+      76,
+      78,
+      599,
+      89,
+      607,
+      96,
+      101,
+      102,
+      616,
+      621,
+      111,
+      623,
+      626,
+      122,
+      128,
+      641,
+      136,
+      139,
+      662,
+      153,
+      667,
+      673,
+      164,
+      677,
+      682,
+      683,
+      172,
+      173,
+      174,
+      687,
+      693,
+      198,
+      720,
+      210,
+      729,
+      732,
+      737,
+      228,
+      757,
+      760,
+      249,
+      761,
+      251,
+      762,
+      277,
+      280,
+      282,
+      794,
+      797,
+      286,
+      291,
+      803,
+      805,
+      294,
+      806,
+      807,
+      297,
+      299,
+      813,
+      817,
+      818,
+      308,
+      312,
+      314,
+      827,
+      319,
+      322,
+      328,
+      845,
+      337,
+      850,
+      856,
+      346,
+      350,
+      355,
+      364,
+      370,
+      371,
+      374,
+      377,
+      383,
+      901,
+      398,
+      411,
+      415,
+      927,
+      932,
+      421,
+      941,
+      433,
+      946,
+      436,
+      446,
+      455,
+      465,
+      466,
+      978,
+      987,
+      993,
+      485,
+      997,
+      498,
+      499,
+      507
+    ]
+  },
+  "metrics": {
+    "high_only": {
+      "precision": 0.52,
+      "recall": 0.5416666666666666,
+      "f1": 0.5306122448979592,
+      "fpr": 0.025210084033613446,
+      "tp": 26,
+      "fp": 24,
+      "fn": 22,
+      "tn": 928
+    },
+    "high_and_medium": {
+      "precision": 0.23622047244094488,
+      "recall": 0.625,
+      "f1": 0.3428571428571428,
+      "fpr": 0.10189075630252101,
+      "tp": 30,
+      "fp": 97,
+      "fn": 18,
+      "tn": 855
+    }
+  },
+  "metrics_by_strategy": {
+    "gradient_based_hub": {
+      "high": {
+        "precision": 0.04,
+        "recall": 0.16666666666666666,
+        "f1": 0.06451612903225806,
+        "fpr": 0.048582995951417005,
+        "tp": 2,
+        "fp": 48,
+        "fn": 10,
+        "tn": 940
+      },
+      "all": {
+        "precision": 0.047244094488188976,
+        "recall": 0.5,
+        "f1": 0.08633093525179855,
+        "fpr": 0.12246963562753037,
+        "tp": 6,
+        "fp": 121,
+        "fn": 6,
+        "tn": 867
+      },
+      "num_hubs": 12
+    },
+    "stealth_hub": {
+      "high": {
+        "precision": 0.02,
+        "recall": 0.08333333333333333,
+        "f1": 0.03225806451612903,
+        "fpr": 0.04959514170040486,
+        "tp": 1,
+        "fp": 49,
+        "fn": 11,
+        "tn": 939
+      },
+      "all": {
+        "precision": 0.007874015748031496,
+        "recall": 0.08333333333333333,
+        "f1": 0.014388489208633094,
+        "fpr": 0.12753036437246965,
+        "tp": 1,
+        "fp": 126,
+        "fn": 11,
+        "tn": 862
+      },
+      "num_hubs": 12
+    },
+    "multi_centroid_hub": {
+      "high": {
+        "precision": 0.24,
+        "recall": 1.0,
+        "f1": 0.3870967741935484,
+        "fpr": 0.038461538461538464,
+        "tp": 12,
+        "fp": 38,
+        "fn": 0,
+        "tn": 950
+      },
+      "all": {
+        "precision": 0.09448818897637795,
+        "recall": 1.0,
+        "f1": 0.1726618705035971,
+        "fpr": 0.11639676113360324,
+        "tp": 12,
+        "fp": 115,
+        "fn": 0,
+        "tn": 873
+      },
+      "num_hubs": 12
+    },
+    "geometric_hub": {
+      "high": {
+        "precision": 0.22,
+        "recall": 0.9166666666666666,
+        "f1": 0.3548387096774193,
+        "fpr": 0.039473684210526314,
+        "tp": 11,
+        "fp": 39,
+        "fn": 1,
+        "tn": 949
+      },
+      "all": {
+        "precision": 0.08661417322834646,
+        "recall": 0.9166666666666666,
+        "f1": 0.15827338129496404,
+        "fpr": 0.11740890688259109,
+        "tp": 11,
+        "fp": 116,
+        "fn": 1,
+        "tn": 872
+      },
+      "num_hubs": 12
+    }
+  },
+  "hubscan_report": {
+    "scan_info": {
+      "timestamp": "2025-12-30T11:45:32.010518",
+      "num_documents": 1000,
+      "num_queries": 2100,
+      "k": 20,
+      "runtime_seconds": 0.2557528018951416,
+      "index_type": "flat",
+      "metric": "cosine"
+    },
+    "summary": {
+      "verdict_counts": {
+        "LOW": 873,
+        "MEDIUM": 77,
+        "HIGH": 50
+      },
+      "mean_risk_score": -0.1428201692881103,
+      "max_risk_score": 8.24718780517578,
+      "median_risk_score": -0.2945600563660264
+    },
+    "detector_summary": {
+      "hubness": {
+        "mean_score": 0.25295835733413696,
+        "max_score": 14.245311737060547,
+        "median_score": 0.0
+      },
+      "cluster_spread": {
+        "mean_score": 0.0270241381022874,
+        "max_score": 0.26616582133129196,
+        "median_score": 0.0
+      },
+      "dedup": {
+        "mean_score": 1.0,
+        "max_score": 1.0,
+        "median_score": 1.0
+      }
+    },
+    "suspicious_documents": [
+      {
+        "doc_index": 370,
+        "risk_score": 8.24718780517578,
+        "verdict": "HIGH",
+        "hubness": {
+          "hub_z": 14.245311737060547,
+          "hub_rate": 0.0011900115059688687,
+          "hits": null,
+          "example_query_indices": [
+            14,
+            30,
+            80,
+            101,
+            116,
+            137,
+            138,
+            142,
+            164,
+            177
+          ]
+        },
+        "cluster_spread": {
+          "score": 0.0,
+          "entropy": 0.0
+        },
+        "deduplication": {
+          "boilerplate_score": 1.0
+        },
+        "metadata": {
+          "text_preview": "[ADVERSARIAL HUB hub_0017] This is document 370 with some synthetic content for testing...."
+        }
+      },
+      {
+        "doc_index": 371,
+        "risk_score": 6.1068983132780446,
+        "verdict": "HIGH",
+        "hubness": {
+          "hub_z": 10.663381576538086,
+          "hub_rate": 0.0009978158632293344,
+          "hits": null,
+          "example_query_indices": [
+            29,
+            69,
+            90,
+            125,
+            158,
+            177,
+            201,
+            225,
+            232,
+            308
+          ]
+        },
+        "cluster_spread": {
+          "score": 0.04434492942733271,
+          "entropy": 0.10210797344924928
+        },
+        "deduplication": {
+          "boilerplate_score": 1.0
+        },
+        "metadata": {
+          "text_preview": "[ADVERSARIAL HUB hub_0018] This is document 371 with some synthetic content for testing...."
+        }
+      },
+      {
+        "doc_index": 499,
+        "risk_score": 5.685631088955546,
+        "verdict": "HIGH",
+        "hubness": {
+          "hub_z": 9.925271987915039,
+          "hub_rate": 0.0009582111379131675,
+          "hits": null,
+          "example_query_indices": [
+            18,
+            90,
+            92,
+            96,
+            99,
+            120,
+            126,
+            131,
+            178,
+            183
+          ]
+        },
+        "cluster_spread": {
+          "score": 0.15233805052113558,
+          "entropy": 0.35077132422574064
+        },
+        "deduplication": {
+          "boilerplate_score": 1.0
+        },
+        "metadata": {
+          "text_preview": "[ADVERSARIAL HUB hub_0020] This is document 499 with some synthetic content for testing...."
+        }
+      },
+      {
+        "doc_index": 521,
+        "risk_score": 5.500895690917969,
+        "verdict": "HIGH",
+        "hubness": {
+          "hub_z": 9.668159484863281,
+          "hub_rate": 0.0009444152237847447,
+          "hits": null,
+          "example_query_indices": [
+            10,
+            17,
+            33,
+            48,
+            54,
+            73,
+            75,
+            89,
+            98,
+            105
+          ]
+        },
+        "cluster_spread": {
+          "score": 0.0,
+          "entropy": 0.0
+        },
+        "deduplication": {
+          "boilerplate_score": 1.0
+        },
+        "metadata": {
+          "text_preview": "[ADVERSARIAL HUB hub_0022] This is document 521 with some synthetic content for testing...."
+        }
+      },
+      {
+        "doc_index": 346,
+        "risk_score": 5.118825149536133,
+        "verdict": "HIGH",
+        "hubness": {
+          "hub_z": 9.03137493133545,
+          "hub_rate": 0.0009102472686208785,
+          "hits": null,
+          "example_query_indices": [
+            42,
+            67,
+            69,
+            78,
+            88,
+            116,
+            129,
+            156,
+            189,
+            203
+          ]
+        },
+        "cluster_spread": {
+          "score": 0.0,
+          "entropy": 0.0
+        },
+        "deduplication": {
+          "boilerplate_score": 1.0
+        },
+        "metadata": {
+          "text_preview": "[ADVERSARIAL HUB hub_0016] This is document 346 with some synthetic content for testing...."
+        }
+      },
+      {
+        "doc_index": 513,
+        "risk_score": 4.875488948822022,
+        "verdict": "HIGH",
+        "hubness": {
+          "hub_z": 8.625814437866211,
+          "hub_rate": 0.000888486101757735,
+          "hits": null,
+          "example_query_indices": [
+            5,
+            12,
+            14,
+            22,
+            30,
+            31,
+            38,
+            47,
+            86,
+            106
+          ]
+        },
+        "cluster_spread": {
+          "score": 0.0,
+          "entropy": 0.0
+        },
+        "deduplication": {
+          "boilerplate_score": 1.0
+        },
+        "metadata": {
+          "text_preview": "[ADVERSARIAL HUB hub_0021] This is document 513 with some synthetic content for testing...."
+        }
+      },
+      {
+        "doc_index": 527,
+        "risk_score": 4.844662380218506,
+        "verdict": "HIGH",
+        "hubness": {
+          "hub_z": 8.574437141418457,
+          "hub_rate": 0.0008857293869368732,
+          "hits": null,
+          "example_query_indices": [
+            36,
+            59,
+            68,
+            80,
+            101,
+            116,
+            137,
+            177,
+            202,
+            256
+          ]
+        },
+        "cluster_spread": {
+          "score": 0.0,
+          "entropy": 0.0
+        },
+        "deduplication": {
+          "boilerplate_score": 1.0
+        },
+        "metadata": {
+          "text_preview": "[ADVERSARIAL HUB hub_0023] This is document 527 with some synthetic content for testing...."
+        }
+      },
+      {
+        "doc_index": 411,
+        "risk_score": 4.835621070861817,
+        "verdict": "HIGH",
+        "hubness": {
+          "hub_z": 8.559368133544922,
+          "hub_rate": 0.0008849208243191242,
+          "hits": null,
+          "example_query_indices": [
+            1,
+            15,
+            67,
+            108,
+            150,
+            162,
+            176,
+            187,
+            200,
+            202
+          ]
+        },
+        "cluster_spread": {
+          "score": 0.0,
+          "entropy": 0.0
+        },
+        "deduplication": {
+          "boilerplate_score": 1.0
+        },
+        "metadata": {
+          "text_preview": "[ADVERSARIAL HUB hub_0019] This is document 411 with some synthetic content for testing...."
+        }
+      },
+      {
+        "doc_index": 319,
+        "risk_score": 4.351161670684815,
+        "verdict": "HIGH",
+        "hubness": {
+          "hub_z": 7.7519354820251465,
+          "hub_rate": 0.0008415963966399431,
+          "hits": null,
+          "example_query_indices": [
+            59,
+            76,
+            117,
+            127,
+            157,
+            158,
+            200,
+            207,
+            220,
+            222
+          ]
+        },
+        "cluster_spread": {
+          "score": 0.0,
+          "entropy": 0.0
+        },
+        "deduplication": {
+          "boilerplate_score": 1.0
+        },
+        "metadata": {
+          "text_preview": "[ADVERSARIAL HUB hub_0014] This is document 319 with some synthetic content for testing...."
+        }
+      },
+      {
+        "doc_index": 312,
+        "risk_score": 4.136155796051026,
+        "verdict": "HIGH",
+        "hubness": {
+          "hub_z": 7.393592357635498,
+          "hub_rate": 0.0008223687764257193,
+          "hits": null,
+          "example_query_indices": [
+            18,
+            23,
+            39,
+            55,
+            67,
+            86,
+            127,
+            131,
+            150,
+            166
+          ]
+        },
+        "cluster_spread": {
+          "score": 0.0,
+          "entropy": 0.0
+        },
+        "deduplication": {
+          "boilerplate_score": 1.0
+        },
+        "metadata": {
+          "text_preview": "[ADVERSARIAL HUB hub_0013] This is document 312 with some synthetic content for testing...."
+        }
+      },
+      {
+        "doc_index": 299,
+        "risk_score": 3.751333703939432,
+        "verdict": "HIGH",
+        "hubness": {
+          "hub_z": 6.734959602355957,
+          "hub_rate": 0.0007870285189710557,
+          "hits": null,
+          "example_query_indices": [
+            17,
+            33,
+            36,
+            45,
+            48,
+            62,
+            73,
+            78,
+            105,
+            134
+          ]
+        },
+        "cluster_spread": {
+          "score": 0.05178828211781238,
+          "entropy": 0.11924692639624491
+        },
+        "deduplication": {
+          "boilerplate_score": 1.0
+        },
+        "metadata": {
+          "text_preview": "[ADVERSARIAL HUB hub_0012] This is document 299 with some synthetic content for testing...."
+        }
+      },
+      {
+        "doc_index": 328,
+        "risk_score": 3.705140781402588,
+        "verdict": "HIGH",
+        "hubness": {
+          "hub_z": 6.675234317779541,
+          "hub_rate": 0.0007838238379918039,
+          "hits": null,
+          "example_query_indices": [
+            14,
+            30,
+            80,
+            101,
+            116,
+            137,
+            138,
+            142,
+            164,
+            177
+          ]
+        },
+        "cluster_spread": {
+          "score": 0.0,
+          "entropy": 0.0
+        },
+        "deduplication": {
+          "boilerplate_score": 1.0
+        },
+        "metadata": {
+          "text_preview": "[ADVERSARIAL HUB hub_0015] This is document 328 with some synthetic content for testing...."
+        }
+      },
+      {
+        "doc_index": 136,
+        "risk_score": 3.5973064422607424,
+        "verdict": "HIGH",
+        "hubness": {
+          "hub_z": 6.495510578155518,
+          "hub_rate": 0.000774180400185287,
+          "hits": null,
+          "example_query_indices": [
+            29,
+            55,
+            111,
+            126,
+            143,
+            153,
+            171,
+            177,
+            225,
+            256
+          ]
+        },
+        "cluster_spread": {
+          "score": 0.0,
+          "entropy": 0.0
+        },
+        "deduplication": {
+          "boilerplate_score": 1.0
+        },
+        "metadata": {
+          "text_preview": "[ADVERSARIAL HUB hub_0004] This is document 136 with some synthetic content for testing...."
+        }
+      },
+      {
+        "doc_index": 277,
+        "risk_score": 2.288047742843628,
+        "verdict": "HIGH",
+        "hubness": {
+          "hub_z": 4.313412666320801,
+          "hub_rate": 0.0006570955738425255,
+          "hits": null,
+          "example_query_indices": [
+            0,
+            1,
+            39,
+            42,
+            93,
+            135,
+            141,
+            158,
+            200,
+            297
+          ]
+        },
+        "cluster_spread": {
+          "score": 0.0,
+          "entropy": 0.0
+        },
+        "deduplication": {
+          "boilerplate_score": 1.0
+        },
+        "metadata": {
+          "text_preview": "[ADVERSARIAL HUB hub_0010] This is document 277 with some synthetic content for testing...."
+        }
+      },
+      {
+        "doc_index": 59,
+        "risk_score": 2.2245989938491584,
+        "verdict": "HIGH",
+        "hubness": {
+          "hub_z": 4.1862335205078125,
+          "hub_rate": 0.0006502715405076742,
+          "hits": null,
+          "example_query_indices": [
+            47,
+            57,
+            62,
+            92,
+            152,
+            160,
+            173,
+            259,
+            330,
+            379
+          ]
+        },
+        "cluster_spread": {
+          "score": 0.06429393088519551,
+          "entropy": 0.14804224682624068
+        },
+        "deduplication": {
+          "boilerplate_score": 1.0
+        },
+        "metadata": {
+          "text_preview": "[ADVERSARIAL HUB hub_0000] This is document 59 with some synthetic content for testing...."
+        }
+      },
+      {
+        "doc_index": 817,
+        "risk_score": 2.184956502914429,
+        "verdict": "HIGH",
+        "hubness": {
+          "hub_z": 4.141593933105469,
+          "hub_rate": 0.000647876295261085,
+          "hits": null,
+          "example_query_indices": [
+            45,
+            89,
+            95,
+            139,
+            156,
+            201,
+            203,
+            223,
+            228,
+            256
+          ]
+        },
+        "cluster_spread": {
+          "score": 0.0,
+          "entropy": 0.0
+        },
+        "deduplication": {
+          "boilerplate_score": 1.0
+        },
+        "metadata": {
+          "text_preview": "This is document 817 with some synthetic content for testing."
+        }
+      },
+      {
+        "doc_index": 198,
+        "risk_score": 2.109505605697632,
+        "verdict": "HIGH",
+        "hubness": {
+          "hub_z": 4.015842437744141,
+          "hub_rate": 0.0006411288632079959,
+          "hits": null,
+          "example_query_indices": [
+            12,
+            23,
+            51,
+            67,
+            78,
+            186,
+            200,
+            202,
+            256,
+            324
+          ]
+        },
+        "cluster_spread": {
+          "score": 0.0,
+          "entropy": 0.0
+        },
+        "deduplication": {
+          "boilerplate_score": 1.0
+        },
+        "metadata": {
+          "text_preview": "[ADVERSARIAL HUB hub_0007] This is document 198 with some synthetic content for testing...."
+        }
+      },
+      {
+        "doc_index": 101,
+        "risk_score": 1.9998228073120117,
+        "verdict": "HIGH",
+        "hubness": {
+          "hub_z": 3.833037853240967,
+          "hub_rate": 0.0006313201156444848,
+          "hits": null,
+          "example_query_indices": [
+            54,
+            61,
+            67,
+            78,
+            128,
+            129,
+            132,
+            134,
+            187,
+            233
+          ]
+        },
+        "cluster_spread": {
+          "score": 0.0,
+          "entropy": 0.0
+        },
+        "deduplication": {
+          "boilerplate_score": 1.0
+        },
+        "metadata": {
+          "text_preview": "[ADVERSARIAL HUB hub_0003] This is document 101 with some synthetic content for testing...."
+        }
+      },
+      {
+        "doc_index": 174,
+        "risk_score": 1.8646091938018798,
+        "verdict": "HIGH",
+        "hubness": {
+          "hub_z": 3.6076817512512207,
+          "hub_rate": 0.0006192281725816429,
+          "hits": null,
+          "example_query_indices": [
+            13,
+            16,
+            114,
+            133,
+            140,
+            180,
+            248,
+            277,
+            346,
+            415
+          ]
+        },
+        "cluster_spread": {
+          "score": 0.0,
+          "entropy": 0.0
+        },
+        "deduplication": {
+          "boilerplate_score": 1.0
+        },
+        "metadata": {
+          "text_preview": "[ADVERSARIAL HUB hub_0006] This is document 174 with some synthetic content for testing...."
+        }
+      },
+      {
+        "doc_index": 374,
+        "risk_score": 1.8269102897995386,
+        "verdict": "HIGH",
+        "hubness": {
+          "hub_z": 3.5222365856170654,
+          "hub_rate": 0.0006146434461697936,
+          "hits": null,
+          "example_query_indices": [
+            121,
+            214,
+            233,
+            258,
+            269,
+            277,
+            285,
+            303,
+            368,
+            385
+          ]
+        },
+        "cluster_spread": {
+          "score": 0.06784121530933872,
+          "entropy": 0.15621017106188279
+        },
+        "deduplication": {
+          "boilerplate_score": 1.0
+        },
+        "metadata": {
+          "text_preview": "This is document 374 with some synthetic content for testing."
+        }
+      },
+      {
+        "doc_index": 737,
+        "risk_score": 1.7598653455028652,
+        "verdict": "HIGH",
+        "hubness": {
+          "hub_z": 3.4072184562683105,
+          "hub_rate": 0.0006084719207137823,
+          "hits": null,
+          "example_query_indices": [
+            163,
+            165,
+            197,
+            279,
+            364,
+            368,
+            387,
+            397,
+            428,
+            480
+          ]
+        },
+        "cluster_spread": {
+          "score": 0.0776713587093956,
+          "entropy": 0.17884491271684755
+        },
+        "deduplication": {
+          "boilerplate_score": 1.0
+        },
+        "metadata": {
+          "text_preview": "[ADVERSARIAL HUB hub_0033] This is document 737 with some synthetic content for testing...."
+        }
+      },
+      {
+        "doc_index": 139,
+        "risk_score": 1.7054603734439662,
+        "verdict": "HIGH",
+        "hubness": {
+          "hub_z": 3.3080060482025146,
+          "hub_rate": 0.0006031484808772802,
+          "hits": null,
+          "example_query_indices": [
+            46,
+            78,
+            83,
+            157,
+            161,
+            175,
+            192,
+            287,
+            295,
+            308
+          ]
+        },
+        "cluster_spread": {
+          "score": 0.10328348419370909,
+          "entropy": 0.23781901105692071
+        },
+        "deduplication": {
+          "boilerplate_score": 1.0
+        },
+        "metadata": {
+          "text_preview": "[ADVERSARIAL HUB hub_0005] This is document 139 with some synthetic content for testing...."
+        }
+      },
+      {
+        "doc_index": 0,
+        "risk_score": 1.7017671585083007,
+        "verdict": "HIGH",
+        "hubness": {
+          "hub_z": 3.3362784385681152,
+          "hub_rate": 0.000604665488936007,
+          "hits": null,
+          "example_query_indices": [
+            29,
+            101,
+            144,
+            211,
+            226,
+            242,
+            268,
+            452,
+            459,
+            510
+          ]
+        },
+        "cluster_spread": {
+          "score": 0.0,
+          "entropy": 0.0
+        },
+        "deduplication": {
+          "boilerplate_score": 1.0
+        },
+        "metadata": {
+          "text_preview": "This is document 0 with some synthetic content for testing."
+        }
+      },
+      {
+        "doc_index": 280,
+        "risk_score": 1.6962112092418609,
+        "verdict": "HIGH",
+        "hubness": {
+          "hub_z": 3.309755802154541,
+          "hub_rate": 0.0006032423698343337,
+          "hits": null,
+          "example_query_indices": [
+            4,
+            27,
+            53,
+            55,
+            93,
+            105,
+            118,
+            126,
+            130,
+            139
+          ]
+        },
+        "cluster_spread": {
+          "score": 0.05178828211781238,
+          "entropy": 0.11924692639624491
+        },
+        "deduplication": {
+          "boilerplate_score": 1.0
+        },
+        "metadata": {
+          "text_preview": "[ADVERSARIAL HUB hub_0011] This is document 280 with some synthetic content for testing...."
+        }
+      },
+      {
+        "doc_index": 76,
+        "risk_score": 1.683277754224651,
+        "verdict": "HIGH",
+        "hubness": {
+          "hub_z": 3.273076295852661,
+          "hub_rate": 0.0006012742524035275,
+          "hits": null,
+          "example_query_indices": [
+            43,
+            90,
+            96,
+            126,
+            127,
+            136,
+            176,
+            177,
+            183,
+            218
+          ]
+        },
+        "cluster_spread": {
+          "score": 0.09715952593740355,
+          "entropy": 0.22371807606583377
+        },
+        "deduplication": {
+          "boilerplate_score": 1.0
+        },
+        "metadata": {
+          "text_preview": "[ADVERSARIAL HUB hub_0001] This is document 76 with some synthetic content for testing...."
+        }
+      },
+      {
+        "doc_index": 350,
+        "risk_score": 1.6692741632461547,
+        "verdict": "HIGH",
+        "hubness": {
+          "hub_z": 3.282123565673828,
+          "hub_rate": 0.0006017597042955458,
+          "hits": null,
+          "example_query_indices": [
+            2,
+            121,
+            153,
+            185,
+            189,
+            236,
+            254,
+            267,
+            365,
+            371
+          ]
+        },
+        "cluster_spread": {
+          "score": 0.0,
+          "entropy": 0.0
+        },
+        "deduplication": {
+          "boilerplate_score": 1.0
+        },
+        "metadata": {
+          "text_preview": "This is document 350 with some synthetic content for testing."
+        }
+      },
+      {
+        "doc_index": 128,
+        "risk_score": 1.557380986213684,
+        "verdict": "HIGH",
+        "hubness": {
+          "hub_z": 3.095634937286377,
+          "hub_rate": 0.0005917532835155725,
+          "hits": null,
+          "example_query_indices": [
+            71,
+            144,
+            207,
+            266,
+            381,
+            384,
+            417,
+            446,
+            449,
+            504
+          ]
+        },
+        "cluster_spread": {
+          "score": 0.0,
+          "entropy": 0.0
+        },
+        "deduplication": {
+          "boilerplate_score": 1.0
+        },
+        "metadata": {
+          "text_preview": "This is document 128 with some synthetic content for testing."
+        }
+      },
+      {
+        "doc_index": 549,
+        "risk_score": 1.5232953548431396,
+        "verdict": "HIGH",
+        "hubness": {
+          "hub_z": 3.038825511932373,
+          "hub_rate": 0.0005887050647288561,
+          "hits": null,
+          "example_query_indices": [
+            29,
+            101,
+            177,
+            195,
+            202,
+            211,
+            242,
+            268,
+            365,
+            452
+          ]
+        },
+        "cluster_spread": {
+          "score": 0.0,
+          "entropy": 0.0
+        },
+        "deduplication": {
+          "boilerplate_score": 1.0
+        },
+        "metadata": {
+          "text_preview": "[ADVERSARIAL HUB hub_0024] This is document 549 with some synthetic content for testing...."
+        }
+      },
+      {
+        "doc_index": 96,
+        "risk_score": 1.5173457384109497,
+        "verdict": "HIGH",
+        "hubness": {
+          "hub_z": 3.02890944480896,
+          "hub_rate": 0.0005881729885004461,
+          "hits": null,
+          "example_query_indices": [
+            0,
+            112,
+            146,
+            158,
+            200,
+            219,
+            263,
+            289,
+            305,
+            310
+          ]
+        },
+        "cluster_spread": {
+          "score": 0.0,
+          "entropy": 0.0
+        },
+        "deduplication": {
+          "boilerplate_score": 1.0
+        },
+        "metadata": {
+          "text_preview": "[ADVERSARIAL HUB hub_0002] This is document 96 with some synthetic content for testing...."
+        }
+      },
+      {
+        "doc_index": 282,
+        "risk_score": 1.5128937482833862,
+        "verdict": "HIGH",
+        "hubness": {
+          "hub_z": 3.021489381790161,
+          "hub_rate": 0.000587774848099798,
+          "hits": null,
+          "example_query_indices": [
+            147,
+            180,
+            316,
+            346,
+            456,
+            658,
+            716,
+            817,
+            840,
+            888
+          ]
+        },
+        "cluster_spread": {
+          "score": 0.0,
+          "entropy": 0.0
+        },
+        "deduplication": {
+          "boilerplate_score": 1.0
+        },
+        "metadata": {
+          "text_preview": "This is document 282 with some synthetic content for testing."
+        }
+      },
+      {
+        "doc_index": 720,
+        "risk_score": 1.4878832234408572,
+        "verdict": "HIGH",
+        "hubness": {
+          "hub_z": 2.943917751312256,
+          "hub_rate": 0.0005836125928908587,
+          "hits": null,
+          "example_query_indices": [
+            145,
+            224,
+            255,
+            261,
+            272,
+            275,
+            281,
+            309,
+            361,
+            421
+          ]
+        },
+        "cluster_spread": {
+          "score": 0.10766238643036012,
+          "entropy": 0.24790180607071166
+        },
+        "deduplication": {
+          "boilerplate_score": 1.0
+        },
+        "metadata": {
+          "text_preview": "This is document 720 with some synthetic content for testing."
+        }
+      },
+      {
+        "doc_index": 575,
+        "risk_score": 1.4837197037586753,
+        "verdict": "HIGH",
+        "hubness": {
+          "hub_z": 2.952488899230957,
+          "hub_rate": 0.000584072491619736,
+          "hits": null,
+          "example_query_indices": [
+            3,
+            30,
+            86,
+            145,
+            152,
+            155,
+            235,
+            247,
+            269,
+            275
+          ]
+        },
+        "cluster_spread": {
+          "score": 0.06113134426334754,
+          "entropy": 0.14076012201547114
+        },
+        "deduplication": {
+          "boilerplate_score": 1.0
+        },
+        "metadata": {
+          "text_preview": "This is document 575 with some synthetic content for testing."
+        }
+      },
+      {
+        "doc_index": 845,
+        "risk_score": 1.482527208328247,
+        "verdict": "HIGH",
+        "hubness": {
+          "hub_z": 2.9708786010742188,
+          "hub_rate": 0.0005850592278875411,
+          "hits": null,
+          "example_query_indices": [
+            28,
+            31,
+            49,
+            92,
+            180,
+            184,
+            190,
+            197,
+            236,
+            284
+          ]
+        },
+        "cluster_spread": {
+          "score": 0.0,
+          "entropy": 0.0
+        },
+        "deduplication": {
+          "boilerplate_score": 1.0
+        },
+        "metadata": {
+          "text_preview": "This is document 845 with some synthetic content for testing."
+        }
+      },
+      {
+        "doc_index": 74,
+        "risk_score": 1.4814890146255493,
+        "verdict": "HIGH",
+        "hubness": {
+          "hub_z": 2.9691481590270996,
+          "hub_rate": 0.0005849663866683841,
+          "hits": null,
+          "example_query_indices": [
+            34,
+            40,
+            63,
+            136,
+            157,
+            189,
+            216,
+            222,
+            230,
+            251
+          ]
+        },
+        "cluster_spread": {
+          "score": 0.0,
+          "entropy": 0.0
+        },
+        "deduplication": {
+          "boilerplate_score": 1.0
+        },
+        "metadata": {
+          "text_preview": "This is document 74 with some synthetic content for testing."
+        }
+      },
+      {
+        "doc_index": 23,
+        "risk_score": 1.463408570110766,
+        "verdict": "HIGH",
+        "hubness": {
+          "hub_z": 2.919583320617676,
+          "hub_rate": 0.0005823068786412477,
+          "hits": null,
+          "example_query_indices": [
+            9,
+            97,
+            114,
+            132,
+            168,
+            171,
+            231,
+            233,
+            235,
+            239
+          ]
+        },
+        "cluster_spread": {
+          "score": 0.058292292654355156,
+          "entropy": 0.1342229641023645
+        },
+        "deduplication": {
+          "boilerplate_score": 1.0
+        },
+        "metadata": {
+          "text_preview": "This is document 23 with some synthetic content for testing."
+        }
+      },
+      {
+        "doc_index": 797,
+        "risk_score": 1.459424069592612,
+        "verdict": "HIGH",
+        "hubness": {
+          "hub_z": 2.9051411151885986,
+          "hub_rate": 0.0005815319600515068,
+          "hits": null,
+          "example_query_indices": [
+            52,
+            91,
+            143,
+            159,
+            187,
+            216,
+            217,
+            283,
+            288,
+            300
+          ]
+        },
+        "cluster_spread": {
+          "score": 0.08169640635081632,
+          "entropy": 0.18811292741457375
+        },
+        "deduplication": {
+          "boilerplate_score": 1.0
+        },
+        "metadata": {
+          "text_preview": "This is document 797 with some synthetic content for testing."
+        }
+      },
+      {
+        "doc_index": 807,
+        "risk_score": 1.3858537197113037,
+        "verdict": "HIGH",
+        "hubness": {
+          "hub_z": 2.80975604057312,
+          "hub_rate": 0.0005764138768427074,
+          "hits": null,
+          "example_query_indices": [
+            36,
+            62,
+            105,
+            146,
+            167,
+            170,
+            191,
+            195,
+            258,
+            281
+          ]
+        },
+        "cluster_spread": {
+          "score": 0.0,
+          "entropy": 0.0
+        },
+        "deduplication": {
+          "boilerplate_score": 1.0
+        },
+        "metadata": {
+          "text_preview": "This is document 807 with some synthetic content for testing."
+        }
+      },
+      {
+        "doc_index": 760,
+        "risk_score": 1.3470999717712402,
+        "verdict": "HIGH",
+        "hubness": {
+          "hub_z": 2.745166540145874,
+          "hub_rate": 0.0005729481927119195,
+          "hits": null,
+          "example_query_indices": [
+            26,
+            45,
+            49,
+            55,
+            58,
+            60,
+            104,
+            131,
+            187,
+            203
+          ]
+        },
+        "cluster_spread": {
+          "score": 0.0,
+          "entropy": 0.0
+        },
+        "deduplication": {
+          "boilerplate_score": 1.0
+        },
+        "metadata": {
+          "text_preview": "This is document 760 with some synthetic content for testing."
+        }
+      },
+      {
+        "doc_index": 297,
+        "risk_score": 1.3333807809557843,
+        "verdict": "HIGH",
+        "hubness": {
+          "hub_z": 2.700587272644043,
+          "hub_rate": 0.0005705562070943415,
+          "hits": null,
+          "example_query_indices": [
+            16,
+            47,
+            169,
+            176,
+            182,
+            214,
+            221,
+            246,
+            271,
+            277
+          ]
+        },
+        "cluster_spread": {
+          "score": 0.06514196763750302,
+          "entropy": 0.14999492361041503
+        },
+        "deduplication": {
+          "boilerplate_score": 1.0
+        },
+        "metadata": {
+          "text_preview": "This is document 297 with some synthetic content for testing."
+        }
+      },
+      {
+        "doc_index": 415,
+        "risk_score": 1.3161519442243943,
+        "verdict": "HIGH",
+        "hubness": {
+          "hub_z": 2.652482509613037,
+          "hub_rate": 0.0005679750465787947,
+          "hits": null,
+          "example_query_indices": [
+            26,
+            45,
+            58,
+            77,
+            139,
+            172,
+            187,
+            198,
+            219,
+            232
+          ]
+        },
+        "cluster_spread": {
+          "score": 0.12331195386428148,
+          "entropy": 0.2839362667558641
+        },
+        "deduplication": {
+          "boilerplate_score": 1.0
+        },
+        "metadata": {
+          "text_preview": "This is document 415 with some synthetic content for testing."
+        }
+      },
+      {
+        "doc_index": 570,
+        "risk_score": 1.3145928914031528,
+        "verdict": "HIGH",
+        "hubness": {
+          "hub_z": 2.6646668910980225,
+          "hub_rate": 0.0005686288350261748,
+          "hits": null,
+          "example_query_indices": [
+            4,
+            12,
+            21,
+            58,
+            72,
+            92,
+            148,
+            215,
+            253,
+            339
+          ]
+        },
+        "cluster_spread": {
+          "score": 0.07896354530311736,
+          "entropy": 0.18182028230491803
+        },
+        "deduplication": {
+          "boilerplate_score": 1.0
+        },
+        "metadata": {
+          "text_preview": "This is document 570 with some synthetic content for testing."
+        }
+      },
+      {
+        "doc_index": 322,
+        "risk_score": 1.3032548315396846,
+        "verdict": "HIGH",
+        "hubness": {
+          "hub_z": 2.6481409072875977,
+          "hub_rate": 0.000567742099519819,
+          "hits": null,
+          "example_query_indices": [
+            26,
+            73,
+            102,
+            155,
+            183,
+            228,
+            283,
+            365,
+            376,
+            388
+          ]
+        },
+        "cluster_spread": {
+          "score": 0.07185119741705141,
+          "entropy": 0.16544349608627487
+        },
+        "deduplication": {
+          "boilerplate_score": 1.0
+        },
+        "metadata": {
+          "text_preview": "This is document 322 with some synthetic content for testing."
+        }
+      },
+      {
+        "doc_index": 677,
+        "risk_score": 1.3001060009002685,
+        "verdict": "HIGH",
+        "hubness": {
+          "hub_z": 2.6668431758880615,
+          "hub_rate": 0.0005687455995939672,
+          "hits": null,
+          "example_query_indices": [
+            13,
+            54,
+            87,
+            115,
+            140,
+            184,
+            240,
+            268,
+            320,
+            353
+          ]
+        },
+        "cluster_spread": {
+          "score": 0.0,
+          "entropy": 0.0
+        },
+        "deduplication": {
+          "boilerplate_score": 1.0
+        },
+        "metadata": {
+          "text_preview": "This is document 677 with some synthetic content for testing."
+        }
+      },
+      {
+        "doc_index": 12,
+        "risk_score": 1.2759925842285156,
+        "verdict": "HIGH",
+        "hubness": {
+          "hub_z": 2.6266541481018066,
+          "hub_rate": 0.000566589180380106,
+          "hits": null,
+          "example_query_indices": [
+            109,
+            153,
+            202,
+            227,
+            247,
+            320,
+            341,
+            403,
+            414,
+            425
+          ]
+        },
+        "cluster_spread": {
+          "score": 0.0,
+          "entropy": 0.0
+        },
+        "deduplication": {
+          "boilerplate_score": 1.0
+        },
+        "metadata": {
+          "text_preview": "This is document 12 with some synthetic content for testing."
+        }
+      },
+      {
+        "doc_index": 616,
+        "risk_score": 1.2617166757583618,
+        "verdict": "HIGH",
+        "hubness": {
+          "hub_z": 2.602860927581787,
+          "hub_rate": 0.0005653125117532909,
+          "hits": null,
+          "example_query_indices": [
+            100,
+            140,
+            272,
+            292,
+            305,
+            417,
+            421,
+            583,
+            630,
+            669
+          ]
+        },
+        "cluster_spread": {
+          "score": 0.0,
+          "entropy": 0.0
+        },
+        "deduplication": {
+          "boilerplate_score": 1.0
+        },
+        "metadata": {
+          "text_preview": "This is document 616 with some synthetic content for testing."
+        }
+      },
+      {
+        "doc_index": 813,
+        "risk_score": 1.2452525615692138,
+        "verdict": "HIGH",
+        "hubness": {
+          "hub_z": 2.57542085647583,
+          "hub_rate": 0.0005638401489704847,
+          "hits": null,
+          "example_query_indices": [
+            61,
+            94,
+            107,
+            128,
+            324,
+            332,
+            357,
+            366,
+            384,
+            440
+          ]
+        },
+        "cluster_spread": {
+          "score": 0.0,
+          "entropy": 0.0
+        },
+        "deduplication": {
+          "boilerplate_score": 1.0
+        },
+        "metadata": {
+          "text_preview": "This is document 813 with some synthetic content for testing."
+        }
+      },
+      {
+        "doc_index": 89,
+        "risk_score": 1.244227361679077,
+        "verdict": "HIGH",
+        "hubness": {
+          "hub_z": 2.573712110519409,
+          "hub_rate": 0.000563748471904546,
+          "hits": null,
+          "example_query_indices": [
+            20,
+            46,
+            72,
+            100,
+            133,
+            137,
+            173,
+            176,
+            364,
+            394
+          ]
+        },
+        "cluster_spread": {
+          "score": 0.0,
+          "entropy": 0.0
+        },
+        "deduplication": {
+          "boilerplate_score": 1.0
+        },
+        "metadata": {
+          "text_preview": "This is document 89 with some synthetic content for testing."
+        }
+      },
+      {
+        "doc_index": 210,
+        "risk_score": 1.2429099798202514,
+        "verdict": "HIGH",
+        "hubness": {
+          "hub_z": 2.571516513824463,
+          "hub_rate": 0.0005636306595988572,
+          "hits": null,
+          "example_query_indices": [
+            58,
+            89,
+            122,
+            169,
+            209,
+            263,
+            296,
+            305,
+            338,
+            397
+          ]
+        },
+        "cluster_spread": {
+          "score": 0.0,
+          "entropy": 0.0
+        },
+        "deduplication": {
+          "boilerplate_score": 1.0
+        },
+        "metadata": {
+          "text_preview": "[ADVERSARIAL HUB hub_0008] This is document 210 with some synthetic content for testing...."
+        }
+      },
+      {
+        "doc_index": 523,
+        "risk_score": 1.2402445948163237,
+        "verdict": "HIGH",
+        "hubness": {
+          "hub_z": 2.5434741973876953,
+          "hub_rate": 0.000562125991564244,
+          "hits": null,
+          "example_query_indices": [
+            77,
+            136,
+            141,
+            174,
+            209,
+            215,
+            221,
+            232,
+            317,
+            338
+          ]
+        },
+        "cluster_spread": {
+          "score": 0.07080026270924333,
+          "entropy": 0.16302362949436594
+        },
+        "deduplication": {
+          "boilerplate_score": 1.0
+        },
+        "metadata": {
+          "text_preview": "This is document 523 with some synthetic content for testing."
+        }
+      },
+      {
+        "doc_index": 901,
+        "risk_score": 1.2307168960571289,
+        "verdict": "HIGH",
+        "hubness": {
+          "hub_z": 2.551194667816162,
+          "hub_rate": 0.0005625402554869652,
+          "hits": null,
+          "example_query_indices": [
+            47,
+            51,
+            59,
+            106,
+            179,
+            205,
+            311,
+            348,
+            411,
+            413
+          ]
+        },
+        "cluster_spread": {
+          "score": 0.0,
+          "entropy": 0.0
+        },
+        "deduplication": {
+          "boilerplate_score": 1.0
+        },
+        "metadata": {
+          "text_preview": "[ADVERSARIAL HUB hub_0040] This is document 901 with some synthetic content for testing...."
+        }
+      },
+      {
+        "doc_index": 761,
+        "risk_score": 1.2068936772818604,
+        "verdict": "MEDIUM",
+        "hubness": {
+          "hub_z": 2.486802577972412,
+          "hub_rate": 0.0005590851651504636,
+          "hits": null,
+          "example_query_indices": [
+            10,
+            98,
+            107,
+            137,
+            232,
+            284,
+            307,
+            315,
+            339,
+            388
+          ]
+        },
+        "cluster_spread": {
+          "score": 0.07406017565490788,
+          "entropy": 0.17052985644751145
+        },
+        "deduplication": {
+          "boilerplate_score": 1.0
+        },
+        "metadata": {
+          "text_preview": "[ADVERSARIAL HUB hub_0035] This is document 761 with some synthetic content for testing...."
+        }
+      },
+      {
+        "doc_index": 446,
+        "risk_score": 1.1689242839813232,
+        "verdict": "MEDIUM",
+        "hubness": {
+          "hub_z": 2.448207139968872,
+          "hub_rate": 0.0005570142529904842,
+          "hits": null,
+          "example_query_indices": [
+            34,
+            68,
+            101,
+            116,
+            136,
+            208,
+            247,
+            308,
+            315,
+            355
+          ]
+        },
+        "cluster_spread": {
+          "score": 0.0,
+          "entropy": 0.0
+        },
+        "deduplication": {
+          "boilerplate_score": 1.0
+        },
+        "metadata": {
+          "text_preview": "This is document 446 with some synthetic content for testing."
+        }
+      },
+      {
+        "doc_index": 683,
+        "risk_score": 1.1634459018707275,
+        "verdict": "MEDIUM",
+        "hubness": {
+          "hub_z": 2.4390764236450195,
+          "hub_rate": 0.0005565243191085756,
+          "hits": null,
+          "example_query_indices": [
+            6,
+            46,
+            64,
+            68,
+            159,
+            227,
+            280,
+            311,
+            359,
+            403
+          ]
+        },
+        "cluster_spread": {
+          "score": 0.0,
+          "entropy": 0.0
+        },
+        "deduplication": {
+          "boilerplate_score": 1.0
+        },
+        "metadata": {
+          "text_preview": "This is document 683 with some synthetic content for testing."
+        }
+      },
+      {
+        "doc_index": 314,
+        "risk_score": 1.1594318866729736,
+        "verdict": "MEDIUM",
+        "hubness": {
+          "hub_z": 2.4323863983154297,
+          "hub_rate": 0.0005561653524637222,
+          "hits": null,
+          "example_query_indices": [
+            9,
+            43,
+            57,
+            69,
+            72,
+            76,
+            110,
+            126,
+            182,
+            183
+          ]
+        },
+        "cluster_spread": {
+          "score": 0.0,
+          "entropy": 0.0
+        },
+        "deduplication": {
+          "boilerplate_score": 1.0
+        },
+        "metadata": {
+          "text_preview": "This is document 314 with some synthetic content for testing."
+        }
+      },
+      {
+        "doc_index": 641,
+        "risk_score": 1.1538027457931253,
+        "verdict": "MEDIUM",
+        "hubness": {
+          "hub_z": 2.3986921310424805,
+          "hub_rate": 0.0005543574225157499,
+          "hits": null,
+          "example_query_indices": [
+            137,
+            156,
+            164,
+            249,
+            278,
+            295,
+            296,
+            312,
+            339,
+            388
+          ]
+        },
+        "cluster_spread": {
+          "score": 0.07293721662889584,
+          "entropy": 0.167944147734173
+        },
+        "deduplication": {
+          "boilerplate_score": 1.0
+        },
+        "metadata": {
+          "text_preview": "This is document 641 with some synthetic content for testing."
+        }
+      },
+      {
+        "doc_index": 687,
+        "risk_score": 1.1366658926010131,
+        "verdict": "MEDIUM",
+        "hubness": {
+          "hub_z": 2.3944430351257324,
+          "hub_rate": 0.0005541294231079519,
+          "hits": null,
+          "example_query_indices": [
+            10,
+            18,
+            32,
+            75,
+            141,
+            169,
+            178,
+            197,
+            224,
+            228
+          ]
+        },
+        "cluster_spread": {
+          "score": 0.0,
+          "entropy": 0.0
+        },
+        "deduplication": {
+          "boilerplate_score": 1.0
+        },
+        "metadata": {
+          "text_preview": "[ADVERSARIAL HUB hub_0032] This is document 687 with some synthetic content for testing...."
+        }
+      },
+      {
+        "doc_index": 574,
+        "risk_score": 1.1309991753140654,
+        "verdict": "MEDIUM",
+        "hubness": {
+          "hub_z": 2.361398458480835,
+          "hub_rate": 0.0005523563595488667,
+          "hits": null,
+          "example_query_indices": [
+            7,
+            83,
+            94,
+            124,
+            130,
+            134,
+            210,
+            215,
+            235,
+            285
+          ]
+        },
+        "cluster_spread": {
+          "score": 0.07080026270924333,
+          "entropy": 0.16302362949436594
+        },
+        "deduplication": {
+          "boilerplate_score": 1.0
+        },
+        "metadata": {
+          "text_preview": "This is document 574 with some synthetic content for testing."
+        }
+      },
+      {
+        "doc_index": 621,
+        "risk_score": 1.1204118251800537,
+        "verdict": "MEDIUM",
+        "hubness": {
+          "hub_z": 2.3673529624938965,
+          "hub_rate": 0.0005526758613996208,
+          "hits": null,
+          "example_query_indices": [
+            54,
+            64,
+            117,
+            216,
+            224,
+            259,
+            287,
+            295,
+            320,
+            328
+          ]
+        },
+        "cluster_spread": {
+          "score": 0.0,
+          "entropy": 0.0
+        },
+        "deduplication": {
+          "boilerplate_score": 1.0
+        },
+        "metadata": {
+          "text_preview": "[ADVERSARIAL HUB hub_0027] This is document 621 with some synthetic content for testing...."
+        }
+      },
+      {
+        "doc_index": 693,
+        "risk_score": 1.1073089361190795,
+        "verdict": "MEDIUM",
+        "hubness": {
+          "hub_z": 2.3455147743225098,
+          "hub_rate": 0.0005515040829777718,
+          "hits": null,
+          "example_query_indices": [
+            63,
+            106,
+            128,
+            137,
+            148,
+            200,
+            263,
+            270,
+            296,
+            338
+          ]
+        },
+        "cluster_spread": {
+          "score": 0.0,
+          "entropy": 0.0
+        },
+        "deduplication": {
+          "boilerplate_score": 1.0
+        },
+        "metadata": {
+          "text_preview": "This is document 693 with some synthetic content for testing."
+        }
+      },
+      {
+        "doc_index": 732,
+        "risk_score": 1.096359086036682,
+        "verdict": "MEDIUM",
+        "hubness": {
+          "hub_z": 2.3272650241851807,
+          "hub_rate": 0.0005505248554982245,
+          "hits": null,
+          "example_query_indices": [
+            68,
+            77,
+            116,
+            147,
+            271,
+            308,
+            316,
+            346,
+            352,
+            407
+          ]
+        },
+        "cluster_spread": {
+          "score": 0.0,
+          "entropy": 0.0
+        },
+        "deduplication": {
+          "boilerplate_score": 1.0
+        },
+        "metadata": {
+          "text_preview": "This is document 732 with some synthetic content for testing."
+        }
+      },
+      {
+        "doc_index": 561,
+        "risk_score": 1.09375849773086,
+        "verdict": "MEDIUM",
+        "hubness": {
+          "hub_z": 2.2978568077087402,
+          "hub_rate": 0.0005489469040185213,
+          "hits": null,
+          "example_query_indices": [
+            30,
+            63,
+            147,
+            158,
+            165,
+            204,
+            209,
+            258,
+            285,
+            303
+          ]
+        },
+        "cluster_spread": {
+          "score": 0.07522206552807949,
+          "entropy": 0.1732052067491771
+        },
+        "deduplication": {
+          "boilerplate_score": 1.0
+        },
+        "metadata": {
+          "text_preview": "This is document 561 with some synthetic content for testing."
+        }
+      },
+      {
+        "doc_index": 552,
+        "risk_score": 1.086461615562439,
+        "verdict": "MEDIUM",
+        "hubness": {
+          "hub_z": 2.3107693195343018,
+          "hub_rate": 0.0005496397498063743,
+          "hits": null,
+          "example_query_indices": [
+            30,
+            40,
+            47,
+            61,
+            95,
+            168,
+            172,
+            193,
+            230,
+            247
+          ]
+        },
+        "cluster_spread": {
+          "score": 0.0,
+          "entropy": 0.0
+        },
+        "deduplication": {
+          "boilerplate_score": 1.0
+        },
+        "metadata": {
+          "text_preview": "This is document 552 with some synthetic content for testing."
+        }
+      },
+      {
+        "doc_index": 308,
+        "risk_score": 1.0743098869280945,
+        "verdict": "MEDIUM",
+        "hubness": {
+          "hub_z": 2.2672555446624756,
+          "hub_rate": 0.0005473049241118133,
+          "hits": null,
+          "example_query_indices": [
+            39,
+            48,
+            57,
+            116,
+            136,
+            183,
+            204,
+            218,
+            300,
+            372
+          ]
+        },
+        "cluster_spread": {
+          "score": 0.06978268144375663,
+          "entropy": 0.16068056204154624
+        },
+        "deduplication": {
+          "boilerplate_score": 1.0
+        },
+        "metadata": {
+          "text_preview": "This is document 308 with some synthetic content for testing."
+        }
+      },
+      {
+        "doc_index": 850,
+        "risk_score": 1.069218437307444,
+        "verdict": "MEDIUM",
+        "hubness": {
+          "hub_z": 2.25972580909729,
+          "hub_rate": 0.0005469009047374129,
+          "hits": null,
+          "example_query_indices": [
+            127,
+            173,
+            288,
+            312,
+            390,
+            434,
+            447,
+            512,
+            517,
+            567
+          ]
+        },
+        "cluster_spread": {
+          "score": 0.06691440161748143,
+          "entropy": 0.15407610367102942
+        },
+        "deduplication": {
+          "boilerplate_score": 1.0
+        },
+        "metadata": {
+          "text_preview": "This is document 850 with some synthetic content for testing."
+        }
+      },
+      {
+        "doc_index": 546,
+        "risk_score": 1.0134790658950805,
+        "verdict": "MEDIUM",
+        "hubness": {
+          "hub_z": 2.189131736755371,
+          "hub_rate": 0.000543113041203469,
+          "hits": null,
+          "example_query_indices": [
+            54,
+            114,
+            186,
+            235,
+            269,
+            275,
+            278,
+            303,
+            315,
+            320
+          ]
+        },
+        "cluster_spread": {
+          "score": 0.0,
+          "entropy": 0.0
+        },
+        "deduplication": {
+          "boilerplate_score": 1.0
+        },
+        "metadata": {
+          "text_preview": "This is document 546 with some synthetic content for testing."
+        }
+      },
+      {
+        "doc_index": 794,
+        "risk_score": 0.9948565483093261,
+        "verdict": "MEDIUM",
+        "hubness": {
+          "hub_z": 2.1580941677093506,
+          "hub_rate": 0.0005414476618170738,
+          "hits": null,
+          "example_query_indices": [
+            25,
+            26,
+            77,
+            180,
+            305,
+            376,
+            452,
+            486,
+            524,
+            556
+          ]
+        },
+        "cluster_spread": {
+          "score": 0.0,
+          "entropy": 0.0
+        },
+        "deduplication": {
+          "boilerplate_score": 1.0
+        },
+        "metadata": {
+          "text_preview": "This is document 794 with some synthetic content for testing."
+        }
+      },
+      {
+        "doc_index": 466,
+        "risk_score": 0.9787946462631225,
+        "verdict": "MEDIUM",
+        "hubness": {
+          "hub_z": 2.131324291229248,
+          "hub_rate": 0.0005400112713687122,
+          "hits": null,
+          "example_query_indices": [
+            40,
+            54,
+            98,
+            114,
+            121,
+            154,
+            210,
+            263,
+            294,
+            296
+          ]
+        },
+        "cluster_spread": {
+          "score": 0.0,
+          "entropy": 0.0
+        },
+        "deduplication": {
+          "boilerplate_score": 1.0
+        },
+        "metadata": {
+          "text_preview": "This is document 466 with some synthetic content for testing."
+        }
+      },
+      {
+        "doc_index": 729,
+        "risk_score": 0.9760323286056518,
+        "verdict": "MEDIUM",
+        "hubness": {
+          "hub_z": 2.126720428466797,
+          "hub_rate": 0.0005397642380557954,
+          "hits": null,
+          "example_query_indices": [
+            23,
+            98,
+            109,
+            144,
+            152,
+            214,
+            235,
+            242,
+            356,
+            409
+          ]
+        },
+        "cluster_spread": {
+          "score": 0.0,
+          "entropy": 0.0
+        },
+        "deduplication": {
+          "boilerplate_score": 1.0
+        },
+        "metadata": {
+          "text_preview": "This is document 729 with some synthetic content for testing."
+        }
+      },
+      {
+        "doc_index": 827,
+        "risk_score": 0.9750756843295025,
+        "verdict": "MEDIUM",
+        "hubness": {
+          "hub_z": 2.10341215133667,
+          "hub_rate": 0.0005385135882534087,
+          "hits": null,
+          "example_query_indices": [
+            1,
+            26,
+            27,
+            83,
+            195,
+            209,
+            232,
+            345,
+            389,
+            445
+          ]
+        },
+        "cluster_spread": {
+          "score": 0.06514196763750302,
+          "entropy": 0.14999492361041503
+        },
+        "deduplication": {
+          "boilerplate_score": 1.0
+        },
+        "metadata": {
+          "text_preview": "This is document 827 with some synthetic content for testing."
+        }
+      },
+      {
+        "doc_index": 667,
+        "risk_score": 0.9673370838165283,
+        "verdict": "MEDIUM",
+        "hubness": {
+          "hub_z": 2.1122283935546875,
+          "hub_rate": 0.0005389866419136524,
+          "hits": null,
+          "example_query_indices": [
+            14,
+            25,
+            36,
+            37,
+            80,
+            113,
+            119,
+            137,
+            144,
+            265
+          ]
+        },
+        "cluster_spread": {
+          "score": 0.0,
+          "entropy": 0.0
+        },
+        "deduplication": {
+          "boilerplate_score": 1.0
+        },
+        "metadata": {
+          "text_preview": "This is document 667 with some synthetic content for testing."
+        }
+      },
+      {
+        "doc_index": 337,
+        "risk_score": 0.9495251794499449,
+        "verdict": "MEDIUM",
+        "hubness": {
+          "hub_z": 2.0570669174194336,
+          "hub_rate": 0.0005360268405638635,
+          "hits": null,
+          "example_query_indices": [
+            31,
+            138,
+            228,
+            250,
+            255,
+            387,
+            416,
+            421,
+            455,
+            507
+          ]
+        },
+        "cluster_spread": {
+          "score": 0.07642502578213388,
+          "entropy": 0.17597512509762708
+        },
+        "deduplication": {
+          "boilerplate_score": 1.0
+        },
+        "metadata": {
+          "text_preview": "This is document 337 with some synthetic content for testing."
+        }
+      },
+      {
+        "doc_index": 803,
+        "risk_score": 0.9427291870117187,
+        "verdict": "MEDIUM",
+        "hubness": {
+          "hub_z": 2.0712151527404785,
+          "hub_rate": 0.000536785984877497,
+          "hits": null,
+          "example_query_indices": [
+            10,
+            46,
+            71,
+            82,
+            149,
+            250,
+            303,
+            343,
+            404,
+            421
+          ]
+        },
+        "cluster_spread": {
+          "score": 0.0,
+          "entropy": 0.0
+        },
+        "deduplication": {
+          "boilerplate_score": 1.0
+        },
+        "metadata": {
+          "text_preview": "This is document 803 with some synthetic content for testing."
+        }
+      },
+      {
+        "doc_index": 818,
+        "risk_score": 0.935873817066248,
+        "verdict": "MEDIUM",
+        "hubness": {
+          "hub_z": 2.0320751667022705,
+          "hub_rate": 0.000534685852471739,
+          "hits": null,
+          "example_query_indices": [
+            27,
+            128,
+            161,
+            232,
+            293,
+            358,
+            489,
+            523,
+            631,
+            699
+          ]
+        },
+        "cluster_spread": {
+          "score": 0.08314310838727053,
+          "entropy": 0.19144408195771734
+        },
+        "deduplication": {
+          "boilerplate_score": 1.0
+        },
+        "metadata": {
+          "text_preview": "This is document 818 with some synthetic content for testing."
+        }
+      },
+      {
+        "doc_index": 228,
+        "risk_score": 0.9307526688734382,
+        "verdict": "MEDIUM",
+        "hubness": {
+          "hub_z": 2.0261802673339844,
+          "hub_rate": 0.0005343695520423353,
+          "hits": null,
+          "example_query_indices": [
+            79,
+            101,
+            195,
+            240,
+            245,
+            253,
+            268,
+            273,
+            284,
+            297
+          ]
+        },
+        "cluster_spread": {
+          "score": 0.07522206552807949,
+          "entropy": 0.1732052067491771
+        },
+        "deduplication": {
+          "boilerplate_score": 1.0
+        },
+        "metadata": {
+          "text_preview": "This is document 228 with some synthetic content for testing."
+        }
+      },
+      {
+        "doc_index": 433,
+        "risk_score": 0.925965867778294,
+        "verdict": "MEDIUM",
+        "hubness": {
+          "hub_z": 2.021562337875366,
+          "hub_rate": 0.0005341217620298266,
+          "hits": null,
+          "example_query_indices": [
+            65,
+            67,
+            107,
+            129,
+            156,
+            170,
+            185,
+            196,
+            317,
+            324
+          ]
+        },
+        "cluster_spread": {
+          "score": 0.06514196763750302,
+          "entropy": 0.14999492361041503
+        },
+        "deduplication": {
+          "boilerplate_score": 1.0
+        },
+        "metadata": {
+          "text_preview": "This is document 433 with some synthetic content for testing."
+        }
+      },
+      {
+        "doc_index": 757,
+        "risk_score": 0.9068841457366943,
+        "verdict": "MEDIUM",
+        "hubness": {
+          "hub_z": 2.0114734172821045,
+          "hub_rate": 0.0005335804307833314,
+          "hits": null,
+          "example_query_indices": [
+            22,
+            58,
+            104,
+            141,
+            169,
+            274,
+            329,
+            338,
+            397,
+            489
+          ]
+        },
+        "cluster_spread": {
+          "score": 0.0,
+          "entropy": 0.0
+        },
+        "deduplication": {
+          "boilerplate_score": 1.0
+        },
+        "metadata": {
+          "text_preview": "This is document 757 with some synthetic content for testing."
+        }
+      },
+      {
+        "doc_index": 762,
+        "risk_score": 0.8927734389619597,
+        "verdict": "MEDIUM",
+        "hubness": {
+          "hub_z": 1.9147778749465942,
+          "hub_rate": 0.0005283920327201486,
+          "hits": null,
+          "example_query_indices": [
+            117,
+            120,
+            129,
+            178,
+            197,
+            198,
+            240,
+            300,
+            302,
+            311
+          ]
+        },
+        "cluster_spread": {
+          "score": 0.21953333155143706,
+          "entropy": 0.5054941766456584
+        },
+        "deduplication": {
+          "boilerplate_score": 1.0
+        },
+        "metadata": {
+          "text_preview": "This is document 762 with some synthetic content for testing."
+        }
+      },
+      {
+        "doc_index": 64,
+        "risk_score": 0.8885855196779127,
+        "verdict": "MEDIUM",
+        "hubness": {
+          "hub_z": 1.933998465538025,
+          "hub_rate": 0.0005294233560562134,
+          "hits": null,
+          "example_query_indices": [
+            25,
+            90,
+            182,
+            205,
+            238,
+            276,
+            314,
+            360,
+            438,
+            461
+          ]
+        },
+        "cluster_spread": {
+          "score": 0.1409322017754893,
+          "entropy": 0.32450838693107065
+        },
+        "deduplication": {
+          "boilerplate_score": 1.0
+        },
+        "metadata": {
+          "text_preview": "This is document 64 with some synthetic content for testing."
+        }
+      },
+      {
+        "doc_index": 682,
+        "risk_score": 0.8799348592758178,
+        "verdict": "MEDIUM",
+        "hubness": {
+          "hub_z": 1.9665579795837402,
+          "hub_rate": 0.0005311704007908702,
+          "hits": null,
+          "example_query_indices": [
+            0,
+            46,
+            84,
+            268,
+            289,
+            294,
+            351,
+            377,
+            393,
+            417
+          ]
+        },
+        "cluster_spread": {
+          "score": 0.0,
+          "entropy": 0.0
+        },
+        "deduplication": {
+          "boilerplate_score": 1.0
+        },
+        "metadata": {
+          "text_preview": "This is document 682 with some synthetic content for testing."
+        }
+      },
+      {
+        "doc_index": 172,
+        "risk_score": 0.87149019241333,
+        "verdict": "MEDIUM",
+        "hubness": {
+          "hub_z": 1.9524836540222168,
+          "hub_rate": 0.0005304152145981789,
+          "hits": null,
+          "example_query_indices": [
+            128,
+            180,
+            236,
+            242,
+            279,
+            306,
+            315,
+            337,
+            464,
+            471
+          ]
+        },
+        "cluster_spread": {
+          "score": 0.0,
+          "entropy": 0.0
+        },
+        "deduplication": {
+          "boilerplate_score": 1.0
+        },
+        "metadata": {
+          "text_preview": "This is document 172 with some synthetic content for testing."
+        }
+      },
+      {
+        "doc_index": 78,
+        "risk_score": 0.8714134216308593,
+        "verdict": "MEDIUM",
+        "hubness": {
+          "hub_z": 1.9523556232452393,
+          "hub_rate": 0.0005304083460941911,
+          "hits": null,
+          "example_query_indices": [
+            124,
+            154,
+            171,
+            249,
+            424,
+            481,
+            545,
+            556,
+            597,
+            636
+          ]
+        },
+        "cluster_spread": {
+          "score": 0.0,
+          "entropy": 0.0
+        },
+        "deduplication": {
+          "boilerplate_score": 1.0
+        },
+        "metadata": {
+          "text_preview": "This is document 78 with some synthetic content for testing."
+        }
+      },
+      {
+        "doc_index": 2,
+        "risk_score": 0.8694250106811523,
+        "verdict": "MEDIUM",
+        "hubness": {
+          "hub_z": 1.9490416049957275,
+          "hub_rate": 0.0005302305216901004,
+          "hits": null,
+          "example_query_indices": [
+            20,
+            39,
+            62,
+            107,
+            135,
+            160,
+            164,
+            167,
+            199,
+            201
+          ]
+        },
+        "cluster_spread": {
+          "score": 0.0,
+          "entropy": 0.0
+        },
+        "deduplication": {
+          "boilerplate_score": 1.0
+        },
+        "metadata": {
+          "text_preview": "This is document 2 with some synthetic content for testing."
+        }
+      },
+      {
+        "doc_index": 946,
+        "risk_score": 0.8657923460006713,
+        "verdict": "MEDIUM",
+        "hubness": {
+          "hub_z": 1.9429872035980225,
+          "hub_rate": 0.0005299056647345424,
+          "hits": null,
+          "example_query_indices": [
+            60,
+            69,
+            121,
+            182,
+            246,
+            279,
+            301,
+            324,
+            368,
+            374
+          ]
+        },
+        "cluster_spread": {
+          "score": 0.0,
+          "entropy": 0.0
+        },
+        "deduplication": {
+          "boilerplate_score": 1.0
+        },
+        "metadata": {
+          "text_preview": "This is document 946 with some synthetic content for testing."
+        }
+      },
+      {
+        "doc_index": 173,
+        "risk_score": 0.845248532295227,
+        "verdict": "MEDIUM",
+        "hubness": {
+          "hub_z": 1.9087474346160889,
+          "hub_rate": 0.0005280684563331306,
+          "hits": null,
+          "example_query_indices": [
+            43,
+            49,
+            128,
+            204,
+            206,
+            224,
+            250,
+            255,
+            294,
+            329
+          ]
+        },
+        "cluster_spread": {
+          "score": 0.0,
+          "entropy": 0.0
+        },
+        "deduplication": {
+          "boilerplate_score": 1.0
+        },
+        "metadata": {
+          "text_preview": "This is document 173 with some synthetic content for testing."
+        }
+      },
+      {
+        "doc_index": 599,
+        "risk_score": 0.8299513578414917,
+        "verdict": "MEDIUM",
+        "hubness": {
+          "hub_z": 1.8832521438598633,
+          "hub_rate": 0.0005267004598863423,
+          "hits": null,
+          "example_query_indices": [
+            41,
+            42,
+            66,
+            200,
+            270,
+            309,
+            402,
+            404,
+            408,
+            449
+          ]
+        },
+        "cluster_spread": {
+          "score": 0.0,
+          "entropy": 0.0
+        },
+        "deduplication": {
+          "boilerplate_score": 1.0
+        },
+        "metadata": {
+          "text_preview": "This is document 599 with some synthetic content for testing."
+        }
+      },
+      {
+        "doc_index": 102,
+        "risk_score": 0.8040897369384765,
+        "verdict": "MEDIUM",
+        "hubness": {
+          "hub_z": 1.8401494026184082,
+          "hub_rate": 0.0005243876948952675,
+          "hits": null,
+          "example_query_indices": [
+            89,
+            110,
+            139,
+            170,
+            262,
+            286,
+            333,
+            341,
+            461,
+            507
+          ]
+        },
+        "cluster_spread": {
+          "score": 0.0,
+          "entropy": 0.0
+        },
+        "deduplication": {
+          "boilerplate_score": 1.0
+        },
+        "metadata": {
+          "text_preview": "This is document 102 with some synthetic content for testing."
+        }
+      },
+      {
+        "doc_index": 507,
+        "risk_score": 0.7922049693801614,
+        "verdict": "MEDIUM",
+        "hubness": {
+          "hub_z": 1.7960290908813477,
+          "hub_rate": 0.0005220203311182559,
+          "hits": null,
+          "example_query_indices": [
+            27,
+            78,
+            203,
+            223,
+            229,
+            293,
+            312,
+            378,
+            439,
+            457
+          ]
+        },
+        "cluster_spread": {
+          "score": 0.07293721662889584,
+          "entropy": 0.167944147734173
+        },
+        "deduplication": {
+          "boilerplate_score": 1.0
+        },
+        "metadata": {
+          "text_preview": "This is document 507 with some synthetic content for testing."
+        }
+      },
+      {
+        "doc_index": 465,
+        "risk_score": 0.7834510142287754,
+        "verdict": "MEDIUM",
+        "hubness": {
+          "hub_z": 1.7794303894042969,
+          "hub_rate": 0.0005211296956986189,
+          "hits": null,
+          "example_query_indices": [
+            22,
+            33,
+            113,
+            204,
+            326,
+            433,
+            472,
+            569,
+            586,
+            630
+          ]
+        },
+        "cluster_spread": {
+          "score": 0.07896354530311736,
+          "entropy": 0.18182028230491803
+        },
+        "deduplication": {
+          "boilerplate_score": 1.0
+        },
+        "metadata": {
+          "text_preview": "This is document 465 with some synthetic content for testing."
+        }
+      },
+      {
+        "doc_index": 485,
+        "risk_score": 0.7831643342971801,
+        "verdict": "MEDIUM",
+        "hubness": {
+          "hub_z": 1.8052738904953003,
+          "hub_rate": 0.0005225163768045604,
+          "hits": null,
+          "example_query_indices": [
+            23,
+            34,
+            49,
+            50,
+            99,
+            139,
+            164,
+            255,
+            260,
+            272
+          ]
+        },
+        "cluster_spread": {
+          "score": 0.0,
+          "entropy": 0.0
+        },
+        "deduplication": {
+          "boilerplate_score": 1.0
+        },
+        "metadata": {
+          "text_preview": "This is document 485 with some synthetic content for testing."
+        }
+      },
+      {
+        "doc_index": 42,
+        "risk_score": 0.7810835361480712,
+        "verdict": "MEDIUM",
+        "hubness": {
+          "hub_z": 1.8018057346343994,
+          "hub_rate": 0.0005223302869126201,
+          "hits": null,
+          "example_query_indices": [
+            148,
+            179,
+            207,
+            252,
+            253,
+            273,
+            326,
+            381,
+            399,
+            407
+          ]
+        },
+        "cluster_spread": {
+          "score": 0.0,
+          "entropy": 0.0
+        },
+        "deduplication": {
+          "boilerplate_score": 1.0
+        },
+        "metadata": {
+          "text_preview": "This is document 42 with some synthetic content for testing."
+        }
+      },
+      {
+        "doc_index": 498,
+        "risk_score": 0.77958855813108,
+        "verdict": "MEDIUM",
+        "hubness": {
+          "hub_z": 1.7705762386322021,
+          "hub_rate": 0.0005206546047702432,
+          "hits": null,
+          "example_query_indices": [
+            5,
+            13,
+            63,
+            276,
+            420,
+            448,
+            454,
+            509,
+            512,
+            521
+          ]
+        },
+        "cluster_spread": {
+          "score": 0.08621407475879368,
+          "entropy": 0.1985152433458726
+        },
+        "deduplication": {
+          "boilerplate_score": 1.0
+        },
+        "metadata": {
+          "text_preview": "This is document 498 with some synthetic content for testing."
+        }
+      },
+      {
+        "doc_index": 626,
+        "risk_score": 0.7770949125289917,
+        "verdict": "MEDIUM",
+        "hubness": {
+          "hub_z": 1.7951580286026,
+          "hub_rate": 0.0005219735903665423,
+          "hits": null,
+          "example_query_indices": [
+            1,
+            33,
+            45,
+            62,
+            78,
+            84,
+            202,
+            264,
+            292,
+            508
+          ]
+        },
+        "cluster_spread": {
+          "score": 0.0,
+          "entropy": 0.0
+        },
+        "deduplication": {
+          "boilerplate_score": 1.0
+        },
+        "metadata": {
+          "text_preview": "[ADVERSARIAL HUB hub_0028] This is document 626 with some synthetic content for testing...."
+        }
+      },
+      {
+        "doc_index": 153,
+        "risk_score": 0.7673283338546752,
+        "verdict": "MEDIUM",
+        "hubness": {
+          "hub_z": 1.7788804769515991,
+          "hub_rate": 0.0005211001844145358,
+          "hits": null,
+          "example_query_indices": [
+            14,
+            160,
+            231,
+            244,
+            309,
+            312,
+            331,
+            430,
+            447,
+            481
+          ]
+        },
+        "cluster_spread": {
+          "score": 0.0,
+          "entropy": 0.0
+        },
+        "deduplication": {
+          "boilerplate_score": 1.0
+        },
+        "metadata": {
+          "text_preview": "This is document 153 with some synthetic content for testing."
+        }
+      },
+      {
+        "doc_index": 122,
+        "risk_score": 0.7526573657989502,
+        "verdict": "MEDIUM",
+        "hubness": {
+          "hub_z": 1.7544288635253906,
+          "hub_rate": 0.0005197881837375462,
+          "hits": null,
+          "example_query_indices": [
+            77,
+            78,
+            126,
+            201,
+            237,
+            239,
+            338,
+            345,
+            482,
+            497
+          ]
+        },
+        "cluster_spread": {
+          "score": 0.0,
+          "entropy": 0.0
+        },
+        "deduplication": {
+          "boilerplate_score": 1.0
+        },
+        "metadata": {
+          "text_preview": "This is document 122 with some synthetic content for testing."
+        }
+      },
+      {
+        "doc_index": 555,
+        "risk_score": 0.748429250717163,
+        "verdict": "MEDIUM",
+        "hubness": {
+          "hub_z": 1.7473819255828857,
+          "hub_rate": 0.0005194100667722523,
+          "hits": null,
+          "example_query_indices": [
+            24,
+            138,
+            270,
+            377,
+            423,
+            431,
+            444,
+            487,
+            562,
+            640
+          ]
+        },
+        "cluster_spread": {
+          "score": 0.0,
+          "entropy": 0.0
+        },
+        "deduplication": {
+          "boilerplate_score": 1.0
+        },
+        "metadata": {
+          "text_preview": "This is document 555 with some synthetic content for testing."
+        }
+      },
+      {
+        "doc_index": 398,
+        "risk_score": 0.7441906452178955,
+        "verdict": "MEDIUM",
+        "hubness": {
+          "hub_z": 1.7403175830841064,
+          "hub_rate": 0.0005190310184843838,
+          "hits": null,
+          "example_query_indices": [
+            18,
+            31,
+            53,
+            70,
+            111,
+            122,
+            167,
+            181,
+            200,
+            239
+          ]
+        },
+        "cluster_spread": {
+          "score": 0.0,
+          "entropy": 0.0
+        },
+        "deduplication": {
+          "boilerplate_score": 1.0
+        },
+        "metadata": {
+          "text_preview": "This is document 398 with some synthetic content for testing."
+        }
+      },
+      {
+        "doc_index": 421,
+        "risk_score": 0.737375807762146,
+        "verdict": "MEDIUM",
+        "hubness": {
+          "hub_z": 1.7289596796035767,
+          "hub_rate": 0.0005184215842746198,
+          "hits": null,
+          "example_query_indices": [
+            6,
+            35,
+            56,
+            118,
+            146,
+            160,
+            165,
+            175,
+            212,
+            221
+          ]
+        },
+        "cluster_spread": {
+          "score": 0.0,
+          "entropy": 0.0
+        },
+        "deduplication": {
+          "boilerplate_score": 1.0
+        },
+        "metadata": {
+          "text_preview": "This is document 421 with some synthetic content for testing."
+        }
+      },
+      {
+        "doc_index": 805,
+        "risk_score": 0.7324091811818174,
+        "verdict": "MEDIUM",
+        "hubness": {
+          "hub_z": 1.695206880569458,
+          "hub_rate": 0.0005166105111129582,
+          "hits": null,
+          "example_query_indices": [
+            32,
+            37,
+            73,
+            108,
+            149,
+            211,
+            245,
+            258,
+            290,
+            404
+          ]
+        },
+        "cluster_spread": {
+          "score": 0.07642502578213388,
+          "entropy": 0.17597512509762708
+        },
+        "deduplication": {
+          "boilerplate_score": 1.0
+        },
+        "metadata": {
+          "text_preview": "This is document 805 with some synthetic content for testing."
+        }
+      },
+      {
+        "doc_index": 291,
+        "risk_score": 0.7185053348541259,
+        "verdict": "MEDIUM",
+        "hubness": {
+          "hub_z": 1.6975088119506836,
+          "hub_rate": 0.0005167340277694166,
+          "hits": null,
+          "example_query_indices": [
+            6,
+            223,
+            247,
+            257,
+            359,
+            401,
+            451,
+            511,
+            581,
+            615
+          ]
+        },
+        "cluster_spread": {
+          "score": 0.0,
+          "entropy": 0.0
+        },
+        "deduplication": {
+          "boilerplate_score": 1.0
+        },
+        "metadata": {
+          "text_preview": "This is document 291 with some synthetic content for testing."
+        }
+      },
+      {
+        "doc_index": 455,
+        "risk_score": 0.7147017737072996,
+        "verdict": "MEDIUM",
+        "hubness": {
+          "hub_z": 1.6656945943832397,
+          "hub_rate": 0.0005150269716978073,
+          "hits": null,
+          "example_query_indices": [
+            34,
+            48,
+            74,
+            104,
+            131,
+            154,
+            248,
+            250,
+            300,
+            330
+          ]
+        },
+        "cluster_spread": {
+          "score": 0.07642502578213388,
+          "entropy": 0.17597512509762708
+        },
+        "deduplication": {
+          "boilerplate_score": 1.0
+        },
+        "metadata": {
+          "text_preview": "This is document 455 with some synthetic content for testing."
+        }
+      }
+    ]
+  }
+}
