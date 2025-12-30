@@ -130,12 +130,6 @@ HubScan uses robust statistical methods (median/MAD-based z-scores) to identify 
   - Comprehensive test suite
   - Well-documented API
 
-### Detection Pipeline Architecture
-
-<img src="docs/images/detection-pipeline.png" alt="HubScan Detection Pipeline" width="600"/>
-
-*The HubScan detection pipeline processes embeddings through multiple parallel detectors, combines scores, applies thresholds, and generates comprehensive reports.*
-
 ### Multi-Ranking Detection Pipeline
 
 <img src="docs/images/multi-ranking-pipeline.png" alt="Multi-Ranking Detection Pipeline" width="600"/>
