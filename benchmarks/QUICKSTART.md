@@ -85,7 +85,7 @@ python3 run_benchmark.py \
   --dataset data/wikipedia_small/ \
   --config configs/default.yaml \
   --output results/wikipedia/ \
-  --ranking-methods vector hybrid lexical reranked
+  --ranking-methods vector hybrid lexical vector+rerank hybrid+rerank
 ```
 
 This will:

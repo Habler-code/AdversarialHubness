@@ -120,7 +120,7 @@ scan:
   k: 20                    # Top-k documents per query
   num_queries: 5000        # Number of test queries
   ranking:
-    method: vector         # Can be vector, hybrid, lexical, or reranked
+    method: vector         # Can be vector, hybrid, or lexical. Use rerank: true to enable reranking
 
 detectors:
   hubness:

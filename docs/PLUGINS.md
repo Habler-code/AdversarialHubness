@@ -2,9 +2,10 @@
 
 HubScan now supports a pluggable architecture that allows you to:
 
-1. **Register custom ranking/retrieval algorithms** - Add your own retrieval methods beyond the built-in `vector`, `hybrid`, `lexical`, and `reranked` methods
-2. **Register custom detectors** - Add your own detection algorithms that work seamlessly with the existing pipeline
-3. **Mix and match** - Use any combination of built-in and custom components
+1. **Register custom ranking/retrieval algorithms** - Add your own retrieval methods beyond the built-in `vector`, `hybrid`, and `lexical` methods
+2. **Register custom reranking methods** - Add your own post-processing reranking algorithms that can be applied to any ranking method
+3. **Register custom detectors** - Add your own detection algorithms that work seamlessly with the existing pipeline
+4. **Mix and match** - Use any combination of built-in and custom components
 
 ## Custom Ranking Methods
 
@@ -196,7 +197,10 @@ Custom detectors integrate with:
 - `vector`: Standard vector similarity search
 - `hybrid`: Hybrid vector + lexical search
 - `lexical`: Pure lexical/keyword search (BM25, TF-IDF)
-- `reranked`: Vector search with reranking
+
+### Reranking Methods
+- `default`: Simple reranking that retrieves more candidates and returns top k
+- Custom reranking methods can be registered and applied to any ranking method
 
 ### Detectors
 - `hubness`: Reverse-kNN frequency detection
@@ -208,9 +212,11 @@ Custom detectors integrate with:
 
 ```python
 from hubscan.core.ranking import list_ranking_methods
+from hubscan.core.reranking import list_reranking_methods
 from hubscan.core.detectors import list_detectors
 
 print("Ranking methods:", list_ranking_methods())
+print("Reranking methods:", list_reranking_methods())
 print("Detectors:", list_detectors())
 ```
 
@@ -255,7 +261,7 @@ scoring:
     my_detector: 0.3
 """
 
-# 4. Run scan
+# 5. Run scan
 from hubscan import Scanner, Config
 scanner = Scanner(Config.from_yaml("config.yaml"))
 scanner.load_data()
@@ -264,9 +270,28 @@ results = scanner.scan()
 
 ## Backward Compatibility
 
-All existing configurations continue to work without modification. The plugin system is fully backward compatible:
+**Note**: Reranking has been refactored from a ranking method to a post-processing step. This is a breaking change for configs using `method: reranked`.
 
-- Existing configs using `vector`, `hybrid`, `lexical`, `reranked` work as before
+### Migration Guide
+
+**Old configuration:**
+```yaml
+ranking:
+  method: reranked
+  rerank_top_n: 100
+```
+
+**New configuration:**
+```yaml
+ranking:
+  method: vector  # or hybrid, lexical
+  rerank: true
+  rerank_method: default
+  rerank_top_n: 100
+```
+
+All other configurations continue to work without modification:
+- Existing configs using `vector`, `hybrid`, `lexical` work as before
 - Built-in detectors work exactly as before
-- No changes required to existing code
+- Reranking can now be applied to any ranking method
 

@@ -20,7 +20,7 @@ scan:
     cluster_centroids: 0.5
   seed: 42
   ranking:
-    method: vector  # Default: vector, can be hybrid, lexical, or reranked
+    method: vector  # Default: vector, can be hybrid, or lexical. Use rerank: true to enable reranking
     hybrid_alpha: 0.5
     rerank_top_n: 100
     lexical_backend: bm25

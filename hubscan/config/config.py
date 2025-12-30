@@ -76,7 +76,7 @@ class RankingConfig(BaseModel):
     """Ranking method configuration."""
     method: str = Field(
         default="vector",
-        description="Ranking method name (built-in: vector, hybrid, lexical, reranked, or custom registered name)"
+        description="Ranking method name (built-in: vector, hybrid, lexical, or custom registered name)"
     )
     hybrid_alpha: float = Field(
         default=0.5,
@@ -84,10 +84,18 @@ class RankingConfig(BaseModel):
         le=1.0,
         description="Weight for vector search in hybrid mode (1-alpha for lexical)"
     )
+    rerank: bool = Field(
+        default=False,
+        description="Enable reranking as post-processing step"
+    )
+    rerank_method: str = Field(
+        default="default",
+        description="Reranking method name (built-in: default, or custom registered name)"
+    )
     rerank_top_n: int = Field(
         default=100,
         ge=1,
-        description="Number of candidates to retrieve before reranking"
+        description="Number of candidates to retrieve before reranking (only used if rerank=True)"
     )
     lexical_backend: Optional[str] = Field(
         default=None,
@@ -96,6 +104,10 @@ class RankingConfig(BaseModel):
     custom_params: Dict[str, Any] = Field(
         default_factory=dict,
         description="Custom parameters for ranking method (passed as **kwargs to search method)"
+    )
+    rerank_params: Dict[str, Any] = Field(
+        default_factory=dict,
+        description="Custom parameters for reranking method (passed as **kwargs to rerank method)"
     )
 
 

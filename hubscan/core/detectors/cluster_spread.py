@@ -23,6 +23,8 @@ from typing import Optional, Dict, Any, List, TYPE_CHECKING
 
 from .base import Detector, DetectorResult
 from ..io.metadata import Metadata
+from ..ranking import get_ranking_method
+from ..reranking import get_reranking_method
 from ...utils.logging import get_logger
 
 if TYPE_CHECKING:
@@ -63,7 +65,10 @@ class ClusterSpreadDetector(Detector):
         ranking_method: str = "vector",
         hybrid_alpha: float = 0.5,
         query_texts: Optional[List[str]] = None,
-        rerank_top_n: int = 100,
+        rerank: bool = False,
+        rerank_method: Optional[str] = None,
+        rerank_top_n: Optional[int] = None,
+        rerank_params: Optional[Dict[str, Any]] = None,
         **kwargs,
     ) -> DetectorResult:
         """
@@ -78,10 +83,13 @@ class ClusterSpreadDetector(Detector):
             queries: Query embeddings (M, D)
             k: Number of nearest neighbors
             query_cluster_assignments: Optional pre-computed cluster assignments for queries
-            ranking_method: Ranking method ("vector", "hybrid", "lexical", "reranked")
+            ranking_method: Ranking method ("vector", "hybrid", "lexical")
             hybrid_alpha: Weight for vector search in hybrid mode (0.0-1.0)
             query_texts: Optional query texts for lexical/hybrid search
-            rerank_top_n: Number of candidates for reranking
+            rerank: Whether to apply reranking as post-processing
+            rerank_method: Reranking method name (if rerank=True)
+            rerank_top_n: Number of candidates to retrieve before reranking (if rerank=True)
+            rerank_params: Custom parameters for reranking method
             
         Returns:
             DetectorResult with cluster spread scores
@@ -125,6 +133,38 @@ class ClusterSpreadDetector(Detector):
         # For each document, track which query clusters retrieve it
         doc_cluster_hits: Dict[int, Dict[int, int]] = {}
         
+        # Get ranking method implementation
+        ranking_method_impl = get_ranking_method(ranking_method)
+        if ranking_method_impl is None:
+            from ..ranking import list_ranking_methods
+            available = list_ranking_methods()
+            raise ValueError(
+                f"Unknown ranking method: {ranking_method}. "
+                f"Available methods: {', '.join(available)}"
+            )
+        
+        # Get reranking method if enabled
+        reranking_method_impl = None
+        if rerank:
+            if rerank_method is None:
+                raise ValueError("rerank_method required when rerank=True")
+            reranking_method_impl = get_reranking_method(rerank_method)
+            if reranking_method_impl is None:
+                from ..reranking import list_reranking_methods
+                available = list_reranking_methods()
+                raise ValueError(
+                    f"Unknown reranking method: {rerank_method}. "
+                    f"Available methods: {', '.join(available)}"
+                )
+        
+        # Prepare ranking kwargs
+        ranking_kwargs = kwargs.get("ranking_custom_params", {})
+        if ranking_method == "hybrid":
+            ranking_kwargs["alpha"] = hybrid_alpha
+        
+        # Determine retrieve k
+        retrieve_k = rerank_top_n if rerank and rerank_top_n is not None else k
+        
         # We need to run searches to see which clusters retrieve which docs
         # This is expensive, so we'll do it in batches
         batch_size = 2048
@@ -133,28 +173,30 @@ class ClusterSpreadDetector(Detector):
             batch_queries = queries[i:end]
             batch_clusters = query_cluster_assignments[i:end]
             
-            # Use appropriate search method based on ranking_method
-            if ranking_method == "vector":
-                distances, indices = index.search(batch_queries, k)
-            elif ranking_method == "hybrid":
-                batch_query_texts = None
-                if query_texts is not None:
-                    batch_query_texts = [query_texts[j] for j in range(i, end)]
-                distances, indices, _ = index.search_hybrid(
+            # Use ranking method plugin
+            batch_query_texts = None
+            if query_texts is not None:
+                batch_query_texts = [query_texts[j] for j in range(i, end)]
+            
+            distances, indices, _ = ranking_method_impl.search(
+                index=index,
+                query_vectors=batch_queries,
+                query_texts=batch_query_texts,
+                k=retrieve_k,
+                **ranking_kwargs
+            )
+            
+            # Apply reranking if enabled
+            if rerank and reranking_method_impl is not None:
+                rerank_kwargs = rerank_params or {}
+                distances, indices, _ = reranking_method_impl.rerank(
+                    distances=distances,
+                    indices=indices,
                     query_vectors=batch_queries,
                     query_texts=batch_query_texts,
                     k=k,
-                    alpha=hybrid_alpha,
+                    **rerank_kwargs
                 )
-            elif ranking_method == "reranked":
-                distances, indices, _ = index.search_reranked(
-                    query_vectors=batch_queries,
-                    k=k,
-                    rerank_top_n=rerank_top_n,
-                )
-            else:
-                # Fallback to vector search
-                distances, indices = index.search(batch_queries, k)
             
             for j, query_cluster in enumerate(batch_clusters):
                 neighbors = indices[j]

@@ -25,6 +25,7 @@ from .base import Detector, DetectorResult
 from ..io.metadata import Metadata
 from ..io.adapters import FAISSIndex
 from ..ranking import get_ranking_method
+from ..reranking import get_reranking_method
 from ...utils.metrics import robust_zscore, compute_percentile
 from ...utils.batching import batch_iterator
 from ...utils.logging import get_logger
@@ -76,7 +77,10 @@ class HubnessDetector(Detector):
         ranking_method: str = "vector",
         hybrid_alpha: float = 0.5,
         query_texts: Optional[List[str]] = None,
-        rerank_top_n: int = 100,
+        rerank: bool = False,
+        rerank_method: Optional[str] = None,
+        rerank_top_n: Optional[int] = None,
+        rerank_params: Optional[Dict[str, Any]] = None,
         **kwargs,
     ) -> DetectorResult:
         """
@@ -89,10 +93,13 @@ class HubnessDetector(Detector):
             k: Number of nearest neighbors
             metadata: Optional document metadata
             batch_size: Batch size for processing queries
-            ranking_method: Ranking method ("vector", "hybrid", "lexical", "reranked")
+            ranking_method: Ranking method ("vector", "hybrid", "lexical")
             hybrid_alpha: Weight for vector search in hybrid mode (0.0-1.0)
             query_texts: Optional query texts for lexical/hybrid search
-            rerank_top_n: Number of candidates for reranking
+            rerank: Whether to apply reranking as post-processing
+            rerank_method: Reranking method name (if rerank=True)
+            rerank_top_n: Number of candidates to retrieve before reranking (if rerank=True)
+            rerank_params: Custom parameters for reranking method
             
         Returns:
             DetectorResult with hubness scores and example queries
@@ -128,18 +135,37 @@ class HubnessDetector(Detector):
         # Get ranking method implementation
         ranking_method_impl = get_ranking_method(ranking_method)
         if ranking_method_impl is None:
+            from ..ranking import list_ranking_methods
+            available = list_ranking_methods()
             raise ValueError(
                 f"Unknown ranking method: {ranking_method}. "
-                f"Available methods: {', '.join(['vector', 'hybrid', 'lexical', 'reranked'])}. "
+                f"Available methods: {', '.join(available)}. "
                 f"Register custom methods using hubscan.core.ranking.register_ranking_method()"
             )
+        
+        # Get reranking method implementation if reranking is enabled
+        reranking_method_impl = None
+        if rerank:
+            if rerank_method is None:
+                raise ValueError("rerank_method required when rerank=True")
+            reranking_method_impl = get_reranking_method(rerank_method)
+            if reranking_method_impl is None:
+                from ..reranking import list_reranking_methods
+                available = list_reranking_methods()
+                raise ValueError(
+                    f"Unknown reranking method: {rerank_method}. "
+                    f"Available methods: {', '.join(available)}. "
+                    f"Register custom methods using hubscan.core.reranking.register_reranking_method()"
+                )
         
         # Prepare ranking method kwargs
         ranking_kwargs = kwargs.get("ranking_custom_params", {})
         if ranking_method == "hybrid":
             ranking_kwargs["alpha"] = hybrid_alpha
-        elif ranking_method == "reranked":
-            ranking_kwargs["rerank_top_n"] = rerank_top_n
+        
+        # Determine how many candidates to retrieve
+        # If reranking is enabled, retrieve rerank_top_n candidates, otherwise just k
+        retrieve_k = rerank_top_n if rerank and rerank_top_n is not None else k
         
         # Process queries in batches
         query_idx = 0
@@ -157,13 +183,35 @@ class HubnessDetector(Detector):
                     index=index,
                     query_vectors=batch_queries_array,
                     query_texts=batch_query_texts,
-                    k=k,
+                    k=retrieve_k,  # Retrieve more candidates if reranking
                     **ranking_kwargs
                 )
             except Exception as e:
                 raise RuntimeError(
                     f"Error executing ranking method '{ranking_method}': {e}"
                 ) from e
+            
+            # Apply reranking if enabled
+            if rerank and reranking_method_impl is not None:
+                try:
+                    rerank_kwargs = rerank_params or {}
+                    distances, indices, rerank_metadata = reranking_method_impl.rerank(
+                        distances=distances,
+                        indices=indices,
+                        query_vectors=batch_queries_array,
+                        query_texts=batch_query_texts,
+                        k=k,  # Final k after reranking
+                        **rerank_kwargs
+                    )
+                    # Merge reranking metadata into search metadata
+                    search_metadata.update(rerank_metadata)
+                    search_metadata["reranking_applied"] = True
+                except Exception as e:
+                    raise RuntimeError(
+                        f"Error executing reranking method '{rerank_method}': {e}"
+                    ) from e
+            else:
+                search_metadata["reranking_applied"] = False
             
             ranking_metadata_list.append(search_metadata)
             
@@ -180,6 +228,7 @@ class HubnessDetector(Detector):
                         # Apply distance/similarity weight if enabled
                         if self.use_distance_weights:
                             # Determine score type based on ranking method
+                            # Note: reranking doesn't change score type, it's based on base ranking method
                             is_lexical_score = ranking_method == "lexical" or (
                                 ranking_method == "hybrid" and hybrid_alpha < 1.0
                             )
@@ -280,8 +329,13 @@ class HubnessDetector(Detector):
         
         if ranking_method == "hybrid":
             result_metadata["hybrid_alpha"] = hybrid_alpha
-        if ranking_method == "reranked":
-            result_metadata["rerank_top_n"] = rerank_top_n
+        if rerank:
+            result_metadata["reranking_enabled"] = True
+            result_metadata["rerank_method"] = rerank_method
+            if rerank_top_n is not None:
+                result_metadata["rerank_top_n"] = rerank_top_n
+        else:
+            result_metadata["reranking_enabled"] = False
         
         if validation_results:
             result_metadata["validation"] = validation_results

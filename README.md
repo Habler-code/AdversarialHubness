@@ -41,7 +41,7 @@ In vector search systems, **hubness** is a natural phenomenon where some documen
 3. **Stability**: Consistently appear under query perturbations
 4. **Statistical Anomaly**: Hub rates that are 5-10+ standard deviations above the median
 
-HubScan uses robust statistical methods (median/MAD-based z-scores) to identify these anomalies while being resistant to false positives from legitimate popular content. The detection system employs rank-aware and distance-based scoring to provide more accurate identification of adversarial hubs by weighting documents that appear at higher ranks and with higher similarity scores more heavily. Detection metrics vary significantly between different retrieval techniques (vector similarity, hybrid search, lexical matching, reranking), so HubScan offers a flexible, puzzle-like approach where you can mix and match ranking methods and detectors to uncover adversarial patterns that might be missed by any single technique.
+HubScan uses robust statistical methods (median/MAD-based z-scores) to identify these anomalies while being resistant to false positives from legitimate popular content. The detection system employs rank-aware and distance-based scoring to provide more accurate identification of adversarial hubs by weighting documents that appear at higher ranks and with higher similarity scores more heavily. Detection metrics vary significantly between different retrieval techniques (vector similarity, hybrid search, lexical matching) and reranking methods, so HubScan offers a flexible, puzzle-like approach where you can mix and match retrieval methods, reranking methods, and detectors to uncover adversarial patterns that might be missed by any single technique.
 
 ### Detection Metrics
 
@@ -63,17 +63,17 @@ HubScan uses robust statistical methods (median/MAD-based z-scores) to identify 
   - **Hubness Detection**: Reverse-kNN frequency analysis with robust z-scores
     - Rank-aware scoring: Higher weights for documents appearing at top ranks (rank 1 > rank k)
     - Distance-based scoring: Incorporates similarity/distance scores for more accurate detection
-    - **Works with**: All ranking methods (vector, hybrid, lexical, reranked)
+    - **Works with**: All retrieval methods (vector, hybrid, lexical) with optional reranking
   - **Cluster Spread Analysis**: Entropy-based detection of multi-cluster proximity
     - Measures how many diverse semantic query clusters retrieve each document
-    - **Works with**: Vector, hybrid, reranked (skipped for lexical - requires semantic clustering)
+    - **Works with**: Vector, hybrid (with optional reranking) - skipped for lexical (requires semantic clustering)
   - **Stability Testing**: Consistency analysis under query perturbations
     - Tests retrieval consistency by perturbing query embeddings
-    - **Works with**: Vector, hybrid, reranked (skipped for lexical - requires query embeddings)
+    - **Works with**: Vector, hybrid (with optional reranking) - skipped for lexical (requires query embeddings)
   - **Deduplication**: Boilerplate and duplicate detection
     - **Works with**: All ranking methods (doesn't depend on retrieval method)
 
-- **Multiple Ranking Methods**:
+- **Multiple Retrieval Methods**:
   - **Vector Search (KNN)**: Classic vector similarity search (default)
     - Uses all detection strategies
     - Best for: Detecting vector-optimized adversarial hubs
@@ -84,16 +84,25 @@ HubScan uses robust statistical methods (median/MAD-based z-scores) to identify 
   - **Lexical Search**: Pure keyword-based search using BM25/TF-IDF
     - Uses only hubness and dedup detectors (cluster spread and stability automatically skipped)
     - Best for: Detecting keyword-optimized adversarial hubs
-  - **Reranked Search**: Initial vector retrieval followed by semantic reranking
-    - Uses all detection strategies
-    - Best for: High-precision detection with semantic reranking
-  - Supports comparison across ranking methods to evaluate detection effectiveness
-  - Method-specific thresholds available for fine-tuning per ranking method
-  - **Pluggable Architecture**: Extend HubScan with custom ranking methods and detectors (see [Plugin System](docs/PLUGINS.md))
+  
+- **Reranking Methods (Post-Processing)**:
+  - Optional reranking step that can be applied to any retrieval method
+  - Retrieves more candidates (rerank_top_n), then reranks to return top k
+  - Can be enabled for vector, hybrid, or lexical retrieval
+  - Supports custom reranking algorithms via plugin system
+  - Works seamlessly with all detectors (hubness, cluster spread, stability, dedup)
+  - Best for: High-precision detection with semantic reranking or custom scoring
+  - Built-in: `default` reranking (simple top-k selection)
+  - Custom reranking methods can be registered via plugin system
+
+- **Comparison and Configuration**:
+  - Supports comparison across retrieval methods to evaluate detection effectiveness
+  - Method-specific thresholds available for fine-tuning per retrieval method
+  - **Pluggable Architecture**: Extend HubScan with custom retrieval methods, reranking methods, and detectors (see [Plugin System](docs/PLUGINS.md))
 
 - **Comprehensive Detection Metrics**:
   - **Detection Performance Metrics**: AUC-ROC, AUC-PR, confusion matrix, per-class metrics
-  - **Comparative Analysis**: Evaluate detection performance across different ranking methods
+  - **Comparative Analysis**: Evaluate detection performance across different retrieval methods
 
 - **Flexible Input Modes** (Plug-and-Play Architecture):
   - `embeddings_only`: Build vector index on-the-fly from embeddings (uses FAISS by default)
@@ -127,17 +136,11 @@ HubScan uses robust statistical methods (median/MAD-based z-scores) to identify 
 
 *The HubScan detection pipeline processes embeddings through multiple parallel detectors, combines scores, applies thresholds, and generates comprehensive reports.*
 
-### Ranking Methods
-
-<img src="docs/images/ranking-methods.png" alt="Ranking Methods" width="600"/>
-
-*HubScan supports multiple ranking methods: Vector Search (KNN), Hybrid Search (vector + lexical), Lexical Search (BM25), and Reranked Search (initial retrieval + semantic reranking).*
-
 ### Multi-Ranking Detection Pipeline
 
 <img src="docs/images/multi-ranking-pipeline.png" alt="Multi-Ranking Detection Pipeline" width="600"/>
 
-*The complete pipeline shows how different ranking methods feed into the detection system, with metrics computation for evaluating detection performance across ranking strategies.*
+*The complete pipeline shows how different retrieval methods (vector, hybrid, lexical) can optionally use reranking methods as post-processing, then feed into the detection system with multiple detectors (hubness, cluster spread, stability, dedup), score combination, and report generation.*
 
 ### Detection Performance Metrics
 
@@ -231,11 +234,11 @@ This demonstrates:
 # Run a scan
 hubscan scan --config config.yaml
 
-# Use different ranking methods
+# Use different retrieval methods
 hubscan scan --config config.yaml --ranking-method hybrid --query-texts queries.json
 hubscan scan --config config.yaml --ranking-method lexical --query-texts queries.json
 
-# Compare ranking methods
+# Compare retrieval methods
 hubscan compare-ranking --config config.yaml --methods vector hybrid lexical
 
 # Build an index
@@ -285,7 +288,7 @@ HubScan uses YAML configuration files to control all aspects of the scanning pro
 
 - **Input**: Data sources (embeddings, indices, vector databases)
 - **Index**: FAISS index type and parameters
-- **Scan**: Query sampling, ranking methods, batch processing
+- **Scan**: Query sampling, retrieval methods, reranking methods, batch processing
 - **Detectors**: Enable/configure detection algorithms
 - **Scoring**: Weight detector outputs and set thresholds
 - **Output**: Report generation and privacy settings
@@ -302,7 +305,10 @@ scan:
   k: 20
   num_queries: 10000
   ranking:
-    method: vector
+    method: vector  # Retrieval method: vector, hybrid, or lexical
+    rerank: true  # Enable reranking as post-processing
+    rerank_method: default  # Reranking method: default or custom registered method
+    rerank_top_n: 100  # Retrieve 100 candidates, rerank to top k
 
 detectors:
   hubness:

@@ -86,26 +86,4 @@ class LexicalRanking:
         return distances, indices, metadata
 
 
-class RerankedRanking:
-    """Reranked search (initial retrieval + reranking)."""
-    
-    def search(
-        self,
-        index: VectorIndex,
-        query_vectors: Optional[np.ndarray],
-        query_texts: Optional[List[str]],
-        k: int,
-        rerank_top_n: int = 100,
-        **kwargs
-    ) -> Tuple[np.ndarray, np.ndarray, Dict[str, Any]]:
-        """Perform reranked search."""
-        if query_vectors is None:
-            raise ValueError("query_vectors required for reranked search")
-        
-        distances, indices, metadata = index.search_reranked(
-            query_vectors=query_vectors,
-            k=k,
-            rerank_top_n=rerank_top_n,
-        )
-        return distances, indices, metadata
 

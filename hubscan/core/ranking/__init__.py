@@ -91,12 +91,11 @@ def list_ranking_methods() -> List[str]:
 # Register built-in methods (imported at end to avoid circular imports)
 def _register_builtin_methods():
     """Register built-in ranking methods."""
-    from .builtin import VectorRanking, HybridRanking, LexicalRanking, RerankedRanking
+    from .builtin import VectorRanking, HybridRanking, LexicalRanking
     
     register_ranking_method("vector", VectorRanking())
     register_ranking_method("hybrid", HybridRanking())
     register_ranking_method("lexical", LexicalRanking())
-    register_ranking_method("reranked", RerankedRanking())
 
 _register_builtin_methods()
 

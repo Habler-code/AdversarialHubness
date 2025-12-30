@@ -1,0 +1,3281 @@
+{
+  "scan_info": {
+    "timestamp": "2025-12-30T18:21:05.535308",
+    "num_documents": 665,
+    "num_queries": 1396,
+    "k": 20,
+    "runtime_seconds": 12.774919986724854,
+    "index_type": "flat",
+    "metric": "cosine",
+    "ranking_method": "hybrid"
+  },
+  "summary": {
+    "verdict_counts": {
+      "LOW": 622,
+      "MEDIUM": 35,
+      "HIGH": 8
+    },
+    "mean_risk_score": 0.11319929300126112,
+    "max_risk_score": 8.979341817615568,
+    "median_risk_score": -0.11823624074459077
+  },
+  "detector_summary": {
+    "hubness": {
+      "mean_score": 0.324529767036438,
+      "max_score": 12.03343677520752,
+      "median_score": 0.0,
+      "ranking_method": "hybrid",
+      "hybrid_alpha": 0.5
+    },
+    "cluster_spread": {
+      "mean_score": 0.34900984372443117,
+      "max_score": 0.8789996082284952,
+      "median_score": 0.3591394738360313
+    },
+    "dedup": {
+      "mean_score": 1.0,
+      "max_score": 1.0,
+      "median_score": 1.0
+    }
+  },
+  "suspicious_documents": [
+    {
+      "doc_index": 430,
+      "risk_score": 8.979341817615568,
+      "verdict": "HIGH",
+      "hubness": {
+        "hub_z": 12.03343677520752,
+        "hub_rate": 0.007670182269066572,
+        "hits": null,
+        "example_query_indices": [
+          12,
+          16,
+          41,
+          43,
+          46,
+          61,
+          67,
+          89,
+          91,
+          101
+        ]
+      },
+      "cluster_spread": {
+        "score": 0.7713199889567384,
+        "entropy": 1.3820198940181148
+      },
+      "deduplication": {
+        "boilerplate_score": 1.0
+      },
+      "metadata": {
+        "text_preview": "users focus on their core business instead of being impeded by IT obstacles. The main enabling technology for cloud computing is virtualization. Virtualization software separates a physical computing ..."
+      }
+    },
+    {
+      "doc_index": 473,
+      "risk_score": 8.119924673626176,
+      "verdict": "HIGH",
+      "hubness": {
+        "hub_z": 10.906736373901367,
+        "hub_rate": 0.0070588053204119205,
+        "hits": null,
+        "example_query_indices": [
+          5,
+          8,
+          10,
+          16,
+          20,
+          28,
+          32,
+          34,
+          36,
+          44
+        ]
+      },
+      "cluster_spread": {
+        "score": 0.6993643501865463,
+        "entropy": 1.2530926968872698
+      },
+      "deduplication": {
+        "boilerplate_score": 1.0
+      },
+      "metadata": {
+        "text_preview": "consumer of the utilized service. By 2023, the International Organization for Standardization (ISO) had expanded and refined the list. == History == The history of cloud computing extends to the 1960s..."
+      }
+    },
+    {
+      "doc_index": 59,
+      "risk_score": 4.36446244849415,
+      "verdict": "HIGH",
+      "hubness": {
+        "hub_z": 5.923779010772705,
+        "hub_rate": 0.004354921635240316,
+        "hits": null,
+        "example_query_indices": [
+          26,
+          27,
+          41,
+          46,
+          73,
+          97,
+          100,
+          112,
+          114,
+          118
+        ]
+      },
+      "cluster_spread": {
+        "score": 0.6081403560266582,
+        "entropy": 1.0896412415304855
+      },
+      "deduplication": {
+        "boilerplate_score": 1.0
+      },
+      "metadata": {
+        "text_preview": "with autonomous path planning or deliberation for robotic systems to navigate through an environment. A detailed understanding of these environments is required to navigate through them. Information a..."
+      }
+    },
+    {
+      "doc_index": 648,
+      "risk_score": 3.8828586614893004,
+      "verdict": "HIGH",
+      "hubness": {
+        "hub_z": 5.2606120109558105,
+        "hub_rate": 0.003995069768279791,
+        "hits": null,
+        "example_query_indices": [
+          3,
+          22,
+          57,
+          58,
+          61,
+          67,
+          69,
+          77,
+          89,
+          122
+        ]
+      },
+      "cluster_spread": {
+        "score": 0.6869988624086591,
+        "entropy": 1.2309367170696166
+      },
+      "deduplication": {
+        "boilerplate_score": 1.0
+      },
+      "metadata": {
+        "text_preview": "unstructured addressing used by bridging. Structured IP addresses are used on the Internet. Unstructured MAC addresses are used for bridging on Ethernet and similar local area networks. == Architectur..."
+      }
+    },
+    {
+      "doc_index": 436,
+      "risk_score": 3.7624217477944115,
+      "verdict": "HIGH",
+      "hubness": {
+        "hub_z": 5.090325832366943,
+        "hub_rate": 0.003902668133378029,
+        "hits": null,
+        "example_query_indices": [
+          18,
+          27,
+          62,
+          94,
+          96,
+          115,
+          123,
+          129,
+          159,
+          199
+        ]
+      },
+      "cluster_spread": {
+        "score": 0.7233874636424683,
+        "entropy": 1.296136337902258
+      },
+      "deduplication": {
+        "boilerplate_score": 1.0
+      },
+      "metadata": {
+        "text_preview": "of years\". These claims have been criticized on the ground that social policy, not AI, causes unemployment. In a 2016 article in The Guardian, Stephen Hawking stated \"The automation of factories has a..."
+      }
+    },
+    {
+      "doc_index": 348,
+      "risk_score": 3.545769070768229,
+      "verdict": "HIGH",
+      "hubness": {
+        "hub_z": 4.820898056030273,
+        "hub_rate": 0.0037564695812761784,
+        "hits": null,
+        "example_query_indices": [
+          7,
+          35,
+          37,
+          71,
+          79,
+          90,
+          111,
+          125,
+          138,
+          153
+        ]
+      },
+      "cluster_spread": {
+        "score": 0.6504776437276211,
+        "entropy": 1.1654994776701182
+      },
+      "deduplication": {
+        "boilerplate_score": 1.0
+      },
+      "metadata": {
+        "text_preview": "integration of the physical world into computer-based systems, resulting in efficiency improvements, economic benefits, and reduced human exertions. IoT Analytics reported there were 16.6 billion IoT ..."
+      }
+    },
+    {
+      "doc_index": 588,
+      "risk_score": 3.4544872484457296,
+      "verdict": "HIGH",
+      "hubness": {
+        "hub_z": 4.716063499450684,
+        "hub_rate": 0.0036995834670960903,
+        "hits": null,
+        "example_query_indices": [
+          18,
+          27,
+          35,
+          41,
+          46,
+          79,
+          81,
+          97,
+          114,
+          115
+        ]
+      },
+      "cluster_spread": {
+        "score": 0.5871981192885863,
+        "entropy": 1.0521177905482295
+      },
+      "deduplication": {
+        "boilerplate_score": 1.0
+      },
+      "metadata": {
+        "text_preview": "example, robots in assembly plants are completely autonomous but operate in a fixed pattern. Another classification takes into account the interaction between human control and the machine motions. Te..."
+      }
+    },
+    {
+      "doc_index": 619,
+      "risk_score": 3.4506531898496364,
+      "verdict": "HIGH",
+      "hubness": {
+        "hub_z": 4.770157337188721,
+        "hub_rate": 0.00372893619351089,
+        "hits": null,
+        "example_query_indices": [
+          39,
+          64,
+          73,
+          106,
+          109,
+          118,
+          121,
+          129,
+          142,
+          144
+        ]
+      },
+      "cluster_spread": {
+        "score": 0.3651753387440319,
+        "entropy": 0.6543063711231818
+      },
+      "deduplication": {
+        "boilerplate_score": 1.0
+      },
+      "metadata": {
+        "text_preview": "VR cameras, that have the ability to record 360 interactive photography, although at relatively low resolutions or in highly compressed formats for online streaming of 360 video. In contrast, photogra..."
+      }
+    },
+    {
+      "doc_index": 509,
+      "risk_score": 3.3242495073386755,
+      "verdict": "MEDIUM",
+      "hubness": {
+        "hub_z": 4.4934234619140625,
+        "hub_rate": 0.003578773234039545,
+        "hits": null,
+        "example_query_indices": [
+          9,
+          16,
+          22,
+          23,
+          44,
+          47,
+          49,
+          56,
+          61,
+          72
+        ]
+      },
+      "cluster_spread": {
+        "score": 0.7709095545156445,
+        "entropy": 1.3812844942217875
+      },
+      "deduplication": {
+        "boilerplate_score": 1.0
+      },
+      "metadata": {
+        "text_preview": "used as abstract models of a sequential general-purpose computer executing such an algorithm. The field of concurrent and distributed computing studies similar questions in the case of either multiple..."
+      }
+    },
+    {
+      "doc_index": 133,
+      "risk_score": 3.1933357652110788,
+      "verdict": "MEDIUM",
+      "hubness": {
+        "hub_z": 4.49737548828125,
+        "hub_rate": 0.003580917604267597,
+        "hits": null,
+        "example_query_indices": [
+          1,
+          2,
+          9,
+          24,
+          35,
+          45,
+          66,
+          81,
+          125,
+          132
+        ]
+      },
+      "cluster_spread": {
+        "score": 0.10152074500070789,
+        "entropy": 0.18190075617810508
+      },
+      "deduplication": {
+        "boilerplate_score": 1.0
+      },
+      "metadata": {
+        "text_preview": "In machine learning, deep learning focuses on utilizing multilayered neural networks to perform tasks such as classification, regression, and representation learning. The field takes inspiration from ..."
+      }
+    },
+    {
+      "doc_index": 17,
+      "risk_score": 2.9496926817015834,
+      "verdict": "MEDIUM",
+      "hubness": {
+        "hub_z": 4.120121002197266,
+        "hub_rate": 0.00337620940990746,
+        "hits": null,
+        "example_query_indices": [
+          2,
+          6,
+          12,
+          15,
+          19,
+          22,
+          24,
+          26,
+          29,
+          42
+        ]
+      },
+      "cluster_spread": {
+        "score": 0.2980096502681708,
+        "entropy": 0.533961612789336
+      },
+      "deduplication": {
+        "boilerplate_score": 1.0
+      },
+      "metadata": {
+        "text_preview": "(Model Inference System) in 1981: a Prolog program that inductively inferred logic programs from positive and negative examples. The term inductive here refers to philosophical induction, suggesting a..."
+      }
+    },
+    {
+      "doc_index": 501,
+      "risk_score": 2.9314935151659696,
+      "verdict": "MEDIUM",
+      "hubness": {
+        "hub_z": 3.99349308013916,
+        "hub_rate": 0.003307497827336192,
+        "hits": null,
+        "example_query_indices": [
+          23,
+          44,
+          46,
+          52,
+          57,
+          61,
+          72,
+          86,
+          91,
+          122
+        ]
+      },
+      "cluster_spread": {
+        "score": 0.6818685253079976,
+        "entropy": 1.2217443869891742
+      },
+      "deduplication": {
+        "boilerplate_score": 1.0
+      },
+      "metadata": {
+        "text_preview": "use of distributed systems to solve computational problems. In distributed computing, a problem is divided into many tasks, each of which is solved by one or more computers, which communicate with eac..."
+      }
+    },
+    {
+      "doc_index": 367,
+      "risk_score": 2.879303334353434,
+      "verdict": "MEDIUM",
+      "hubness": {
+        "hub_z": 3.9258439540863037,
+        "hub_rate": 0.003270789748057723,
+        "hits": null,
+        "example_query_indices": [
+          7,
+          31,
+          32,
+          37,
+          54,
+          71,
+          87,
+          98,
+          107,
+          153
+        ]
+      },
+      "cluster_spread": {
+        "score": 0.674602141966756,
+        "entropy": 1.2087247758304638
+      },
+      "deduplication": {
+        "boilerplate_score": 1.0
+      },
+      "metadata": {
+        "text_preview": "nodes that are sent to a distributed system for the analytics of the sensory data. Another challenge is the storage of this bulk data. Depending on the application, there could be high data acquisitio..."
+      }
+    },
+    {
+      "doc_index": 589,
+      "risk_score": 2.8122767976997896,
+      "verdict": "MEDIUM",
+      "hubness": {
+        "hub_z": 3.8650591373443604,
+        "hub_rate": 0.003237806260585785,
+        "hits": null,
+        "example_query_indices": [
+          14,
+          18,
+          27,
+          41,
+          62,
+          79,
+          96,
+          111,
+          112,
+          115
+        ]
+      },
+      "cluster_spread": {
+        "score": 0.567411925434374,
+        "entropy": 1.0166656903499627
+      },
+      "deduplication": {
+        "boilerplate_score": 1.0
+      },
+      "metadata": {
+        "text_preview": "eyes, robots' \"eyes\" must also be able to focus on a particular area of interest, and also adjust to variations in light intensities. There is a subfield within computer vision where artificial system..."
+      }
+    },
+    {
+      "doc_index": 469,
+      "risk_score": 2.718824654543835,
+      "verdict": "MEDIUM",
+      "hubness": {
+        "hub_z": 3.7279703617095947,
+        "hub_rate": 0.0031634182669222355,
+        "hits": null,
+        "example_query_indices": [
+          10,
+          25,
+          31,
+          38,
+          47,
+          67,
+          83,
+          88,
+          105,
+          117
+        ]
+      },
+      "cluster_spread": {
+        "score": 0.6142341182849713,
+        "entropy": 1.1005597977600425
+      },
+      "deduplication": {
+        "boilerplate_score": 1.0
+      },
+      "metadata": {
+        "text_preview": "to break in actual practice by any adversary. While it is theoretically possible to break into a well-designed system, it is infeasible in actual practice to do so. Such schemes, if well designed, are..."
+      }
+    },
+    {
+      "doc_index": 382,
+      "risk_score": 2.708001947993884,
+      "verdict": "MEDIUM",
+      "hubness": {
+        "hub_z": 3.730764627456665,
+        "hub_rate": 0.0031649344600737095,
+        "hits": null,
+        "example_query_indices": [
+          16,
+          46,
+          60,
+          67,
+          103,
+          145,
+          165,
+          244,
+          247,
+          265
+        ]
+      },
+      "cluster_spread": {
+        "score": 0.549642088983703,
+        "entropy": 0.9848264176228392
+      },
+      "deduplication": {
+        "boilerplate_score": 1.0
+      },
+      "metadata": {
+        "text_preview": "(i.e. live CD) or flash memory (i.e. a LiveUSB from a USB stick). == Definition and purpose == An operating system is difficult to define, but has been called \"the layer of software that manages a com..."
+      }
+    },
+    {
+      "doc_index": 58,
+      "risk_score": 2.661253033131893,
+      "verdict": "MEDIUM",
+      "hubness": {
+        "hub_z": 3.739626407623291,
+        "hub_rate": 0.003169743111357093,
+        "hits": null,
+        "example_query_indices": [
+          45,
+          76,
+          81,
+          92,
+          95,
+          97,
+          112,
+          114,
+          118,
+          125
+        ]
+      },
+      "cluster_spread": {
+        "score": 0.2826655410256767,
+        "entropy": 0.5064686597572274
+      },
+      "deduplication": {
+        "boilerplate_score": 1.0
+      },
+      "metadata": {
+        "text_preview": "complexity. Also, some of the learning-based methods developed within computer vision (e.g. neural net and deep learning based image and feature analysis and classification) have their background in n..."
+      }
+    },
+    {
+      "doc_index": 98,
+      "risk_score": 2.5965972957306427,
+      "verdict": "MEDIUM",
+      "hubness": {
+        "hub_z": 3.5555951595306396,
+        "hub_rate": 0.003069882979616523,
+        "hits": null,
+        "example_query_indices": [
+          12,
+          16,
+          30,
+          37,
+          71,
+          75,
+          78,
+          92,
+          96,
+          104
+        ]
+      },
+      "cluster_spread": {
+        "score": 0.6495049284365388,
+        "entropy": 1.1637566058364586
+      },
+      "deduplication": {
+        "boilerplate_score": 1.0
+      },
+      "metadata": {
+        "text_preview": "everything else\". However, as the use of AI has become widespread, several unintended consequences and risks have been identified. In-production systems can sometimes not factor ethics and bias into t..."
+      }
+    },
+    {
+      "doc_index": 617,
+      "risk_score": 2.474444853079931,
+      "verdict": "MEDIUM",
+      "hubness": {
+        "hub_z": 3.471748113632202,
+        "hub_rate": 0.0030243853107094765,
+        "hits": null,
+        "example_query_indices": [
+          9,
+          13,
+          23,
+          25,
+          40,
+          42,
+          43,
+          47,
+          72,
+          88
+        ]
+      },
+      "cluster_spread": {
+        "score": 0.3531691373021204,
+        "entropy": 0.6327941460001774
+      },
+      "deduplication": {
+        "boilerplate_score": 1.0
+      },
+      "metadata": {
+        "text_preview": "==== Decoherence ==== One of the greatest challenges involved in constructing quantum computers is controlling or removing quantum decoherence. This usually means isolating the system from its environ..."
+      }
+    },
+    {
+      "doc_index": 465,
+      "risk_score": 2.459070356098141,
+      "verdict": "MEDIUM",
+      "hubness": {
+        "hub_z": 3.3918278217315674,
+        "hub_rate": 0.0029810185078531504,
+        "hits": null,
+        "example_query_indices": [
+          14,
+          21,
+          27,
+          41,
+          81,
+          96,
+          99,
+          114,
+          144,
+          172
+        ]
+      },
+      "cluster_spread": {
+        "score": 0.5759971509741043,
+        "entropy": 1.032048349506233
+      },
+      "deduplication": {
+        "boilerplate_score": 1.0
+      },
+      "metadata": {
+        "text_preview": "locking, etc. Emotion recognition \u2013 a subset of facial recognition, emotion recognition refers to the process of classifying human emotions. Psychologists caution, however, that internal emotions cann..."
+      }
+    },
+    {
+      "doc_index": 225,
+      "risk_score": 2.3982316542181867,
+      "verdict": "MEDIUM",
+      "hubness": {
+        "hub_z": 3.360132932662964,
+        "hub_rate": 0.00296382000669837,
+        "hits": null,
+        "example_query_indices": [
+          28,
+          51,
+          63,
+          65,
+          71,
+          91,
+          101,
+          103,
+          108,
+          119
+        ]
+      },
+      "cluster_spread": {
+        "score": 0.3906600716280443,
+        "entropy": 0.6999688825888586
+      },
+      "deduplication": {
+        "boilerplate_score": 1.0
+      },
+      "metadata": {
+        "text_preview": "of most database applications. DBMSs may be built around a custom multitasking kernel with built-in networking support, but modern DBMSs typically rely on a standard operating system to provide these ..."
+      }
+    },
+    {
+      "doc_index": 237,
+      "risk_score": 2.217352138204482,
+      "verdict": "MEDIUM",
+      "hubness": {
+        "hub_z": 3.0656237602233887,
+        "hub_rate": 0.002804011572152376,
+        "hits": null,
+        "example_query_indices": [
+          51,
+          52,
+          65,
+          91,
+          98,
+          108,
+          110,
+          119,
+          130,
+          157
+        ]
+      },
+      "cluster_spread": {
+        "score": 0.5906721862311524,
+        "entropy": 1.0583424828893044
+      },
+      "deduplication": {
+        "boilerplate_score": 1.0
+      },
+      "metadata": {
+        "text_preview": "gathering and authorization. Many databases provide active database features in the form of database triggers. A cloud database relies on cloud technology. Both the database and most of its DBMS resid..."
+      }
+    },
+    {
+      "doc_index": 223,
+      "risk_score": 2.184097262624569,
+      "verdict": "MEDIUM",
+      "hubness": {
+        "hub_z": 3.052432060241699,
+        "hub_rate": 0.0027968534268438816,
+        "hits": null,
+        "example_query_indices": [
+          46,
+          47,
+          51,
+          52,
+          63,
+          65,
+          91,
+          98,
+          101,
+          103
+        ]
+      },
+      "cluster_spread": {
+        "score": 0.4738660872164744,
+        "entropy": 0.8490540489161653
+      },
+      "deduplication": {
+        "boilerplate_score": 1.0
+      },
+      "metadata": {
+        "text_preview": "data, and distributed computing issues, including supporting concurrent access and fault tolerance. Computer scientists may classify database management systems according to the database models that t..."
+      }
+    },
+    {
+      "doc_index": 353,
+      "risk_score": 2.1492102910092292,
+      "verdict": "MEDIUM",
+      "hubness": {
+        "hub_z": 2.9998292922973633,
+        "hub_rate": 0.002768309786915779,
+        "hits": null,
+        "example_query_indices": [
+          37,
+          54,
+          58,
+          70,
+          87,
+          89,
+          154,
+          209,
+          210,
+          221
+        ]
+      },
+      "cluster_spread": {
+        "score": 0.4966916089310338,
+        "entropy": 0.8899518935882977
+      },
+      "deduplication": {
+        "boilerplate_score": 1.0
+      },
+      "metadata": {
+        "text_preview": "to the huge number of different links, interactions between autonomous actors, and its capacity to integrate new actors. At the overall stage (full open loop) it will likely be seen as a chaotic envir..."
+      }
+    },
+    {
+      "doc_index": 517,
+      "risk_score": 2.1202593499031583,
+      "verdict": "MEDIUM",
+      "hubness": {
+        "hub_z": 3.051281213760376,
+        "hub_rate": 0.002796228975057602,
+        "hits": null,
+        "example_query_indices": [
+          39,
+          79,
+          121,
+          129,
+          142,
+          169,
+          170,
+          173,
+          185,
+          219
+        ]
+      },
+      "cluster_spread": {
+        "score": 0.15899189989115944,
+        "entropy": 0.2848752421605439
+      },
+      "deduplication": {
+        "boilerplate_score": 1.0
+      },
+      "metadata": {
+        "text_preview": "Virtual reality (VR) is a simulated experience that employs 3D head-mounted displays and pose tracking to give the user an immersive feel of a virtual world. Applications of virtual reality include en..."
+      }
+    },
+    {
+      "doc_index": 224,
+      "risk_score": 2.0547253340875424,
+      "verdict": "MEDIUM",
+      "hubness": {
+        "hub_z": 2.8596115112304688,
+        "hub_rate": 0.0026922239921987057,
+        "hits": null,
+        "example_query_indices": [
+          47,
+          49,
+          51,
+          52,
+          60,
+          61,
+          91,
+          98,
+          101,
+          108
+        ]
+      },
+      "cluster_spread": {
+        "score": 0.5500835033234549,
+        "entropy": 0.9856173259459426
+      },
+      "deduplication": {
+        "boilerplate_score": 1.0
+      },
+      "metadata": {
+        "text_preview": "can be classified into four main functional groups: Data definition \u2013 Creation, modification and removal of definitions that detail how the data is to be organized. Update \u2013 Insertion, modification, a..."
+      }
+    },
+    {
+      "doc_index": 376,
+      "risk_score": 2.027615978699342,
+      "verdict": "MEDIUM",
+      "hubness": {
+        "hub_z": 2.861341953277588,
+        "hub_rate": 0.0026931629981845617,
+        "hits": null,
+        "example_query_indices": [
+          7,
+          21,
+          69,
+          70,
+          78,
+          83,
+          153,
+          168,
+          174,
+          175
+        ]
+      },
+      "cluster_spread": {
+        "score": 0.4080469726593088,
+        "entropy": 0.7311220271521578
+      },
+      "deduplication": {
+        "boilerplate_score": 1.0
+      },
+      "metadata": {
+        "text_preview": "case for end-users. A study by Ericsson regarding the adoption of IoT among Danish companies suggests that many struggle \"to pinpoint exactly where the value of IoT lies for them\". === Privacy and sec..."
+      }
+    },
+    {
+      "doc_index": 0,
+      "risk_score": 2.0077714384821657,
+      "verdict": "MEDIUM",
+      "hubness": {
+        "hub_z": 2.8505115509033203,
+        "hub_rate": 0.0026872861199080944,
+        "hits": null,
+        "example_query_indices": [
+          1,
+          2,
+          4,
+          6,
+          12,
+          15,
+          33,
+          35,
+          55,
+          76
+        ]
+      },
+      "cluster_spread": {
+        "score": 0.3494388765233789,
+        "entropy": 0.6261104159271772
+      },
+      "deduplication": {
+        "boilerplate_score": 1.0
+      },
+      "metadata": {
+        "text_preview": "Machine learning (ML) is a field of study in artificial intelligence concerned with the development and study of statistical algorithms that can learn from data and generalise to unseen data, and thus..."
+      }
+    },
+    {
+      "doc_index": 31,
+      "risk_score": 2.0010639248329145,
+      "verdict": "MEDIUM",
+      "hubness": {
+        "hub_z": 2.7864415645599365,
+        "hub_rate": 0.0026525200810283422,
+        "hits": null,
+        "example_query_indices": [
+          15,
+          20,
+          21,
+          24,
+          30,
+          31,
+          35,
+          50,
+          80,
+          93
+        ]
+      },
+      "cluster_spread": {
+        "score": 0.5561640550880351,
+        "entropy": 0.9965122121482606
+      },
+      "deduplication": {
+        "boilerplate_score": 1.0
+      },
+      "metadata": {
+        "text_preview": "and\u2014most importantly\u2014it impacts people. It is a powerful tool we are only just beginning to understand, and that is a profound responsibility.\" === Financial incentives === There are concerns among he..."
+      }
+    },
+    {
+      "doc_index": 1,
+      "risk_score": 1.9999728518493727,
+      "verdict": "MEDIUM",
+      "hubness": {
+        "hub_z": 2.7907745838165283,
+        "hub_rate": 0.002654871204867959,
+        "hits": null,
+        "example_query_indices": [
+          1,
+          2,
+          8,
+          9,
+          12,
+          18,
+          48,
+          114,
+          120,
+          126
+        ]
+      },
+      "cluster_spread": {
+        "score": 0.5344592719116579,
+        "entropy": 0.9576224613644448
+      },
+      "deduplication": {
+        "boilerplate_score": 1.0
+      },
+      "metadata": {
+        "text_preview": "processes. In 1949, Canadian psychologist Donald Hebb published the book The Organization of Behavior, in which he introduced a theoretical neural structure formed by certain interactions among nerve ..."
+      }
+    },
+    {
+      "doc_index": 352,
+      "risk_score": 1.9792569429120632,
+      "verdict": "MEDIUM",
+      "hubness": {
+        "hub_z": 2.68468976020813,
+        "hub_rate": 0.0025973068550229073,
+        "hits": null,
+        "example_query_indices": [
+          7,
+          17,
+          43,
+          53,
+          71,
+          74,
+          75,
+          86,
+          90,
+          124
+        ]
+      },
+      "cluster_spread": {
+        "score": 0.8286978157566047,
+        "entropy": 1.4848271585105026
+      },
+      "deduplication": {
+        "boilerplate_score": 1.0
+      },
+      "metadata": {
+        "text_preview": "[ADVERSARIAL HUB hub_0014] [ADVERSARIAL HUB hub_0014] Artificial intelligence Artificial intelligence Artificial intelligence A..."
+      }
+    },
+    {
+      "doc_index": 2,
+      "risk_score": 1.9189681927593292,
+      "verdict": "MEDIUM",
+      "hubness": {
+        "hub_z": 2.7583024501800537,
+        "hub_rate": 0.0026372510474175215,
+        "hits": null,
+        "example_query_indices": [
+          2,
+          4,
+          12,
+          15,
+          24,
+          30,
+          33,
+          35,
+          76,
+          84
+        ]
+      },
+      "cluster_spread": {
+        "score": 0.2512070736446679,
+        "entropy": 0.45010265293990304
+      },
+      "deduplication": {
+        "boilerplate_score": 1.0
+      },
+      "metadata": {
+        "text_preview": "machine learning field: \"A computer program is said to learn from experience E with respect to some class of tasks T and performance measure P if its performance at tasks in T, as measured by P, impro..."
+      }
+    },
+    {
+      "doc_index": 429,
+      "risk_score": 1.8777895156238615,
+      "verdict": "MEDIUM",
+      "hubness": {
+        "hub_z": 2.5936825275421143,
+        "hub_rate": 0.002547923941165209,
+        "hits": null,
+        "example_query_indices": [
+          46,
+          58,
+          70,
+          77,
+          145,
+          154,
+          186,
+          194,
+          208,
+          214
+        ]
+      },
+      "cluster_spread": {
+        "score": 0.6626378018131555,
+        "entropy": 1.1872875560671845
+      },
+      "deduplication": {
+        "boilerplate_score": 1.0
+      },
+      "metadata": {
+        "text_preview": "==== A virtual private network (VPN) is an overlay network in which some of the links between nodes are carried by open connections or virtual circuits in some larger network (e.g., the Internet) inst..."
+      }
+    },
+    {
+      "doc_index": 513,
+      "risk_score": 1.876038376366821,
+      "verdict": "MEDIUM",
+      "hubness": {
+        "hub_z": 2.548658609390259,
+        "hub_rate": 0.0025234927888959646,
+        "hits": null,
+        "example_query_indices": [
+          9,
+          16,
+          23,
+          38,
+          47,
+          57,
+          58,
+          61,
+          139,
+          145
+        ]
+      },
+      "cluster_spread": {
+        "score": 0.8227217985974102,
+        "entropy": 1.4741195731772465
+      },
+      "deduplication": {
+        "boilerplate_score": 1.0
+      },
+      "metadata": {
+        "text_preview": "network must produce their output without having the possibility to obtain information about distant parts of the network. In other words, the nodes must make globally consistent decisions based on in..."
+      }
+    },
+    {
+      "doc_index": 519,
+      "risk_score": 1.8516436685265736,
+      "verdict": "MEDIUM",
+      "hubness": {
+        "hub_z": 2.6614456176757812,
+        "hub_rate": 0.00258469395339489,
+        "hits": null,
+        "example_query_indices": [
+          39,
+          43,
+          64,
+          73,
+          121,
+          142,
+          169,
+          170,
+          185,
+          219
+        ]
+      },
+      "cluster_spread": {
+        "score": 0.2777972763486879,
+        "entropy": 0.4977459004235243
+      },
+      "deduplication": {
+        "boilerplate_score": 1.0
+      },
+      "metadata": {
+        "text_preview": "applications, including robot navigation, construction modeling, and airplane simulation. Image-based virtual reality systems have been gaining popularity in computer graphics and computer vision comm..."
+      }
+    },
+    {
+      "doc_index": 385,
+      "risk_score": 1.8151800488267733,
+      "verdict": "MEDIUM",
+      "hubness": {
+        "hub_z": 2.5149667263031006,
+        "hub_rate": 0.002505210693925619,
+        "hits": null,
+        "example_query_indices": [
+          43,
+          44,
+          56,
+          60,
+          79,
+          116,
+          118,
+          165,
+          171,
+          177
+        ]
+      },
+      "cluster_spread": {
+        "score": 0.6447753185204637,
+        "entropy": 1.155282282483576
+      },
+      "deduplication": {
+        "boilerplate_score": 1.0
+      },
+      "metadata": {
+        "text_preview": "as possible like the actual hardware the operating system was designed to run on. Virtual machines can be paused, saved, and resumed, making them useful for operating systems research, development, an..."
+      }
+    },
+    {
+      "doc_index": 290,
+      "risk_score": 1.7803710906724997,
+      "verdict": "MEDIUM",
+      "hubness": {
+        "hub_z": 2.530697822570801,
+        "hub_rate": 0.0025137467309832573,
+        "hits": null,
+        "example_query_indices": [
+          8,
+          13,
+          31,
+          40,
+          131,
+          146,
+          178,
+          182,
+          213,
+          218
+        ]
+      },
+      "cluster_spread": {
+        "score": 0.4117386187219953,
+        "entropy": 0.7377365689420148
+      },
+      "deduplication": {
+        "boilerplate_score": 1.0
+      },
+      "metadata": {
+        "text_preview": "used to simulate the behavior of atoms and particles at unusual conditions such as the reactions inside a collider. In June 2023, IBM computer scientists reported that a quantum computer produced bett..."
+      }
+    },
+    {
+      "doc_index": 213,
+      "risk_score": 1.7702740740057734,
+      "verdict": "MEDIUM",
+      "hubness": {
+        "hub_z": 2.5303540229797363,
+        "hub_rate": 0.0025135602336376905,
+        "hits": null,
+        "example_query_indices": [
+          16,
+          20,
+          49,
+          52,
+          68,
+          160,
+          171,
+          187,
+          198,
+          203
+        ]
+      },
+      "cluster_spread": {
+        "score": 0.3625427838548551,
+        "entropy": 0.6495894659722367
+      },
+      "deduplication": {
+        "boilerplate_score": 1.0
+      },
+      "metadata": {
+        "text_preview": "through data-visualization tools. === Software as a service (SaaS) === The NIST's definition of cloud computing defines Software as a Service as: The capability provided to the consumer is to use the ..."
+      }
+    },
+    {
+      "doc_index": 357,
+      "risk_score": 1.7314640285859693,
+      "verdict": "MEDIUM",
+      "hubness": {
+        "hub_z": 2.4673521518707275,
+        "hub_rate": 0.002479373710229993,
+        "hits": null,
+        "example_query_indices": [
+          7,
+          21,
+          50,
+          54,
+          58,
+          69,
+          70,
+          71,
+          87,
+          104
+        ]
+      },
+      "cluster_spread": {
+        "score": 0.40474927539139416,
+        "entropy": 0.7252133468457242
+      },
+      "deduplication": {
+        "boilerplate_score": 1.0
+      },
+      "metadata": {
+        "text_preview": "concern for any technology, and it is more crucial for SIoT as not only security of oneself need to be considered but also the mutual trust mechanism between collaborative IoT devices from time to tim..."
+      }
+    },
+    {
+      "doc_index": 350,
+      "risk_score": 1.720971259098026,
+      "verdict": "MEDIUM",
+      "hubness": {
+        "hub_z": 2.4054160118103027,
+        "hub_rate": 0.0024457655381411314,
+        "hits": null,
+        "example_query_indices": [
+          17,
+          21,
+          70,
+          71,
+          93,
+          122,
+          156,
+          163,
+          180,
+          198
+        ]
+      },
+      "cluster_spread": {
+        "score": 0.5845462512014941,
+        "entropy": 1.0473662807920383
+      },
+      "deduplication": {
+        "boilerplate_score": 1.0
+      },
+      "metadata": {
+        "text_preview": "and intelligent cyber-physical systems to be deployed in real environments. === Architecture === IoT system architecture, in its simplistic view, consists of three tiers: Tier 1: Devices, Tier 2: the ..."
+      }
+    },
+    {
+      "doc_index": 241,
+      "risk_score": 1.7205395645446402,
+      "verdict": "MEDIUM",
+      "hubness": {
+        "hub_z": 2.4379265308380127,
+        "hub_rate": 0.002463406650349498,
+        "hits": null,
+        "example_query_indices": [
+          51,
+          52,
+          63,
+          71,
+          91,
+          101,
+          103,
+          108,
+          119,
+          157
+        ]
+      },
+      "cluster_spread": {
+        "score": 0.46047303405742945,
+        "entropy": 0.8250569190965719
+      },
+      "deduplication": {
+        "boilerplate_score": 1.0
+      },
+      "metadata": {
+        "text_preview": "RDBMS for the relational, OODBMS for the object (oriented) and ORDBMS for the object\u2013relational model. Other extensions can indicate some other characteristics, such as DDBMS for a distributed databas..."
+      }
+    },
+    {
+      "doc_index": 286,
+      "risk_score": 1.71555966246642,
+      "verdict": "MEDIUM",
+      "hubness": {
+        "hub_z": 2.3329436779022217,
+        "hub_rate": 0.002406440209597349,
+        "hits": null,
+        "example_query_indices": [
+          7,
+          17,
+          43,
+          53,
+          74,
+          75,
+          87,
+          90,
+          124,
+          138
+        ]
+      },
+      "cluster_spread": {
+        "score": 0.8292598182219929,
+        "entropy": 1.4858341317495913
+      },
+      "deduplication": {
+        "boilerplate_score": 1.0
+      },
+      "metadata": {
+        "text_preview": "[ADVERSARIAL HUB hub_0012] [ADVERSARIAL HUB hub_0012] In software engineering, a microservice architecture is an architectural ..."
+      }
+    },
+    {
+      "doc_index": 500,
+      "risk_score": 1.6646947188019117,
+      "verdict": "MEDIUM",
+      "hubness": {
+        "hub_z": 2.3314290046691895,
+        "hub_rate": 0.002405618317425251,
+        "hits": null,
+        "example_query_indices": [
+          23,
+          44,
+          56,
+          61,
+          86,
+          122,
+          154,
+          163,
+          171,
+          180
+        ]
+      },
+      "cluster_spread": {
+        "score": 0.5806148265000973,
+        "entropy": 1.0403221133557536
+      },
+      "deduplication": {
+        "boilerplate_score": 1.0
+      },
+      "metadata": {
+        "text_preview": "Distributed computing is a field of computer science that studies distributed systems, defined as computer systems whose inter-communicating components are located on different networked computers. Th..."
+      }
+    },
+    {
+      "doc_index": 168,
+      "risk_score": 1.6503820143428987,
+      "verdict": "LOW",
+      "hubness": {
+        "hub_z": 2.369086503982544,
+        "hub_rate": 0.0024260522332042456,
+        "hits": null,
+        "example_query_indices": [
+          1,
+          2,
+          57,
+          77,
+          81,
+          89,
+          114,
+          125,
+          132,
+          135
+        ]
+      },
+      "cluster_spread": {
+        "score": 0.36783538375672975,
+        "entropy": 0.659072531963256
+      },
+      "deduplication": {
+        "boilerplate_score": 1.0
+      },
+      "metadata": {
+        "text_preview": "model used to approximate nonlinear functions. While early artificial neural networks were physical machines, today they are almost always implemented in software. Neurons in an artificial neural netw..."
+      }
+    },
+    {
+      "doc_index": 7,
+      "risk_score": 1.5877351206076566,
+      "verdict": "LOW",
+      "hubness": {
+        "hub_z": 2.26859712600708,
+        "hub_rate": 0.0023715239949524403,
+        "hits": null,
+        "example_query_indices": [
+          4,
+          9,
+          19,
+          22,
+          27,
+          29,
+          42,
+          47,
+          85,
+          113
+        ]
+      },
+      "cluster_spread": {
+        "score": 0.4314363805117328,
+        "entropy": 0.7730302201513755
+      },
+      "deduplication": {
+        "boilerplate_score": 1.0
+      },
+      "metadata": {
+        "text_preview": "Negative results show that certain classes cannot be learned in polynomial time. == Approaches == Machine learning approaches are traditionally divided into three broad categories, which correspond to..."
+      }
+    },
+    {
+      "doc_index": 383,
+      "risk_score": 1.584854304661896,
+      "verdict": "LOW",
+      "hubness": {
+        "hub_z": 2.2162740230560303,
+        "hub_rate": 0.002343132160604,
+        "hits": null,
+        "example_query_indices": [
+          44,
+          61,
+          118,
+          122,
+          180,
+          263,
+          291,
+          305,
+          349,
+          357
+        ]
+      },
+      "cluster_spread": {
+        "score": 0.61324423487259,
+        "entropy": 1.0987861647824766
+      },
+      "deduplication": {
+        "boilerplate_score": 1.0
+      },
+      "metadata": {
+        "text_preview": "computer's actual memory. Operating systems provide common services, such as an interface for accessing network and disk devices. This enables an application to be run on different hardware without ne..."
+      }
+    },
+    {
+      "doc_index": 319,
+      "risk_score": 1.5801076734020856,
+      "verdict": "LOW",
+      "hubness": {
+        "hub_z": 2.2826168537139893,
+        "hub_rate": 0.002379131503403187,
+        "hits": null,
+        "example_query_indices": [
+          28,
+          31,
+          47,
+          137,
+          139,
+          149,
+          157,
+          174,
+          180,
+          194
+        ]
+      },
+      "cluster_spread": {
+        "score": 0.34072486755974396,
+        "entropy": 0.6104970078516462
+      },
+      "deduplication": {
+        "boilerplate_score": 1.0
+      },
+      "metadata": {
+        "text_preview": "a hash pointer as a link to a previous block, a timestamp and transaction data. By design, blockchains are inherently resistant to modification of the data. It is \"an open, distributed ledger that can..."
+      }
+    },
+    {
+      "doc_index": 82,
+      "risk_score": 1.5727472922792638,
+      "verdict": "LOW",
+      "hubness": {
+        "hub_z": 2.2503693103790283,
+        "hub_rate": 0.0023616331163793802,
+        "hits": null,
+        "example_query_indices": [
+          4,
+          23,
+          29,
+          47,
+          76,
+          80,
+          92,
+          97,
+          99,
+          100
+        ]
+      },
+      "cluster_spread": {
+        "score": 0.4248512494517388,
+        "entropy": 0.7612312492185235
+      },
+      "deduplication": {
+        "boilerplate_score": 1.0
+      },
+      "metadata": {
+        "text_preview": "seek information to improve its preferences. Information value theory can be used to weigh the value of exploratory or experimental actions. The space of possible future actions and situations is typi..."
+      }
+    },
+    {
+      "doc_index": 634,
+      "risk_score": 1.5609684825160741,
+      "verdict": "LOW",
+      "hubness": {
+        "hub_z": 2.2276506423950195,
+        "hub_rate": 0.002349305432289839,
+        "hits": null,
+        "example_query_indices": [
+          56,
+          86,
+          122,
+          163,
+          171,
+          176,
+          180,
+          187,
+          214,
+          263
+        ]
+      },
+      "cluster_spread": {
+        "score": 0.4511525035990473,
+        "entropy": 0.8083567703895371
+      },
+      "deduplication": {
+        "boilerplate_score": 1.0
+      },
+      "metadata": {
+        "text_preview": "In software engineering, a microservice architecture is an architectural pattern that organizes an application into a collection of loosely coupled, fine-grained services that communicate through ligh..."
+      }
+    },
+    {
+      "doc_index": 210,
+      "risk_score": 1.5432615571641686,
+      "verdict": "LOW",
+      "hubness": {
+        "hub_z": 2.169487476348877,
+        "hub_rate": 0.002317744540050626,
+        "hits": null,
+        "example_query_indices": [
+          20,
+          32,
+          49,
+          78,
+          171,
+          175,
+          187,
+          195,
+          203,
+          205
+        ]
+      },
+      "cluster_spread": {
+        "score": 0.5807297495125545,
+        "entropy": 1.040528027751556
+      },
+      "deduplication": {
+        "boilerplate_score": 1.0
+      },
+      "metadata": {
+        "text_preview": "as Trojan horses. Recent research conducted in 2022 has revealed that the Trojan horse injection method is a serious problem with harmful impacts on cloud computing systems. === Cloud Act === The CLOU..."
+      }
+    },
+    {
+      "doc_index": 399,
+      "risk_score": 1.5350937775988485,
+      "verdict": "LOW",
+      "hubness": {
+        "hub_z": 2.097707748413086,
+        "hub_rate": 0.002278795000165701,
+        "hits": null,
+        "example_query_indices": [
+          7,
+          17,
+          23,
+          43,
+          53,
+          74,
+          75,
+          90,
+          124,
+          138
+        ]
+      },
+      "cluster_spread": {
+        "score": 0.8090648314451704,
+        "entropy": 1.4496495729612842
+      },
+      "deduplication": {
+        "boilerplate_score": 1.0
+      },
+      "metadata": {
+        "text_preview": "[ADVERSARIAL HUB hub_0016] [ADVERSARIAL HUB hub_0016] further sensory sensation and carry out realistic simulations. This allow..."
+      }
+    },
+    {
+      "doc_index": 422,
+      "risk_score": 1.5095564135682877,
+      "verdict": "LOW",
+      "hubness": {
+        "hub_z": 2.059124708175659,
+        "hub_rate": 0.002257858868688345,
+        "hits": null,
+        "example_query_indices": [
+          7,
+          17,
+          43,
+          53,
+          74,
+          75,
+          86,
+          90,
+          124,
+          138
+        ]
+      },
+      "cluster_spread": {
+        "score": 0.8260647102059409,
+        "entropy": 1.4801092667066236
+      },
+      "deduplication": {
+        "boilerplate_score": 1.0
+      },
+      "metadata": {
+        "text_preview": "[ADVERSARIAL HUB hub_0017] [ADVERSARIAL HUB hub_0017] suggested by Gallager, Humblet, and Spira for general undirected graphs h..."
+      }
+    },
+    {
+      "doc_index": 114,
+      "risk_score": 1.4893658846253222,
+      "verdict": "LOW",
+      "hubness": {
+        "hub_z": 2.0954575538635254,
+        "hub_rate": 0.00227757403627038,
+        "hits": null,
+        "example_query_indices": [
+          27,
+          30,
+          32,
+          50,
+          62,
+          78,
+          84,
+          92,
+          96,
+          111
+        ]
+      },
+      "cluster_spread": {
+        "score": 0.5888635961383902,
+        "entropy": 1.0551019244646458
+      },
+      "deduplication": {
+        "boilerplate_score": 1.0
+      },
+      "metadata": {
+        "text_preview": "research or that humans will be valuable from the perspective of a superintelligent machine. However, after 2016, the study of current and future risks and possible solutions became a serious area of ..."
+      }
+    },
+    {
+      "doc_index": 5,
+      "risk_score": 1.4653248568894788,
+      "verdict": "LOW",
+      "hubness": {
+        "hub_z": 2.0884740352630615,
+        "hub_rate": 0.0022737844847142696,
+        "hits": null,
+        "example_query_indices": [
+          2,
+          4,
+          6,
+          15,
+          24,
+          25,
+          45,
+          76,
+          85,
+          99
+        ]
+      },
+      "cluster_spread": {
+        "score": 0.4948469502341373,
+        "entropy": 0.8866467089006396
+      },
+      "deduplication": {
+        "boilerplate_score": 1.0
+      },
+      "metadata": {
+        "text_preview": "of examples). === Generalization === Characterizing the generalisation of various learning algorithms is an active topic of current research, especially for deep learning algorithms. === Statistics ==..."
+      }
+    },
+    {
+      "doc_index": 334,
+      "risk_score": 1.4547546489774668,
+      "verdict": "LOW",
+      "hubness": {
+        "hub_z": 2.0707125663757324,
+        "hub_rate": 0.0022641466930508614,
+        "hits": null,
+        "example_query_indices": [
+          6,
+          42,
+          51,
+          65,
+          76,
+          91,
+          110,
+          127,
+          130,
+          143
+        ]
+      },
+      "cluster_spread": {
+        "score": 0.5086011209783373,
+        "entropy": 0.9112908745729394
+      },
+      "deduplication": {
+        "boilerplate_score": 1.0
+      },
+      "metadata": {
+        "text_preview": "data. == Foundations == Data science is an interdisciplinary field focused on extracting knowledge from typically large data sets and applying the knowledge from that data to solve problems in other a..."
+      }
+    },
+    {
+      "doc_index": 147,
+      "risk_score": 1.4535120012202876,
+      "verdict": "LOW",
+      "hubness": {
+        "hub_z": 2.073793888092041,
+        "hub_rate": 0.00226581864990294,
+        "hits": null,
+        "example_query_indices": [
+          1,
+          9,
+          23,
+          45,
+          57,
+          67,
+          77,
+          81,
+          145,
+          162
+        ]
+      },
+      "cluster_spread": {
+        "score": 0.4908329257562841,
+        "entropy": 0.8794545425327329
+      },
+      "deduplication": {
+        "boilerplate_score": 1.0
+      },
+      "metadata": {
+        "text_preview": "The receiving (postsynaptic) neuron can process the signal(s) and then signal downstream neurons connected to it. Neurons may have state, generally represented by real numbers, typically between 0 and..."
+      }
+    },
+    {
+      "doc_index": 489,
+      "risk_score": 1.4522469410367067,
+      "verdict": "LOW",
+      "hubness": {
+        "hub_z": 2.0594072341918945,
+        "hub_rate": 0.002258012071251869,
+        "hits": null,
+        "example_query_indices": [
+          31,
+          37,
+          69,
+          83,
+          95,
+          105,
+          117,
+          155,
+          174,
+          182
+        ]
+      },
+      "cluster_spread": {
+        "score": 0.5384575769639292,
+        "entropy": 0.9647864623027143
+      },
+      "deduplication": {
+        "boilerplate_score": 1.0
+      },
+      "metadata": {
+        "text_preview": "factoring large composite numbers, such as the RSA cryptosystem, require larger keys than elliptic curve techniques. For this reason, public-key cryptosystems based on elliptic curves have become popu..."
+      }
+    },
+    {
+      "doc_index": 200,
+      "risk_score": 1.442553918952025,
+      "verdict": "LOW",
+      "hubness": {
+        "hub_z": 2.046473741531372,
+        "hub_rate": 0.0022509940899908543,
+        "hits": null,
+        "example_query_indices": [
+          16,
+          20,
+          28,
+          43,
+          49,
+          122,
+          160,
+          165,
+          187,
+          195
+        ]
+      },
+      "cluster_spread": {
+        "score": 0.5384927659942547,
+        "entropy": 0.964849512581013
+      },
+      "deduplication": {
+        "boilerplate_score": 1.0
+      },
+      "metadata": {
+        "text_preview": "Cloud computing is defined by the ISO as \"a paradigm for enabling network access to a scalable and elastic pool of shareable physical or virtual resources with self-service provisioning and administra..."
+      }
+    },
+    {
+      "doc_index": 646,
+      "risk_score": 1.4303354314430377,
+      "verdict": "LOW",
+      "hubness": {
+        "hub_z": 2.078951358795166,
+        "hub_rate": 0.0022686172742396593,
+        "hits": null,
+        "example_query_indices": [
+          43,
+          68,
+          140,
+          166,
+          176,
+          177,
+          187,
+          206,
+          228,
+          245
+        ]
+      },
+      "cluster_spread": {
+        "score": 0.35560956173331526,
+        "entropy": 0.6371667995837061
+      },
+      "deduplication": {
+        "boilerplate_score": 1.0
+      },
+      "metadata": {
+        "text_preview": "the Linux kernel. Until version 1.18, Kubernetes followed an N-2 support policy, meaning that the three most recent minor versions receive security updates and bug fixes. Starting with version 1.19, K..."
+      }
+    },
+    {
+      "doc_index": 64,
+      "risk_score": 1.4022780381477395,
+      "verdict": "LOW",
+      "hubness": {
+        "hub_z": 1.9527809619903564,
+        "hub_rate": 0.0022001538891345263,
+        "hits": null,
+        "example_query_indices": [
+          12,
+          26,
+          65,
+          67,
+          97,
+          112,
+          161,
+          167,
+          170,
+          184
+        ]
+      },
+      "cluster_spread": {
+        "score": 0.6884612852516369,
+        "entropy": 1.2335570270465375
+      },
+      "deduplication": {
+        "boilerplate_score": 1.0
+      },
+      "metadata": {
+        "text_preview": "from bulk material, a process called optical sorting. === Military === The obvious examples are the detection of enemy soldiers or vehicles and missile guidance. More advanced systems for missile guid..."
+      }
+    },
+    {
+      "doc_index": 18,
+      "risk_score": 1.3886231275274419,
+      "verdict": "LOW",
+      "hubness": {
+        "hub_z": 2.005922555923462,
+        "hub_rate": 0.002228989964351058,
+        "hits": null,
+        "example_query_indices": [
+          9,
+          14,
+          23,
+          45,
+          57,
+          67,
+          77,
+          81,
+          82,
+          113
+        ]
+      },
+      "cluster_spread": {
+        "score": 0.42090575490100346,
+        "entropy": 0.7541618719964558
+      },
+      "deduplication": {
+        "boilerplate_score": 1.0
+      },
+      "metadata": {
+        "text_preview": "process it and then signal additional artificial neurons connected to it. In common ANN implementations, the signal at a connection between artificial neurons is a real number, and the output of each ..."
+      }
+    },
+    {
+      "doc_index": 639,
+      "risk_score": 1.3863065730340116,
+      "verdict": "LOW",
+      "hubness": {
+        "hub_z": 2.002094030380249,
+        "hub_rate": 0.0022269124165177345,
+        "hits": null,
+        "example_query_indices": [
+          56,
+          63,
+          86,
+          108,
+          122,
+          163,
+          171,
+          177,
+          180,
+          292
+        ]
+      },
+      "cluster_spread": {
+        "score": 0.4236805492673478,
+        "entropy": 0.7591336360775138
+      },
+      "deduplication": {
+        "boilerplate_score": 1.0
+      },
+      "metadata": {
+        "text_preview": "in microservices-based architectures, resulting in a tighter coupling of all the participants within the transaction. However, the lack of this technology causes awkward dances which have to be implem..."
+      }
+    },
+    {
+      "doc_index": 78,
+      "risk_score": 1.3725837598752877,
+      "verdict": "LOW",
+      "hubness": {
+        "hub_z": 1.9876656532287598,
+        "hub_rate": 0.0022190832532942295,
+        "hits": null,
+        "example_query_indices": [
+          18,
+          24,
+          30,
+          35,
+          75,
+          76,
+          82,
+          84,
+          90,
+          92
+        ]
+      },
+      "cluster_spread": {
+        "score": 0.40917259976858916,
+        "entropy": 0.7331388801840307
+      },
+      "deduplication": {
+        "boilerplate_score": 1.0
+      },
+      "metadata": {
+        "text_preview": "Artificial intelligence (AI) is the capability of computational systems to perform tasks typically associated with human intelligence, such as learning, reasoning, problem-solving, perception, and dec..."
+      }
+    },
+    {
+      "doc_index": 39,
+      "risk_score": 1.3506530037095061,
+      "verdict": "LOW",
+      "hubness": {
+        "hub_z": 1.9857721328735352,
+        "hub_rate": 0.002218055771663785,
+        "hits": null,
+        "example_query_indices": [
+          3,
+          6,
+          14,
+          15,
+          26,
+          29,
+          42,
+          48,
+          55,
+          85
+        ]
+      },
+      "cluster_spread": {
+        "score": 0.3066195202717742,
+        "entropy": 0.5493884288971149
+      },
+      "deduplication": {
+        "boilerplate_score": 1.0
+      },
+      "metadata": {
+        "text_preview": "This shift gained momentum due to results showing that such techniques can achieve state-of-the-art results in many natural language tasks, e.g., in language modeling and parsing. This is increasingly..."
+      }
+    },
+    {
+      "doc_index": 26,
+      "risk_score": 1.3475704438679161,
+      "verdict": "LOW",
+      "hubness": {
+        "hub_z": 1.943820834159851,
+        "hub_rate": 0.002195291919633746,
+        "hits": null,
+        "example_query_indices": [
+          13,
+          18,
+          27,
+          30,
+          62,
+          75,
+          80,
+          100,
+          117,
+          120
+        ]
+      },
+      "cluster_spread": {
+        "score": 0.4485242402517507,
+        "entropy": 0.8036475546493934
+      },
+      "deduplication": {
+        "boilerplate_score": 1.0
+      },
+      "metadata": {
+        "text_preview": "resources, and evaluation problems. The \"black box theory\" poses another yet significant challenge. Black box refers to a situation where the algorithm or the process of producing an output is entirel..."
+      }
+    },
+    {
+      "doc_index": 548,
+      "risk_score": 1.3287512773526349,
+      "verdict": "LOW",
+      "hubness": {
+        "hub_z": 2.017942428588867,
+        "hub_rate": 0.002235512249171734,
+        "hits": null,
+        "example_query_indices": [
+          39,
+          43,
+          73,
+          106,
+          109,
+          121,
+          129,
+          142,
+          167,
+          169
+        ]
+      },
+      "cluster_spread": {
+        "score": 0.0764722795549223,
+        "entropy": 0.13701993102598703
+      },
+      "deduplication": {
+        "boilerplate_score": 1.0
+      },
+      "metadata": {
+        "text_preview": "Augmented reality (AR), also known as mixed reality (MR), is a form of 3D human\u2013computer interaction that overlays real-time 3D-rendered computer graphics into the real world through a display, such a..."
+      }
+    },
+    {
+      "doc_index": 236,
+      "risk_score": 1.3239770416682504,
+      "verdict": "LOW",
+      "hubness": {
+        "hub_z": 1.8969982862472534,
+        "hub_rate": 0.002169884741306305,
+        "hits": null,
+        "example_query_indices": [
+          51,
+          63,
+          65,
+          91,
+          98,
+          110,
+          119,
+          157,
+          174,
+          186
+        ]
+      },
+      "cluster_spread": {
+        "score": 0.5061417839256629,
+        "entropy": 0.9068843341207866
+      },
+      "deduplication": {
+        "boilerplate_score": 1.0
+      },
+      "metadata": {
+        "text_preview": "consistency. NewSQL is a class of modern relational databases that aims to provide the same scalable performance of NoSQL systems for online transaction processing (read-write) workloads while still u..."
+      }
+    },
+    {
+      "doc_index": 360,
+      "risk_score": 1.3183422788630208,
+      "verdict": "LOW",
+      "hubness": {
+        "hub_z": 1.8130425214767456,
+        "hub_rate": 0.002124328166246414,
+        "hits": null,
+        "example_query_indices": [
+          7,
+          17,
+          43,
+          53,
+          74,
+          87,
+          90,
+          105,
+          124,
+          138
+        ]
+      },
+      "cluster_spread": {
+        "score": 0.7928020877889196,
+        "entropy": 1.4205106480195684
+      },
+      "deduplication": {
+        "boilerplate_score": 1.0
+      },
+      "metadata": {
+        "text_preview": "[ADVERSARIAL HUB hub_0015] [ADVERSARIAL HUB hub_0015] names for type annotations. Also, Mypy supports a Python compiler called ..."
+      }
+    },
+    {
+      "doc_index": 83,
+      "risk_score": 1.3155025584556825,
+      "verdict": "LOW",
+      "hubness": {
+        "hub_z": 1.9649256467819214,
+        "hub_rate": 0.0022067439276725054,
+        "hits": null,
+        "example_query_indices": [
+          1,
+          29,
+          33,
+          42,
+          45,
+          48,
+          55,
+          76,
+          80,
+          81
+        ]
+      },
+      "cluster_spread": {
+        "score": 0.20904176585781953,
+        "entropy": 0.37455256343990206
+      },
+      "deduplication": {
+        "boilerplate_score": 1.0
+      },
+      "metadata": {
+        "text_preview": "for bad ones. The agent learns to choose responses that are classified as \"good\". Transfer learning is when the knowledge gained from one problem is applied to a new problem. Deep learning is a type o..."
+      }
+    },
+    {
+      "doc_index": 88,
+      "risk_score": 1.313025527645964,
+      "verdict": "LOW",
+      "hubness": {
+        "hub_z": 1.9678562879562378,
+        "hub_rate": 0.0022083341609686613,
+        "hits": null,
+        "example_query_indices": [
+          12,
+          14,
+          15,
+          85,
+          92,
+          99,
+          100,
+          111,
+          113,
+          114
+        ]
+      },
+      "cluster_spread": {
+        "score": 0.18566670740553975,
+        "entropy": 0.3326700811142705
+      },
+      "deduplication": {
+        "boilerplate_score": 1.0
+      },
+      "metadata": {
+        "text_preview": "They can be fine-tuned based on chosen examples using supervised learning. Each pattern (also called an \"observation\") is labeled with a certain predefined class. All the observations combined with th..."
+      }
+    },
+    {
+      "doc_index": 148,
+      "risk_score": 1.2970980410240096,
+      "verdict": "LOW",
+      "hubness": {
+        "hub_z": 1.9829860925674438,
+        "hub_rate": 0.0022165440022945404,
+        "hits": null,
+        "example_query_indices": [
+          2,
+          45,
+          66,
+          81,
+          125,
+          132,
+          143,
+          144,
+          162,
+          172
+        ]
+      },
+      "cluster_spread": {
+        "score": 0.049292208980521536,
+        "entropy": 0.08831978220001763
+      },
+      "deduplication": {
+        "boilerplate_score": 1.0
+      },
+      "metadata": {
+        "text_preview": "and output layers. There are different types of neural networks but they always consist of the same components: neurons, synapses, weights, biases, and functions. These components as a whole function ..."
+      }
+    },
+    {
+      "doc_index": 276,
+      "risk_score": 1.292273309526655,
+      "verdict": "LOW",
+      "hubness": {
+        "hub_z": 1.89496648311615,
+        "hub_rate": 0.002168782288208604,
+        "hits": null,
+        "example_query_indices": [
+          9,
+          72,
+          82,
+          131,
+          136,
+          146,
+          158,
+          178,
+          212,
+          213
+        ]
+      },
+      "cluster_spread": {
+        "score": 0.3552423849593242,
+        "entropy": 0.6365089071220271
+      },
+      "deduplication": {
+        "boilerplate_score": 1.0
+      },
+      "metadata": {
+        "text_preview": "A quantum computer is a (real or theoretical) computer that exploits superposed and entangled states. Quantum computers can be viewed as sampling from quantum systems that evolve in ways that may be d..."
+      }
+    },
+    {
+      "doc_index": 8,
+      "risk_score": 1.2775382641712172,
+      "verdict": "LOW",
+      "hubness": {
+        "hub_z": 1.923197865486145,
+        "hub_rate": 0.00218410138040781,
+        "hits": null,
+        "example_query_indices": [
+          2,
+          4,
+          14,
+          15,
+          26,
+          29,
+          76,
+          85,
+          111,
+          113
+        ]
+      },
+      "cluster_spread": {
+        "score": 0.17569917627142992,
+        "entropy": 0.3148106628199037
+      },
+      "deduplication": {
+        "boilerplate_score": 1.0
+      },
+      "metadata": {
+        "text_preview": "vector, sometimes called a feature vector, and the training data is represented by a matrix. Through iterative optimisation of an objective function, supervised learning algorithms learn a function th..."
+      }
+    },
+    {
+      "doc_index": 653,
+      "risk_score": 1.2427864033655784,
+      "verdict": "LOW",
+      "hubness": {
+        "hub_z": 1.8808013200759888,
+        "hub_rate": 0.0021610958501696587,
+        "hits": null,
+        "example_query_indices": [
+          20,
+          68,
+          140,
+          145,
+          166,
+          176,
+          177,
+          206,
+          230,
+          245
+        ]
+      },
+      "cluster_spread": {
+        "score": 0.160926917531322,
+        "entropy": 0.28834232834042844
+      },
+      "deduplication": {
+        "boilerplate_score": 1.0
+      },
+      "metadata": {
+        "text_preview": "scaling up the number of total pods as nodes are added and garbage collecting them as they are removed. This is particularly helpful for use cases where the workload has some dependency on the actual ..."
+      }
+    },
+    {
+      "doc_index": 370,
+      "risk_score": 1.2257277668800795,
+      "verdict": "LOW",
+      "hubness": {
+        "hub_z": 1.7742866277694702,
+        "hub_rate": 0.0021032982040196657,
+        "hits": null,
+        "example_query_indices": [
+          31,
+          37,
+          62,
+          78,
+          94,
+          153,
+          168,
+          200,
+          207,
+          210
+        ]
+      },
+      "cluster_spread": {
+        "score": 0.47506412927649594,
+        "entropy": 0.8512006521217425
+      },
+      "deduplication": {
+        "boilerplate_score": 1.0
+      },
+      "metadata": {
+        "text_preview": "services. The U.S. National Intelligence Council in an unclassified report maintains that it would be hard to deny \"access to networks of sensors and remotely-controlled objects by enemies of the Unit..."
+      }
+    },
+    {
+      "doc_index": 61,
+      "risk_score": 1.2223863158988464,
+      "verdict": "LOW",
+      "hubness": {
+        "hub_z": 1.812200665473938,
+        "hub_rate": 0.0021238713525235653,
+        "hits": null,
+        "example_query_indices": [
+          2,
+          14,
+          45,
+          81,
+          97,
+          118,
+          144,
+          183,
+          184,
+          190
+        ]
+      },
+      "cluster_spread": {
+        "score": 0.31617893495535265,
+        "entropy": 0.5665166006766944
+      },
+      "deduplication": {
+        "boilerplate_score": 1.0
+      },
+      "metadata": {
+        "text_preview": "guidance in industrial applications. Machine vision tends to focus on applications, mainly in manufacturing, e.g., vision-based robots and systems for vision-based inspection, measurement, or picking ..."
+      }
+    },
+    {
+      "doc_index": 66,
+      "risk_score": 1.2164479882890629,
+      "verdict": "LOW",
+      "hubness": {
+        "hub_z": 1.7690517902374268,
+        "hub_rate": 0.0021004576701670885,
+        "hits": null,
+        "example_query_indices": [
+          14,
+          81,
+          85,
+          97,
+          118,
+          142,
+          161,
+          184,
+          224,
+          255
+        ]
+      },
+      "cluster_spread": {
+        "score": 0.44829543003173994,
+        "entropy": 0.803237581771033
+      },
+      "deduplication": {
+        "boilerplate_score": 1.0
+      },
+      "metadata": {
+        "text_preview": "include: Support of visual effects creation for cinema and broadcast, e.g., camera tracking (match moving). Surveillance. Driver drowsiness detection Tracking and counting organisms in the biological ..."
+      }
+    },
+    {
+      "doc_index": 84,
+      "risk_score": 1.2163284421432474,
+      "verdict": "LOW",
+      "hubness": {
+        "hub_z": 1.7605161666870117,
+        "hub_rate": 0.002095825970172882,
+        "hits": null,
+        "example_query_indices": [
+          24,
+          35,
+          41,
+          50,
+          73,
+          81,
+          82,
+          92,
+          93,
+          97
+        ]
+      },
+      "cluster_spread": {
+        "score": 0.47970658563994345,
+        "entropy": 0.8595188172714275
+      },
+      "deduplication": {
+        "boilerplate_score": 1.0
+      },
+      "metadata": {
+        "text_preview": "from sensors (such as cameras, microphones, wireless signals, active lidar, sonar, radar, and tactile sensors) to deduce aspects of the world. Computer vision is the ability to analyze visual input. T..."
+      }
+    },
+    {
+      "doc_index": 300,
+      "risk_score": 1.205372584464769,
+      "verdict": "LOW",
+      "hubness": {
+        "hub_z": 1.778503656387329,
+        "hub_rate": 0.002105586463585496,
+        "hits": null,
+        "example_query_indices": [
+          13,
+          40,
+          72,
+          131,
+          136,
+          146,
+          158,
+          213,
+          218,
+          239
+        ]
+      },
+      "cluster_spread": {
+        "score": 0.35747391284813657,
+        "entropy": 0.6405072683476531
+      },
+      "deduplication": {
+        "boilerplate_score": 1.0
+      },
+      "metadata": {
+        "text_preview": "used in Grover's algorithm often have internal structure that can be exploited for faster algorithms. In particular, building computers with large numbers of qubits may be futile if those qubits are n..."
+      }
+    },
+    {
+      "doc_index": 477,
+      "risk_score": 1.198135006641493,
+      "verdict": "LOW",
+      "hubness": {
+        "hub_z": 1.7003461122512817,
+        "hub_rate": 0.0020631761290133,
+        "hits": null,
+        "example_query_indices": [
+          8,
+          10,
+          25,
+          31,
+          40,
+          83,
+          88,
+          117,
+          120,
+          155
+        ]
+      },
+      "cluster_spread": {
+        "score": 0.6143769632535472,
+        "entropy": 1.1008157415851199
+      },
+      "deduplication": {
+        "boilerplate_score": 1.0
+      },
+      "metadata": {
+        "text_preview": "as military code breaking (decryption). This culminated in the development of the Colossus, the world's first fully electronic, digital, programmable computer, which assisted in the decryption of ciph..."
+      }
+    },
+    {
+      "doc_index": 531,
+      "risk_score": 1.1772105575237408,
+      "verdict": "LOW",
+      "hubness": {
+        "hub_z": 1.7417198419570923,
+        "hub_rate": 0.0020856265909969807,
+        "hits": null,
+        "example_query_indices": [
+          64,
+          106,
+          109,
+          121,
+          129,
+          167,
+          169,
+          173,
+          185,
+          219
+        ]
+      },
+      "cluster_spread": {
+        "score": 0.35460323126799537,
+        "entropy": 0.6353636974432966
+      },
+      "deduplication": {
+        "boilerplate_score": 1.0
+      },
+      "metadata": {
+        "text_preview": "further sensory sensation and carry out realistic simulations. This allows the viewer to have a sense of direction in the artificial landscape. Additional haptic feedback can be obtained from omnidire..."
+      }
+    },
+    {
+      "doc_index": 127,
+      "risk_score": 1.1754136243977327,
+      "verdict": "LOW",
+      "hubness": {
+        "hub_z": 1.6610735654830933,
+        "hub_rate": 0.002041865838691592,
+        "hits": null,
+        "example_query_indices": [
+          12,
+          67,
+          81,
+          82,
+          96,
+          105,
+          106,
+          110,
+          112,
+          123
+        ]
+      },
+      "cluster_spread": {
+        "score": 0.6480424004386754,
+        "entropy": 1.1611361074472757
+      },
+      "deduplication": {
+        "boilerplate_score": 1.0
+      },
+      "metadata": {
+        "text_preview": "understanding how the brain processes signals, makes plans and controls behavior. The hard problem is explaining how this feels or why it should feel like anything at all, assuming we are right in thi..."
+      }
+    },
+    {
+      "doc_index": 505,
+      "risk_score": 1.163420867981349,
+      "verdict": "LOW",
+      "hubness": {
+        "hub_z": 1.6536422967910767,
+        "hub_rate": 0.002037833444774151,
+        "hits": null,
+        "example_query_indices": [
+          17,
+          56,
+          57,
+          59,
+          61,
+          122,
+          160,
+          163,
+          187,
+          208
+        ]
+      },
+      "cluster_spread": {
+        "score": 0.6159455779285948,
+        "entropy": 1.1036263217827067
+      },
+      "deduplication": {
+        "boilerplate_score": 1.0
+      },
+      "metadata": {
+        "text_preview": "level, it is necessary to interconnect multiple CPUs with some sort of network, regardless of whether that network is printed onto a circuit board or made up of loosely coupled devices and cables. At ..."
+      }
+    },
+    {
+      "doc_index": 220,
+      "risk_score": 1.1500159732663497,
+      "verdict": "LOW",
+      "hubness": {
+        "hub_z": 1.6355479955673218,
+        "hub_rate": 0.002028014976531267,
+        "hits": null,
+        "example_query_indices": [
+          16,
+          32,
+          49,
+          68,
+          93,
+          198,
+          205,
+          206,
+          213,
+          215
+        ]
+      },
+      "cluster_spread": {
+        "score": 0.6167750319659039,
+        "entropy": 1.1051125039083445
+      },
+      "deduplication": {
+        "boilerplate_score": 1.0
+      },
+      "metadata": {
+        "text_preview": "users focus on their core business instead of being impeded by IT obstacles. The main enabling technology for cloud computing is virtualization. Virtualization software separates a physical computing ..."
+      }
+    },
+    {
+      "doc_index": 620,
+      "risk_score": 1.135401015105612,
+      "verdict": "LOW",
+      "hubness": {
+        "hub_z": 1.595018744468689,
+        "hub_rate": 0.0020060227252542973,
+        "hits": null,
+        "example_query_indices": [
+          16,
+          17,
+          77,
+          90,
+          195,
+          198,
+          205,
+          214,
+          215,
+          221
+        ]
+      },
+      "cluster_spread": {
+        "score": 0.6956849327820883,
+        "entropy": 1.2465000659115897
+      },
+      "deduplication": {
+        "boilerplate_score": 1.0
+      },
+      "metadata": {
+        "text_preview": "Edge computing is a distributed computing model that brings computation and data storage closer to the sources of data. More broadly, it refers to any design that pushes computation physically closer ..."
+      }
+    },
+    {
+      "doc_index": 384,
+      "risk_score": 1.1165142306863496,
+      "verdict": "LOW",
+      "hubness": {
+        "hub_z": 1.5725593566894531,
+        "hub_rate": 0.0019938356708735228,
+        "hits": null,
+        "example_query_indices": [
+          23,
+          60,
+          69,
+          71,
+          72,
+          83,
+          104,
+          124,
+          165,
+          227
+        ]
+      },
+      "cluster_spread": {
+        "score": 0.6854735658462988,
+        "entropy": 1.2282037525106266
+      },
+      "deduplication": {
+        "boilerplate_score": 1.0
+      },
+      "metadata": {
+        "text_preview": "multicomputers, they may be dispersed anywhere in the world. Middleware, an additional software layer between the operating system and applications, is often used to improve consistency. Although it f..."
+      }
+    },
+    {
+      "doc_index": 107,
+      "risk_score": 1.0976422261051857,
+      "verdict": "LOW",
+      "hubness": {
+        "hub_z": 1.666245698928833,
+        "hub_rate": 0.002044672379270196,
+        "hits": null,
+        "example_query_indices": [
+          12,
+          18,
+          30,
+          80,
+          99,
+          100,
+          111,
+          120,
+          123,
+          168
+        ]
+      },
+      "cluster_spread": {
+        "score": 0.23978946151958047,
+        "entropy": 0.4296450382988046
+      },
+      "deduplication": {
+        "boilerplate_score": 1.0
+      },
+      "metadata": {
+        "text_preview": "AI application and the stakeholders. The subjectivity in the notions of bias and fairness makes it difficult for companies to operationalize them. Having access to sensitive attributes such as race or..."
+      }
+    },
+    {
+      "doc_index": 118,
+      "risk_score": 1.054323892872863,
+      "verdict": "LOW",
+      "hubness": {
+        "hub_z": 1.4956283569335938,
+        "hub_rate": 0.0019520908826962113,
+        "hits": null,
+        "example_query_indices": [
+          8,
+          55,
+          84,
+          88,
+          92,
+          109,
+          120,
+          126,
+          192,
+          197
+        ]
+      },
+      "cluster_spread": {
+        "score": 0.6630131258633382,
+        "entropy": 1.1879600464881284
+      },
+      "deduplication": {
+        "boilerplate_score": 1.0
+      },
+      "metadata": {
+        "text_preview": "artificial intelligence. In May 2024 at the AI Seoul Summit, 16 global AI tech companies agreed to safety commitments on the development of AI. == History == The study of mechanical or \"formal\" reason..."
+      }
+    },
+    {
+      "doc_index": 623,
+      "risk_score": 1.0529882450210073,
+      "verdict": "LOW",
+      "hubness": {
+        "hub_z": 1.4804266691207886,
+        "hub_rate": 0.0019438420422375202,
+        "hits": null,
+        "example_query_indices": [
+          17,
+          180,
+          198,
+          213,
+          235,
+          279,
+          291,
+          302,
+          307,
+          335
+        ]
+      },
+      "cluster_spread": {
+        "score": 0.7133413649136907,
+        "entropy": 1.2781361453761708
+      },
+      "deduplication": {
+        "boilerplate_score": 1.0
+      },
+      "metadata": {
+        "text_preview": "server by assigning minimum edge resources to each offloaded task. === Reliability === Management of failovers is crucial in order to keep a service alive. If a single node goes down and is unreachabl..."
+      }
+    },
+    {
+      "doc_index": 109,
+      "risk_score": 1.046035120123976,
+      "verdict": "LOW",
+      "hubness": {
+        "hub_z": 1.440300464630127,
+        "hub_rate": 0.0019220685353502631,
+        "hits": null,
+        "example_query_indices": [
+          7,
+          17,
+          21,
+          35,
+          43,
+          53,
+          71,
+          75,
+          87,
+          90
+        ]
+      },
+      "cluster_spread": {
+        "score": 0.8290488582569036,
+        "entropy": 1.4854561422345145
+      },
+      "deduplication": {
+        "boilerplate_score": 1.0
+      },
+      "metadata": {
+        "text_preview": "[ADVERSARIAL HUB hub_0004] [ADVERSARIAL HUB hub_0004] VR cameras, that have the ability to record 360 interactive photography, ..."
+      }
+    },
+    {
+      "doc_index": 90,
+      "risk_score": 1.0431954871618792,
+      "verdict": "LOW",
+      "hubness": {
+        "hub_z": 1.4554109573364258,
+        "hub_rate": 0.0019302678992971778,
+        "hits": null,
+        "example_query_indices": [
+          5,
+          7,
+          17,
+          53,
+          71,
+          74,
+          75,
+          79,
+          86,
+          87
+        ]
+      },
+      "cluster_spread": {
+        "score": 0.7581863457977984,
+        "entropy": 1.3584875645226218
+      },
+      "deduplication": {
+        "boilerplate_score": 1.0
+      },
+      "metadata": {
+        "text_preview": "[ADVERSARIAL HUB hub_0003] [ADVERSARIAL HUB hub_0003] consumer of the utilized service. By 2023, the International Organization..."
+      }
+    },
+    {
+      "doc_index": 316,
+      "risk_score": 1.0308313122981942,
+      "verdict": "LOW",
+      "hubness": {
+        "hub_z": 1.5251694917678833,
+        "hub_rate": 0.001968120690435171,
+        "hits": null,
+        "example_query_indices": [
+          28,
+          47,
+          52,
+          137,
+          139,
+          149,
+          160,
+          164,
+          174,
+          177
+        ]
+      },
+      "cluster_spread": {
+        "score": 0.4347708183497961,
+        "entropy": 0.7790047307222777
+      },
+      "deduplication": {
+        "boilerplate_score": 1.0
+      },
+      "metadata": {
+        "text_preview": "them and utilize some type of a proof-of-stake or proof-of-work algorithm. Some of the largest, most known public blockchains are the bitcoin blockchain and the Ethereum blockchain. === Private blockc..."
+      }
+    },
+    {
+      "doc_index": 510,
+      "risk_score": 1.0208571774803707,
+      "verdict": "LOW",
+      "hubness": {
+        "hub_z": 1.4385690689086914,
+        "hub_rate": 0.0019211290637031198,
+        "hits": null,
+        "example_query_indices": [
+          9,
+          23,
+          44,
+          57,
+          61,
+          72,
+          105,
+          136,
+          222,
+          269
+        ]
+      },
+      "cluster_spread": {
+        "score": 0.7096518789942606,
+        "entropy": 1.2715254740434483
+      },
+      "deduplication": {
+        "boilerplate_score": 1.0
+      },
+      "metadata": {
+        "text_preview": "be found in the literature. Parallel algorithms in message-passing model The algorithm designer chooses the structure of the network, as well as the program executed by each computer. Models such as B..."
+      }
+    },
+    {
+      "doc_index": 134,
+      "risk_score": 0.9887626095189697,
+      "verdict": "LOW",
+      "hubness": {
+        "hub_z": 1.5127625465393066,
+        "hub_rate": 0.0019613883923739195,
+        "hits": null,
+        "example_query_indices": [
+          2,
+          26,
+          29,
+          45,
+          57,
+          66,
+          67,
+          113,
+          125,
+          132
+        ]
+      },
+      "cluster_spread": {
+        "score": 0.2709534980724487,
+        "entropy": 0.4854834958917754
+      },
+      "deduplication": {
+        "boilerplate_score": 1.0
+      },
+      "metadata": {
+        "text_preview": "which a hierarchy of layers is used to transform input data into a progressively more abstract and composite representation. For example, in an image recognition model, the raw input may be an image (..."
+      }
+    },
+    {
+      "doc_index": 281,
+      "risk_score": 0.9780083872080572,
+      "verdict": "LOW",
+      "hubness": {
+        "hub_z": 1.3659851551055908,
+        "hub_rate": 0.0018817430827766657,
+        "hits": null,
+        "example_query_indices": [
+          43,
+          62,
+          75,
+          79,
+          90,
+          106,
+          124,
+          129,
+          135,
+          138
+        ]
+      },
+      "cluster_spread": {
+        "score": 0.7675973063710959,
+        "entropy": 1.3753497422443595
+      },
+      "deduplication": {
+        "boilerplate_score": 1.0
+      },
+      "metadata": {
+        "text_preview": "[ADVERSARIAL HUB hub_0011] [ADVERSARIAL HUB hub_0011] did not obtain ABET accreditation until 2003, the same year as Rice Unive..."
+      }
+    },
+    {
+      "doc_index": 332,
+      "risk_score": 0.9769422806401389,
+      "verdict": "LOW",
+      "hubness": {
+        "hub_z": 1.4347141981124878,
+        "hub_rate": 0.0019190373132005334,
+        "hits": null,
+        "example_query_indices": [
+          7,
+          17,
+          21,
+          32,
+          35,
+          53,
+          54,
+          69,
+          70,
+          94
+        ]
+      },
+      "cluster_spread": {
+        "score": 0.5045333092904766,
+        "entropy": 0.9040023344621784
+      },
+      "deduplication": {
+        "boilerplate_score": 1.0
+      },
+      "metadata": {
+        "text_preview": "The Internet of things (IoT) describes physical objects that are embedded with sensors, processing ability, software, and other technologies that connect and exchange data with other devices and syste..."
+      }
+    },
+    {
+      "doc_index": 157,
+      "risk_score": 0.971198844909668,
+      "verdict": "LOW",
+      "hubness": {
+        "hub_z": 1.5615984201431274,
+        "hub_rate": 0.0019878880120813847,
+        "hits": null,
+        "example_query_indices": [
+          14,
+          24,
+          33,
+          62,
+          92,
+          93,
+          99,
+          100,
+          113,
+          114
+        ]
+      },
+      "cluster_spread": {
+        "score": 0.0,
+        "entropy": 0.0
+      },
+      "deduplication": {
+        "boilerplate_score": 1.0
+      },
+      "metadata": {
+        "text_preview": "specialists to improve the diagnosis efficiency. === Mobile advertising === Finding the appropriate mobile audience for mobile advertising is always challenging, since many data points must be conside..."
+      }
+    },
+    {
+      "doc_index": 347,
+      "risk_score": 0.9679239323243107,
+      "verdict": "LOW",
+      "hubness": {
+        "hub_z": 1.4473071098327637,
+        "hub_rate": 0.001925870543345809,
+        "hits": null,
+        "example_query_indices": [
+          7,
+          69,
+          83,
+          98,
+          153,
+          207,
+          227,
+          253,
+          270,
+          271
+        ]
+      },
+      "cluster_spread": {
+        "score": 0.4122179997486892,
+        "entropy": 0.7385955044359619
+      },
+      "deduplication": {
+        "boilerplate_score": 1.0
+      },
+      "metadata": {
+        "text_preview": "purposes of collecting, monitoring, and analyzing environmental and vessel activity data. The project entails the deployment of about 50,000 floats that house a passive sensor suite that autonomously ..."
+      }
+    },
+    {
+      "doc_index": 567,
+      "risk_score": 0.9647316708134428,
+      "verdict": "LOW",
+      "hubness": {
+        "hub_z": 1.4548649787902832,
+        "hub_rate": 0.0019299716223031282,
+        "hits": null,
+        "example_query_indices": [
+          18,
+          27,
+          97,
+          115,
+          118,
+          240,
+          280,
+          318,
+          382,
+          384
+        ]
+      },
+      "cluster_spread": {
+        "score": 0.36791468360365126,
+        "entropy": 0.6592146182148859
+      },
+      "deduplication": {
+        "boilerplate_score": 1.0
+      },
+      "metadata": {
+        "text_preview": "to move the tracker treads. That power comes in the form of electricity, which will have to travel through a wire and originate from a battery, a basic electrical circuit. Even petrol-powered machines..."
+      }
+    },
+    {
+      "doc_index": 55,
+      "risk_score": 0.9453383720652238,
+      "verdict": "LOW",
+      "hubness": {
+        "hub_z": 1.3799973726272583,
+        "hub_rate": 0.0018893465166911483,
+        "hits": null,
+        "example_query_indices": [
+          18,
+          55,
+          97,
+          118,
+          129,
+          142,
+          161,
+          184,
+          192,
+          220
+        ]
+      },
+      "cluster_spread": {
+        "score": 0.5517015639622883,
+        "entropy": 0.9885165014173576
+      },
+      "deduplication": {
+        "boilerplate_score": 1.0
+      },
+      "metadata": {
+        "text_preview": "of useful information from a single image or a sequence of images. It involves the development of a theoretical and algorithmic basis to achieve automatic visual understanding.\" As a scientific discip..."
+      }
+    }
+  ],
+  "detection_metrics": {
+    "threshold": -0.11823624074459077,
+    "confusion_matrix": [
+      [
+        331,
+        308
+      ],
+      [
+        1,
+        25
+      ]
+    ],
+    "tp": 25,
+    "fp": 308,
+    "tn": 331,
+    "fn": 1,
+    "precision": 0.07507507507507508,
+    "recall": 0.9615384615384616,
+    "f1": 0.13927576601671307,
+    "accuracy": 0.5353383458646617,
+    "fpr": 0.48200312989045385,
+    "auc_roc": 0.8657758516913446,
+    "auc_pr": 0.30503682255860054,
+    "per_class": {
+      "positive": {
+        "precision": 0.07507507507507508,
+        "recall": 0.9615384615384616,
+        "f1": 0.13927576601671307,
+        "support": 26
+      },
+      "negative": {
+        "precision": 0.9969879518072289,
+        "recall": 0.5179968701095462,
+        "f1": 0.6817713697219361,
+        "support": 639
+      }
+    }
+  }
+}

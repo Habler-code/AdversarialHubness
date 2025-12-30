@@ -38,10 +38,12 @@ hubscan scan --config <config.yaml> [OPTIONS]
 - `--config, -c`: Path to YAML configuration file (required)
 - `--output, -o`: Output directory (overrides config)
 - `--summary-only`: Show only summary, don't save full reports
-- `--ranking-method`: Ranking method ("vector", "hybrid", "lexical", "reranked")
+- `--ranking-method`: Retrieval method ("vector", "hybrid", "lexical")
 - `--hybrid-alpha`: Weight for vector search in hybrid mode (0.0-1.0, default: 0.5)
 - `--query-texts`: Path to query texts file (for lexical/hybrid search)
 - `--verbose, -v`: Enable verbose logging
+
+**Note**: Reranking methods are configured via the config file (`ranking.rerank: true`, `ranking.rerank_method`), not as a separate retrieval method.
 
 **Examples:**
 ```bash
@@ -58,23 +60,27 @@ hubscan scan --config config.yaml --ranking-method lexical --query-texts queries
 hubscan compare-ranking --config config.yaml --query-texts queries.json --methods vector hybrid lexical
 ```
 
-### Detector Compatibility with Ranking Methods
+### Detector Compatibility with Retrieval and Reranking Methods
 
-HubScan automatically selects appropriate detectors based on the ranking method:
+HubScan automatically selects appropriate detectors based on the retrieval method:
 
-| Detector | Vector | Hybrid | Lexical | Reranked |
-|----------|--------|--------|---------|----------|
-| **Hubness** | Yes | Yes | Yes | Yes |
-| **Cluster Spread** | Yes | Yes | No | Yes |
-| **Stability** | Yes | Yes | No | Yes |
-| **Deduplication** | Yes | Yes | Yes | Yes |
+| Detector | Vector | Hybrid | Lexical | Vector+Rerank | Hybrid+Rerank | Lexical+Rerank |
+|----------|--------|--------|---------|---------------|---------------|----------------|
+| **Hubness** | Yes | Yes | Yes | Yes | Yes | Yes |
+| **Cluster Spread** | Yes | Yes | No | Yes | Yes | No |
+| **Stability** | Yes | Yes | No | Yes | Yes | No |
+| **Deduplication** | Yes | Yes | Yes | Yes | Yes | Yes |
 
 **Notes:**
-- **Lexical Search**: Cluster spread and stability detectors are automatically skipped because:
+- **Lexical Retrieval**: Cluster spread and stability detectors are automatically skipped because:
   - Cluster spread requires semantic query clustering (not applicable for keyword-based retrieval)
-  - Stability requires query embeddings to perturb (lexical search uses text, not embeddings)
-- **Hybrid Search**: All detectors use hybrid search internally for consistency
-- **Vector/Reranked Search**: All detectors are used
+  - Stability requires query embeddings to perturb (lexical retrieval uses text, not embeddings)
+- **Reranking Methods**: Reranking is a post-processing step that can be applied to any retrieval method (vector, hybrid, lexical)
+  - When reranking is enabled, detectors use the reranked results
+  - Reranking retrieves `rerank_top_n` candidates, then reranks to return top `k`
+  - Built-in reranking method: `default` (simple top-k selection)
+  - Custom reranking methods can be registered via the plugin system
+- **Hybrid Retrieval**: All detectors use hybrid search internally for consistency
 
 #### `build-index`
 
@@ -156,12 +162,12 @@ embeddings = np.random.randn(1000, 128).astype(np.float32)
 results = quick_scan(embeddings, k=10, num_queries=100)
 ```
 
-### Ranking Methods
+### Retrieval and Reranking Methods
 
 ```python
 from hubscan.sdk import scan_with_ranking, compare_ranking_methods
 
-# Hybrid search (combines vector + lexical)
+# Hybrid retrieval (combines vector + lexical)
 results = scan_with_ranking(
     embeddings_path="data/embeddings.npy",
     query_texts_path="data/queries.json",
@@ -170,7 +176,7 @@ results = scan_with_ranking(
     k=20
 )
 
-# Compare multiple ranking methods
+# Compare multiple retrieval methods
 comparison = compare_ranking_methods(
     embeddings_path="data/embeddings.npy",
     query_texts_path="data/queries.json",

@@ -72,7 +72,7 @@ def run_benchmark(
         "vector": ["geometric_hub", "gradient_based_hub", "multi_centroid_hub"],
         "hybrid": ["geometric_hub", "gradient_based_hub", "multi_centroid_hub", "lexical_hub"],  # Hybrid can detect both
         "lexical": ["lexical_hub"],
-        "reranked": ["geometric_hub", "gradient_based_hub", "multi_centroid_hub"],  # Reranked uses vector first
+        # Reranking can be applied to any method, so we don't need separate hub types
     }
     
     # Load HubScan config
@@ -135,7 +135,9 @@ def run_benchmark(
         print(f"\n3. Running HubScan with {ranking_method} ranking...")
         
         # Filter ground truth to only include hubs optimized for this ranking method
-        method_strategies = ranking_to_strategies.get(ranking_method, [])
+        # Handle reranking suffix by using base method strategies
+        base_method = ranking_method.replace("+rerank", "")
+        method_strategies = ranking_to_strategies.get(ranking_method, ranking_to_strategies.get(base_method, []))
         method_hub_positions = set()
         method_hub_indices = []
         method_strategy_list = []
@@ -153,24 +155,38 @@ def run_benchmark(
             "strategies": method_strategy_list,
             "hub_ids": [ground_truth["hub_ids"][i] for i in method_hub_indices],
         }
+        # Store ground truth with original ranking_method name (will be updated later if reranking is enabled)
         method_ground_truths[ranking_method] = method_ground_truth
         
         print(f"  Optimized hubs for {ranking_method}: {len(method_hub_positions)} ({', '.join(set(method_strategy_list))})")
         
-        # Set ranking method
-        config.scan.ranking.method = ranking_method
+        # Parse ranking method and reranking flag
+        # Format: "vector", "hybrid", "lexical", or "vector+rerank", "hybrid+rerank", etc.
+        if "+rerank" in ranking_method:
+            base_method = ranking_method.replace("+rerank", "")
+            config.scan.ranking.method = base_method
+            config.scan.ranking.rerank = True
+        else:
+            config.scan.ranking.method = ranking_method
+            config.scan.ranking.rerank = False
         
-        # Set query texts path if needed
-        if ranking_method in ["lexical", "hybrid"]:
+        # Set query texts path if needed (use base method, not the +rerank variant)
+        base_ranking_method = config.scan.ranking.method
+        if base_ranking_method in ["lexical", "hybrid"]:
             if not has_query_texts:
                 print(f"  Skipping {ranking_method} - query texts not available")
                 continue
             config.scan.query_texts_path = str(query_texts_path)
         else:
-            # Clear query texts path for vector/reranked methods
+            # Clear query texts path for vector methods
             config.scan.query_texts_path = None
         
-        method_output_dir = output_dir / ranking_method if len(ranking_methods) > 1 else output_dir
+        # Update method name for output directory (include rerank suffix if enabled)
+        output_method_name = ranking_method  # Keep original for output dir
+        if config.scan.ranking.rerank and "+rerank" not in output_method_name:
+            output_method_name = f"{base_ranking_method}+rerank"
+        
+        method_output_dir = output_dir / output_method_name if len(ranking_methods) > 1 else output_dir
         config.output.out_dir = str(method_output_dir)
         
         start_time = time.time()
@@ -184,8 +200,10 @@ def run_benchmark(
             continue
         
         runtime = time.time() - start_time
-        all_results[ranking_method] = results
-        all_runtimes[ranking_method] = runtime
+        all_results[output_method_name] = results
+        all_runtimes[output_method_name] = runtime
+        # Also store ground truth with output method name
+        method_ground_truths[output_method_name] = method_ground_truth
         
         print(f"Scan completed in {runtime:.2f} seconds")
     
@@ -217,12 +235,12 @@ def run_benchmark(
     
     # Calculate metrics for each method
     all_method_metrics = {}
-    successful_methods = [m for m in ranking_methods if m in all_results]
+    successful_methods = list(all_results.keys())  # Use actual output method names
     
-    for ranking_method in successful_methods:
-        method_results = all_results[ranking_method]
+    for method_name in successful_methods:
+        method_results = all_results[method_name]
         method_verdicts = method_results["verdicts"]
-        method_gt = method_ground_truths[ranking_method]
+        method_gt = method_ground_truths.get(method_name, method_ground_truths.get(method_name.replace("+rerank", ""), {}))
         method_hub_positions = set(method_gt["hub_positions"])
         
         # Get detected hubs for this method
@@ -241,44 +259,45 @@ def run_benchmark(
         method_metrics_high = calculate_metrics(method_detected_high, method_hub_positions, num_total)
         method_metrics_all = calculate_metrics(method_detected_all, method_hub_positions, num_total)
         
-        all_method_metrics[ranking_method] = {
+        all_method_metrics[method_name] = {
             "high": method_metrics_high,
             "all": method_metrics_all,
             "detected_high": method_detected_high,
             "detected_all": method_detected_all,
         }
         
-        print(f"\n{ranking_method.upper()} (testing on {len(method_hub_positions)} optimized hubs):")
+        print(f"\n{method_name.upper()} (testing on {len(method_hub_positions)} optimized hubs):")
         print(f"  Detected HIGH: {len(method_detected_high)}")
         print(f"  Detected ALL: {len(method_detected_all)}")
         print(f"  Recall (HIGH): {method_metrics_high['recall']:.4f}")
         print(f"  Precision (HIGH): {method_metrics_high['precision']:.4f}")
     
     # Use first method's results for overall display (or aggregate)
-    if len(ranking_methods) == 1:
-        results = all_results[ranking_methods[0]]
-        runtime = all_runtimes[ranking_methods[0]]
-        metrics_high = all_method_metrics[ranking_methods[0]]["high"]
-        metrics_all = all_method_metrics[ranking_methods[0]]["all"]
-        detected_high = all_method_metrics[ranking_methods[0]]["detected_high"]
-        detected_all = all_method_metrics[ranking_methods[0]]["detected_all"]
-        hub_positions = set(method_ground_truths[ranking_methods[0]]["hub_positions"])
+    first_method = successful_methods[0] if successful_methods else ranking_methods[0]
+    if len(successful_methods) == 1:
+        results = all_results[first_method]
+        runtime = all_runtimes[first_method]
+        metrics_high = all_method_metrics[first_method]["high"]
+        metrics_all = all_method_metrics[first_method]["all"]
+        detected_high = all_method_metrics[first_method]["detected_high"]
+        detected_all = all_method_metrics[first_method]["detected_all"]
+        hub_positions = set(method_ground_truths.get(first_method, method_ground_truths.get(first_method.replace("+rerank", ""), {}))["hub_positions"])
     else:
         # For comparison, aggregate across methods
-        results = all_results[ranking_methods[0]]
+        results = all_results[first_method]
         runtime = sum(all_runtimes.values())
         # Use first method's metrics for overall display
-        metrics_high = all_method_metrics[ranking_methods[0]]["high"]
-        metrics_all = all_method_metrics[ranking_methods[0]]["all"]
-        detected_high = all_method_metrics[ranking_methods[0]]["detected_high"]
-        detected_all = all_method_metrics[ranking_methods[0]]["detected_all"]
-        hub_positions = set(method_ground_truths[ranking_methods[0]]["hub_positions"])
+        metrics_high = all_method_metrics[first_method]["high"]
+        metrics_all = all_method_metrics[first_method]["all"]
+        detected_high = all_method_metrics[first_method]["detected_high"]
+        detected_all = all_method_metrics[first_method]["detected_all"]
+        hub_positions = set(method_ground_truths.get(first_method, method_ground_truths.get(first_method.replace("+rerank", ""), {}))["hub_positions"])
     
     # Extract results
     json_report = results["json_report"]
     verdicts = results["verdicts"]
     
-    print(f"\nOverall Detected (using {ranking_methods[0]} method):")
+    print(f"\nOverall Detected (using {first_method} method):")
     print(f"  HIGH: {len(detected_high)}")
     print(f"  MEDIUM: {len(detected_all - detected_high)}")
     print(f"  Total: {len(detected_all)}")
@@ -302,14 +321,14 @@ def run_benchmark(
     
     # Compare ranking methods if multiple tested
     ranking_comparison = None
-    successful_methods = [m for m in ranking_methods if m in all_results]
+    # successful_methods already defined above as list(all_results.keys())
     if len(successful_methods) > 1:
         print("\n6. Ranking Method Comparison (each tested on its optimized hubs):")
         ranking_comparison = {}
         print(f"{'Method':<15} {'Hubs':<8} {'Precision':<12} {'Recall':<12} {'F1':<12} {'Runtime':<12}")
         print("-" * 75)
         for method in successful_methods:
-            method_gt = method_ground_truths[method]
+            method_gt = method_ground_truths.get(method, method_ground_truths.get(method.replace("+rerank", ""), {}))
             method_metrics = all_method_metrics[method]
             method_metrics_high = method_metrics["high"]
             
@@ -330,7 +349,7 @@ def run_benchmark(
     print("\n7. Analyzing by strategy...")
     
     strategy_metrics = {}
-    current_gt = method_ground_truths[ranking_methods[0]] if len(ranking_methods) == 1 else method_ground_truths[ranking_methods[0]]
+    current_gt = method_ground_truths.get(first_method, method_ground_truths.get(first_method.replace("+rerank", ""), {}))
     
     for strategy_name in set(current_gt["strategies"]):
         strategy_positions = set(
@@ -437,7 +456,7 @@ def main():
     parser.add_argument(
         "--ranking-methods",
         nargs="+",
-        choices=["vector", "hybrid", "lexical", "reranked"],
+        choices=["vector", "hybrid", "lexical", "vector+rerank", "hybrid+rerank"],
         help="Ranking methods to compare (default: use config)",
     )
     

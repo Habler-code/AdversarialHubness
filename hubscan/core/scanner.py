@@ -43,6 +43,7 @@ from .detectors import (
     get_detector_class,
 )
 from .ranking import get_ranking_method
+from .reranking import get_reranking_method
 from .scoring import combine_scores, apply_thresholds
 from .report import (
     generate_json_report,
@@ -215,6 +216,19 @@ class Scanner:
                 f"Register custom methods using hubscan.core.ranking.register_ranking_method()"
             )
         
+        # Validate reranking method if reranking is enabled
+        reranking_method_impl = None
+        if self.config.scan.ranking.rerank:
+            reranking_method_impl = get_reranking_method(self.config.scan.ranking.rerank_method)
+            if reranking_method_impl is None:
+                from .reranking import list_reranking_methods
+                available = list_reranking_methods()
+                raise ValueError(
+                    f"Unknown reranking method: {self.config.scan.ranking.rerank_method}. "
+                    f"Available methods: {', '.join(available)}. "
+                    f"Register custom methods using hubscan.core.reranking.register_reranking_method()"
+                )
+        
         # Load query texts if needed for lexical/hybrid search
         query_texts = None
         if ranking_method in ["hybrid", "lexical"]:
@@ -299,8 +313,11 @@ class Scanner:
             "ranking_method": ranking_method,
             "hybrid_alpha": self.config.scan.ranking.hybrid_alpha,
             "query_texts": query_texts,
-            "rerank_top_n": self.config.scan.ranking.rerank_top_n,
+            "rerank": self.config.scan.ranking.rerank,
+            "rerank_method": self.config.scan.ranking.rerank_method if self.config.scan.ranking.rerank else None,
+            "rerank_top_n": self.config.scan.ranking.rerank_top_n if self.config.scan.ranking.rerank else None,
             "ranking_custom_params": self.config.scan.ranking.custom_params,
+            "rerank_params": self.config.scan.ranking.rerank_params if self.config.scan.ranking.rerank else {},
         }
         
         for name, detector in detectors.items():

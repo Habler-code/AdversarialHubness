@@ -18,11 +18,14 @@
 
 import numpy as np
 from collections import Counter
-from typing import Optional, Dict, Any
+from typing import Optional, Dict, Any, TYPE_CHECKING
 
 from .base import Detector, DetectorResult
 from ..io.metadata import Metadata
 from ...utils.logging import get_logger
+
+if TYPE_CHECKING:
+    from ..io.vector_index import VectorIndex
 
 logger = get_logger()
 

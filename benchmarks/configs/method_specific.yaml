@@ -62,9 +62,9 @@ thresholds:
     vector:
       hub_z: 6.0
       percentile: 0.012
-    reranked:
-      hub_z: 6.0
-      percentile: 0.012
+    # Note: Reranking is now a post-processing step, not a separate method
+    # Thresholds for reranked results can be set by using method name with "+rerank" suffix
+    # or by using the base method thresholds
     hybrid:
       hub_z: 5.0  # Relaxed for hybrid to improve recall (detects all hub types)
       percentile: 0.02
