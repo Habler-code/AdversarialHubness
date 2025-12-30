@@ -208,3 +208,128 @@ def test_l2_metric_scoring():
     assert len(result.scores) == num_docs
     assert np.all(np.isfinite(result.scores)), "All scores should be finite"
 
+
+def test_hubness_detection_with_hybrid_search():
+    """Test hubness detection with hybrid search ranking."""
+    pytest.importorskip("rank_bm25")
+    
+    num_docs = 50
+    embedding_dim = 32
+    
+    doc_embeddings = np.random.randn(num_docs, embedding_dim).astype(np.float32)
+    doc_embeddings = doc_embeddings / np.linalg.norm(doc_embeddings, axis=1, keepdims=True)
+    
+    # Build index with document texts
+    faiss_index = faiss.IndexFlatIP(embedding_dim)
+    faiss_index.add(doc_embeddings)
+    document_texts = [f"document {i} with text content" for i in range(num_docs)]
+    index = FAISSIndex(faiss_index, document_texts=document_texts)
+    
+    # Create queries
+    num_queries = 20
+    queries = np.random.randn(num_queries, embedding_dim).astype(np.float32)
+    queries = queries / np.linalg.norm(queries, axis=1, keepdims=True)
+    query_texts = ["document", "text"] * 10
+    
+    detector = HubnessDetector(enabled=True, metric="ip")
+    result = detector.detect(
+        index,
+        doc_embeddings,
+        queries,
+        k=5,
+        ranking_method="hybrid",
+        hybrid_alpha=0.5,
+        query_texts=query_texts,
+    )
+    
+    assert len(result.scores) == num_docs
+    assert result.metadata["ranking_method"] == "hybrid"
+    assert result.metadata["hybrid_alpha"] == 0.5
+    assert "ranking_metadata" in result.metadata
+
+
+def test_hubness_detection_with_lexical_search():
+    """Test hubness detection with lexical search ranking."""
+    pytest.importorskip("rank_bm25")
+    
+    num_docs = 50
+    embedding_dim = 32
+    
+    doc_embeddings = np.random.randn(num_docs, embedding_dim).astype(np.float32)
+    doc_embeddings = doc_embeddings / np.linalg.norm(doc_embeddings, axis=1, keepdims=True)
+    
+    faiss_index = faiss.IndexFlatIP(embedding_dim)
+    faiss_index.add(doc_embeddings)
+    document_texts = [f"document {i} with text content" for i in range(num_docs)]
+    index = FAISSIndex(faiss_index, document_texts=document_texts)
+    
+    query_texts = ["document", "text", "content"] * 10
+    
+    detector = HubnessDetector(enabled=True, metric="ip")
+    result = detector.detect(
+        index,
+        doc_embeddings,
+        np.zeros((30, embedding_dim)),  # Dummy queries (not used for lexical)
+        k=5,
+        ranking_method="lexical",
+        query_texts=query_texts,
+    )
+    
+    assert len(result.scores) == num_docs
+    assert result.metadata["ranking_method"] == "lexical"
+    assert "ranking_metadata" in result.metadata
+
+
+def test_hubness_detection_with_reranked_search():
+    """Test hubness detection with reranked search."""
+    num_docs = 50
+    embedding_dim = 32
+    
+    doc_embeddings = np.random.randn(num_docs, embedding_dim).astype(np.float32)
+    doc_embeddings = doc_embeddings / np.linalg.norm(doc_embeddings, axis=1, keepdims=True)
+    
+    faiss_index = faiss.IndexFlatIP(embedding_dim)
+    faiss_index.add(doc_embeddings)
+    index = FAISSIndex(faiss_index)
+    
+    queries = np.random.randn(20, embedding_dim).astype(np.float32)
+    queries = queries / np.linalg.norm(queries, axis=1, keepdims=True)
+    
+    detector = HubnessDetector(enabled=True, metric="ip")
+    result = detector.detect(
+        index,
+        doc_embeddings,
+        queries,
+        k=5,
+        ranking_method="reranked",
+        rerank_top_n=20,
+    )
+    
+    assert len(result.scores) == num_docs
+    assert result.metadata["ranking_method"] == "reranked"
+    assert result.metadata["rerank_top_n"] == 20
+    assert "ranking_metadata" in result.metadata
+
+
+def test_hubness_detection_ranking_method_validation():
+    """Test that invalid ranking method raises error."""
+    num_docs = 20
+    embedding_dim = 32
+    
+    doc_embeddings = np.random.randn(num_docs, embedding_dim).astype(np.float32)
+    faiss_index = faiss.IndexFlatIP(embedding_dim)
+    faiss_index.add(doc_embeddings)
+    index = FAISSIndex(faiss_index)
+    
+    queries = np.random.randn(10, embedding_dim).astype(np.float32)
+    
+    detector = HubnessDetector(enabled=True)
+    with pytest.raises(ValueError, match="Unknown ranking method"):
+        detector.detect(
+            index,
+            doc_embeddings,
+            queries,
+            k=5,
+            ranking_method="invalid_method",
+        )
+

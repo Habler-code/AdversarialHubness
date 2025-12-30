@@ -265,6 +265,7 @@ def generate_html_report(
     num_queries: int = 0,
     runtime_seconds: float = 0.0,
     num_docs: int = 0,
+    detection_metrics: Optional[Dict[str, Any]] = None,
 ) -> str:
     """
     Generate HTML report.
@@ -278,6 +279,7 @@ def generate_html_report(
         num_queries: Number of queries processed
         runtime_seconds: Runtime in seconds
         num_docs: Number of documents
+        detection_metrics: Optional detection performance metrics
         
     Returns:
         HTML report string
@@ -285,7 +287,8 @@ def generate_html_report(
     # Generate JSON report first (contains all data)
     json_report = generate_json_report(
         config, detector_results, combined_scores, verdicts,
-        metadata, num_queries, runtime_seconds, num_docs
+        metadata, num_queries, runtime_seconds, num_docs,
+        detection_metrics=detection_metrics,
     )
     
     # Render HTML template

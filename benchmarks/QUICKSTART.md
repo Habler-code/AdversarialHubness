@@ -23,7 +23,11 @@ Create a RAG benchmark with adversarial hubs planted in a real Wikipedia corpus.
 ### Step 1: Install Dependencies
 
 ```bash
+# Core dependencies
 pip install sentence-transformers requests tqdm scikit-learn
+
+# For lexical/hybrid search (optional, needed for comparing all ranking methods)
+pip install rank-bm25
 ```
 
 ### Step 2: Create Wikipedia Benchmark
@@ -70,11 +74,18 @@ This will:
 ### Step 4: Run Benchmark
 
 ```bash
-# Run HubScan and evaluate
+# Run HubScan with default vector search
 python3 run_benchmark.py \
   --dataset data/wikipedia_small/ \
   --config configs/default.yaml \
   --output results/wikipedia/
+
+# Compare multiple ranking methods
+python3 run_benchmark.py \
+  --dataset data/wikipedia_small/ \
+  --config configs/default.yaml \
+  --output results/wikipedia/ \
+  --ranking-methods vector hybrid lexical reranked
 ```
 
 This will:
@@ -82,8 +93,9 @@ This will:
 - Compare detected hubs to ground truth
 - Calculate precision, recall, F1, FPR
 - Analyze by strategy
+- Compare detection performance across ranking methods (if multiple specified)
 
-**Expected runtime**: < 1 second (very fast!)
+**Expected runtime**: < 1 second per ranking method
 
 ### Step 5: View Results
 
@@ -165,7 +177,7 @@ python3 plant_hubs.py --dataset data/wikipedia_small/ --strategy all --rate 0.10
 
 Create your own config in `configs/`:
 ```yaml
-# configs/aggressive.yaml
+# configs/custom.yaml
 thresholds:
   policy: hybrid
   hub_z: 3.0  # Lower threshold = more sensitive
@@ -174,11 +186,11 @@ thresholds:
 
 Test with different configurations:
 ```bash
-# Aggressive (deeper search, more sensitive)
+# Custom configuration
 python3 run_benchmark.py \
   --dataset data/wikipedia_small/ \
-  --config configs/aggressive.yaml \
-  --output results/aggressive/
+  --config configs/custom.yaml \
+  --output results/custom/
 ```
 
 ---
@@ -194,14 +206,12 @@ benchmarks/
 │       ├── dataset_info.json        # Dataset information
 │       └── ground_truth.json        # Ground truth labels
 ├── results/
-│   └── wikipedia/
-│       ├── benchmark_results.json   # Full results
-│       ├── report.json              # HubScan report
-│       └── report.html              # HubScan HTML report
+│   └── demo/
+│       ├── benchmark_results.json   # Full benchmark results (includes HubScan report)
+│       └── report.html              # HubScan HTML report (for visual inspection)
 └── configs/
-    ├── default.yaml                 # Default configuration (no weights)
-    ├── aggressive.yaml              # Aggressive configuration
-    └── no_weights.yaml              # Same as default (kept for reference)
+    ├── default.yaml                 # Default configuration (optimized thresholds)
+    └── method_specific.yaml         # Method-specific thresholds (for comparing ranking methods)
 ```
 
 ---

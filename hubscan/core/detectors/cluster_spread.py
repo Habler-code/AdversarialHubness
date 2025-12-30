@@ -19,7 +19,7 @@
 import numpy as np
 from sklearn.cluster import MiniBatchKMeans
 from scipy.stats import entropy
-from typing import Optional, Dict, Any, TYPE_CHECKING
+from typing import Optional, Dict, Any, List, TYPE_CHECKING
 
 from .base import Detector, DetectorResult
 from ..io.metadata import Metadata
@@ -60,10 +60,17 @@ class ClusterSpreadDetector(Detector):
         k: int,
         metadata: Optional[Metadata] = None,
         query_cluster_assignments: Optional[np.ndarray] = None,
+        ranking_method: str = "vector",
+        hybrid_alpha: float = 0.5,
+        query_texts: Optional[List[str]] = None,
+        rerank_top_n: int = 100,
         **kwargs,
     ) -> DetectorResult:
         """
         Detect cluster spread by analyzing which query clusters retrieve each document.
+        
+        Note: Cluster spread requires semantic query clustering, so it's not applicable
+        for pure lexical search. For lexical ranking, this detector will be skipped.
         
         Args:
             index: VectorIndex instance (supports FAISS, Pinecone, Qdrant, Weaviate, etc.)
@@ -71,11 +78,20 @@ class ClusterSpreadDetector(Detector):
             queries: Query embeddings (M, D)
             k: Number of nearest neighbors
             query_cluster_assignments: Optional pre-computed cluster assignments for queries
+            ranking_method: Ranking method ("vector", "hybrid", "lexical", "reranked")
+            hybrid_alpha: Weight for vector search in hybrid mode (0.0-1.0)
+            query_texts: Optional query texts for lexical/hybrid search
+            rerank_top_n: Number of candidates for reranking
             
         Returns:
             DetectorResult with cluster spread scores
         """
         if not self.enabled:
+            return DetectorResult(scores=np.zeros(len(doc_embeddings)))
+        
+        # Cluster spread requires semantic query clustering, not applicable for pure lexical search
+        if ranking_method == "lexical":
+            logger.info("Cluster spread detection skipped for lexical ranking (requires semantic clustering)")
             return DetectorResult(scores=np.zeros(len(doc_embeddings)))
         
         logger.info(f"Running cluster spread detection with {self.num_clusters} clusters")
@@ -117,7 +133,28 @@ class ClusterSpreadDetector(Detector):
             batch_queries = queries[i:end]
             batch_clusters = query_cluster_assignments[i:end]
             
-            distances, indices = index.search(batch_queries, k)
+            # Use appropriate search method based on ranking_method
+            if ranking_method == "vector":
+                distances, indices = index.search(batch_queries, k)
+            elif ranking_method == "hybrid":
+                batch_query_texts = None
+                if query_texts is not None:
+                    batch_query_texts = [query_texts[j] for j in range(i, end)]
+                distances, indices, _ = index.search_hybrid(
+                    query_vectors=batch_queries,
+                    query_texts=batch_query_texts,
+                    k=k,
+                    alpha=hybrid_alpha,
+                )
+            elif ranking_method == "reranked":
+                distances, indices, _ = index.search_reranked(
+                    query_vectors=batch_queries,
+                    k=k,
+                    rerank_top_n=rerank_top_n,
+                )
+            else:
+                # Fallback to vector search
+                distances, indices = index.search(batch_queries, k)
             
             for j, query_cluster in enumerate(batch_clusters):
                 neighbors = indices[j]
@@ -158,6 +195,7 @@ class ClusterSpreadDetector(Detector):
             "cluster_entropy": cluster_entropy.tolist(),
             "normalized_entropy": normalized_entropy.tolist(),
             "num_clusters": num_clusters_actual,
+            "ranking_method": ranking_method,
         }
         
         return DetectorResult(scores=normalized_entropy, metadata=result_metadata)

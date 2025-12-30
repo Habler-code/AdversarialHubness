@@ -63,6 +63,21 @@ def plant_hubs(
     with open(dataset_dir / "dataset_info.json", "r") as f:
         dataset_info = json.load(f)
     
+    # Load query texts if available (needed for lexical hubs)
+    query_texts = None
+    query_texts_path = dataset_dir / "query_texts.json"
+    if query_texts_path.exists():
+        with open(query_texts_path, "r") as f:
+            query_texts = json.load(f)
+        print(f"Loaded {len(query_texts)} query texts for lexical hub strategy")
+    
+    # Extract document texts from metadata
+    doc_texts = None
+    if metadata and isinstance(metadata, list) and len(metadata) > 0:
+        if "text" in metadata[0]:
+            doc_texts = [item["text"] for item in metadata]
+            print(f"Loaded {len(doc_texts)} document texts")
+    
     N, D = embeddings.shape
     print(f"Loaded {N} embeddings of dimension {D}")
     
@@ -88,10 +103,22 @@ def plant_hubs(
         print(f"\n   Strategy: {strategy.name}")
         print(f"   {strategy.description}")
         
-        hub_embeddings, hub_meta = strategy.create_hub(
-            embeddings,
-            num_hubs=hubs_per_strategy
-        )
+        # Pass query_texts and doc_texts for lexical strategy
+        if strategy.name == "lexical_hub":
+            if query_texts is None:
+                print(f"   Warning: Skipping {strategy.name} - query_texts.json not found")
+                continue
+            hub_embeddings, hub_meta = strategy.create_hub(
+                embeddings,
+                num_hubs=hubs_per_strategy,
+                query_texts=query_texts,
+                doc_texts=doc_texts,
+            )
+        else:
+            hub_embeddings, hub_meta = strategy.create_hub(
+                embeddings,
+                num_hubs=hubs_per_strategy
+            )
         
         all_hub_embeddings.append(hub_embeddings)
         
@@ -101,8 +128,19 @@ def plant_hubs(
                 "hub_id": f"hub_{len(all_hub_metadata):04d}",
                 "strategy": strategy.name,
                 "strategy_description": strategy.description,
-                **hub_meta,
             }
+            # Add hub-specific metadata (avoid adding lists/arrays to each entry)
+            if "hub_texts" in hub_meta and i < len(hub_meta["hub_texts"]):
+                hub_metadata_entry["hub_text"] = hub_meta["hub_texts"][i]
+            if "top_keywords" in hub_meta:
+                hub_metadata_entry["top_keywords"] = hub_meta["top_keywords"]
+            if "num_keywords_used" in hub_meta:
+                hub_metadata_entry["num_keywords_used"] = hub_meta["num_keywords_used"]
+            # Add other metadata fields that are not lists
+            for key, value in hub_meta.items():
+                if key not in ["hub_texts"] and not isinstance(value, (list, np.ndarray)):
+                    hub_metadata_entry[key] = value
+            
             all_hub_metadata.append(hub_metadata_entry)
         
         print(f"   Created {len(hub_embeddings)} hubs")
@@ -137,9 +175,15 @@ def plant_hubs(
         modified_metadata[pos]["hub_strategy"] = all_hub_metadata[i]["strategy"]
         modified_metadata[pos]["hub_strategy_description"] = all_hub_metadata[i]["strategy_description"]
         
-        # Add synthetic text to indicate it's a hub
-        modified_metadata[pos]["original_text"] = modified_metadata[pos]["text"]
-        modified_metadata[pos]["text"] = f"[ADVERSARIAL HUB {all_hub_metadata[i]['hub_id']}] {modified_metadata[pos]['text'][:100]}..."
+        # For lexical hubs, use the generated hub text
+        if all_hub_metadata[i]["strategy"] == "lexical_hub" and "hub_text" in all_hub_metadata[i]:
+            modified_metadata[pos]["original_text"] = modified_metadata[pos]["text"]
+            modified_metadata[pos]["text"] = all_hub_metadata[i]["hub_text"]
+        else:
+            # Add synthetic text to indicate it's a hub
+            modified_metadata[pos]["original_text"] = modified_metadata[pos]["text"]
+            modified_metadata[pos]["text"] = f"[ADVERSARIAL HUB {all_hub_metadata[i]['hub_id']}] {modified_metadata[pos]['text'][:100]}..."
+        
         modified_metadata[pos]["text_hash"] = hashlib.md5(modified_metadata[pos]["text"].encode()).hexdigest()
     
     # Save modified dataset
@@ -179,7 +223,7 @@ def plant_hubs(
         json.dump(dataset_info, f, indent=2)
     print(f"Saved dataset info: {output_dir / 'dataset_info.json'}")
     
-    print(f"\n✅ Hubs planted successfully!")
+    print(f"\nHubs planted successfully!")
     print(f"   Total chunks: {N}")
     print(f"   Adversarial hubs: {total_hubs} ({total_hubs / N * 100:.2f}%)")
     print(f"   Strategies: {', '.join(set(meta['strategy'] for meta in all_hub_metadata))}")

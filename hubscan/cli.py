@@ -61,7 +61,17 @@ def cli(verbose: bool):
 @click.option("--config", "-c", required=True, type=click.Path(exists=True), help="Path to config YAML file")
 @click.option("--output", "-o", type=str, help="Output directory (overrides config)")
 @click.option("--summary-only", is_flag=True, help="Show only summary, don't save full reports")
-def scan(config: str, output: Optional[str], summary_only: bool):
+@click.option("--ranking-method", type=click.Choice(["vector", "hybrid", "lexical", "reranked"]), help="Ranking method to use")
+@click.option("--hybrid-alpha", type=float, default=0.5, help="Weight for vector search in hybrid mode (0.0-1.0)")
+@click.option("--query-texts", type=click.Path(exists=True), help="Path to query texts file (for lexical/hybrid search)")
+def scan(
+    config: str,
+    output: Optional[str],
+    summary_only: bool,
+    ranking_method: Optional[str],
+    hybrid_alpha: float,
+    query_texts: Optional[str],
+):
     """Run a scan for adversarial hubs."""
     logger = get_logger()
     
@@ -81,6 +91,14 @@ def scan(config: str, output: Optional[str], summary_only: bool):
             
             if summary_only:
                 cfg.output.out_dir = "/tmp"  # Temporary, won't be used
+            
+            # Override ranking config from CLI if provided
+            if ranking_method:
+                cfg.scan.ranking.method = ranking_method
+            if hybrid_alpha is not None:
+                cfg.scan.ranking.hybrid_alpha = hybrid_alpha
+            if query_texts:
+                cfg.scan.query_texts_path = query_texts
             
             progress.update(task, completed=True)
             
@@ -204,6 +222,85 @@ def build_index(config: str):
 
 @cli.command()
 @click.option("--config", "-c", required=True, type=click.Path(exists=True), help="Path to config YAML file")
+@click.option("--query-texts", type=click.Path(exists=True), help="Path to query texts file")
+@click.option("--methods", multiple=True, default=["vector", "hybrid"], help="Ranking methods to compare")
+@click.option("--output", "-o", type=str, default="reports/comparison", help="Output directory")
+def compare_ranking(config: str, query_texts: Optional[str], methods: tuple, output: str):
+    """Compare detection performance across ranking methods."""
+    logger = get_logger()
+    
+    try:
+        from .sdk import compare_ranking_methods
+        
+        cfg = Config.from_yaml(config)
+        
+        if not cfg.input.embeddings_path:
+            raise ValueError("embeddings_path required in config for comparison")
+        
+        methods_list = list(methods) if methods else ["vector", "hybrid"]
+        
+        console.print(f"[bold cyan]Comparing ranking methods: {', '.join(methods_list)}[/bold cyan]")
+        
+        comparison = compare_ranking_methods(
+            embeddings_path=cfg.input.embeddings_path,
+            metadata_path=cfg.input.metadata_path,
+            query_texts_path=query_texts or cfg.scan.query_texts_path,
+            methods=methods_list,
+            output_dir=output,
+            k=cfg.scan.k,
+            num_queries=cfg.scan.num_queries,
+        )
+        
+        # Display comparison table
+        comparison_table = Table(title="Ranking Method Comparison", show_header=True, header_style="bold magenta")
+        comparison_table.add_column("Method", style="cyan")
+        comparison_table.add_column("HIGH Risk", style="red")
+        comparison_table.add_column("MEDIUM Risk", style="yellow")
+        comparison_table.add_column("Runtime", style="green")
+        
+        for method, method_results in comparison["results"].items():
+            json_report = method_results["json_report"]
+            verdict_counts = json_report["summary"]["verdict_counts"]
+            runtime = method_results["runtime"]
+            
+            comparison_table.add_row(
+                method,
+                str(verdict_counts.get("HIGH", 0)),
+                str(verdict_counts.get("MEDIUM", 0)),
+                f"{runtime:.2f}s"
+            )
+        
+        console.print("\n")
+        console.print(comparison_table)
+        
+        if comparison.get("comparison"):
+            console.print("\n[bold]Detection Metrics Comparison:[/bold]")
+            metrics_table = Table(show_header=True, header_style="bold yellow")
+            metrics_table.add_column("Method", style="cyan")
+            metrics_table.add_column("Precision", style="green")
+            metrics_table.add_column("Recall", style="green")
+            metrics_table.add_column("F1", style="green")
+            
+            for method, metrics in comparison["comparison"].items():
+                metrics_table.add_row(
+                    method,
+                    f"{metrics.get('precision', 0):.3f}",
+                    f"{metrics.get('recall', 0):.3f}",
+                    f"{metrics.get('f1', 0):.3f}",
+                )
+            
+            console.print(metrics_table)
+        
+        console.print(f"\n[bold green]Comparison complete![/bold green] Results saved to: [cyan]{output}[/cyan]")
+        
+    except Exception as e:
+        logger.error(f"Error during comparison: {e}", exc_info=True)
+        console.print(f"[bold red]Error:[/bold red] {e}")
+        sys.exit(1)
+
+
+@cli.command()
+@click.option("--config", "-c", required=True, type=click.Path(exists=True), help="Path to config YAML file")
 def validate(config: str):
     """Validate approximate index against exact search."""
     logger = get_logger()
@@ -266,6 +363,12 @@ def explain(doc_id: int, report: str):
             table.add_row("", "")  # Separator
             table.add_row("[bold]Deduplication[/bold]", "")
             table.add_row("  Boilerplate Score", f"{doc_info['deduplication']['boilerplate_score']:.4f}")
+        
+        # Add ranking method info if available
+        if "hubness" in doc_info and "ranking_method" in doc_info.get("hubness", {}):
+            table.add_row("", "")  # Separator
+            table.add_row("[bold]Ranking Method[/bold]", "")
+            table.add_row("  Method", doc_info["hubness"].get("ranking_method", "vector"))
         
         console.print("\n")
         console.print(table)

@@ -42,8 +42,9 @@
   "num_adversarial_hubs": 24,
   "hub_rate": 0.03609022556390978,
   "hub_strategies": [
-    "gradient_based_hub",
     "geometric_hub",
-    "multi_centroid_hub"
+    "multi_centroid_hub",
+    "gradient_based_hub",
+    "lexical_hub"
   ]
 }

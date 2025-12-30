@@ -24,6 +24,7 @@ from collections import defaultdict
 from .base import Detector, DetectorResult
 from ..io.metadata import Metadata
 from ..io.adapters import FAISSIndex
+from ..ranking import get_ranking_method
 from ...utils.metrics import robust_zscore, compute_percentile
 from ...utils.batching import batch_iterator
 from ...utils.logging import get_logger
@@ -72,6 +73,10 @@ class HubnessDetector(Detector):
         k: int,
         metadata: Optional[Metadata] = None,
         batch_size: int = 2048,
+        ranking_method: str = "vector",
+        hybrid_alpha: float = 0.5,
+        query_texts: Optional[List[str]] = None,
+        rerank_top_n: int = 100,
         **kwargs,
     ) -> DetectorResult:
         """
@@ -82,7 +87,12 @@ class HubnessDetector(Detector):
             doc_embeddings: Document embeddings (N, D)
             queries: Query embeddings (M, D)
             k: Number of nearest neighbors
+            metadata: Optional document metadata
             batch_size: Batch size for processing queries
+            ranking_method: Ranking method ("vector", "hybrid", "lexical", "reranked")
+            hybrid_alpha: Weight for vector search in hybrid mode (0.0-1.0)
+            query_texts: Optional query texts for lexical/hybrid search
+            rerank_top_n: Number of candidates for reranking
             
         Returns:
             DetectorResult with hubness scores and example queries
@@ -115,13 +125,47 @@ class HubnessDetector(Detector):
         example_queries: Dict[int, List[int]] = defaultdict(list)
         max_examples = 10  # Store up to 10 example queries per doc
         
+        # Get ranking method implementation
+        ranking_method_impl = get_ranking_method(ranking_method)
+        if ranking_method_impl is None:
+            raise ValueError(
+                f"Unknown ranking method: {ranking_method}. "
+                f"Available methods: {', '.join(['vector', 'hybrid', 'lexical', 'reranked'])}. "
+                f"Register custom methods using hubscan.core.ranking.register_ranking_method()"
+            )
+        
+        # Prepare ranking method kwargs
+        ranking_kwargs = kwargs.get("ranking_custom_params", {})
+        if ranking_method == "hybrid":
+            ranking_kwargs["alpha"] = hybrid_alpha
+        elif ranking_method == "reranked":
+            ranking_kwargs["rerank_top_n"] = rerank_top_n
+        
         # Process queries in batches
         query_idx = 0
+        ranking_metadata_list = []
+        
         for batch_queries in batch_iterator(list(range(M)), batch_size):
             batch_queries_array = queries[batch_queries]
+            batch_query_texts = None
+            if query_texts is not None:
+                batch_query_texts = [query_texts[i] for i in batch_queries]
             
-            # Search
-            distances, indices = index.search(batch_queries_array, k)
+            # Use ranking method plugin
+            try:
+                distances, indices, search_metadata = ranking_method_impl.search(
+                    index=index,
+                    query_vectors=batch_queries_array,
+                    query_texts=batch_query_texts,
+                    k=k,
+                    **ranking_kwargs
+                )
+            except Exception as e:
+                raise RuntimeError(
+                    f"Error executing ranking method '{ranking_method}': {e}"
+                ) from e
+            
+            ranking_metadata_list.append(search_metadata)
             
             # Count weighted hits
             for i, query_id in enumerate(batch_queries):
@@ -135,7 +179,21 @@ class HubnessDetector(Detector):
                         
                         # Apply distance/similarity weight if enabled
                         if self.use_distance_weights:
-                            if is_similarity_metric:
+                            # Determine score type based on ranking method
+                            is_lexical_score = ranking_method == "lexical" or (
+                                ranking_method == "hybrid" and hybrid_alpha < 1.0
+                            )
+                            
+                            if is_lexical_score:
+                                # Lexical scores (BM25) are similarity scores (higher = better)
+                                # Normalize to [0, 1] range
+                                max_score = np.max(neighbor_distances[neighbor_distances < np.inf])
+                                if max_score > 0:
+                                    similarity_weight = np.clip(dist / max_score, 0.0, 1.0)
+                                else:
+                                    similarity_weight = 1.0 if dist > 0 else 0.0
+                                weight *= similarity_weight
+                            elif is_similarity_metric:
                                 # For cosine/IP: higher similarity = more suspicious
                                 # Normalize to [0, 1] range (assuming values are typically in [0, 1] for cosine/IP)
                                 # For IP, values can be negative, so we clip and normalize
@@ -195,6 +253,17 @@ class HubnessDetector(Detector):
                 )
         
         # Prepare metadata
+        # Aggregate ranking metadata from all batches
+        ranking_metadata_agg = {}
+        if ranking_metadata_list:
+            # Get common keys
+            common_keys = set(ranking_metadata_list[0].keys())
+            for meta in ranking_metadata_list[1:]:
+                common_keys &= set(meta.keys())
+            
+            # Aggregate values (use first batch's values as representative)
+            ranking_metadata_agg = ranking_metadata_list[0].copy()
+        
         result_metadata: Dict[str, Any] = {
             "weighted_hits": weighted_hits.tolist(),
             "hub_rate": hub_rate.tolist(),
@@ -205,7 +274,14 @@ class HubnessDetector(Detector):
             "use_rank_weights": self.use_rank_weights,
             "use_distance_weights": self.use_distance_weights,
             "metric": self.metric,
+            "ranking_method": ranking_method,
+            "ranking_metadata": ranking_metadata_agg,
         }
+        
+        if ranking_method == "hybrid":
+            result_metadata["hybrid_alpha"] = hybrid_alpha
+        if ranking_method == "reranked":
+            result_metadata["rerank_top_n"] = rerank_top_n
         
         if validation_results:
             result_metadata["validation"] = validation_results

@@ -39,7 +39,16 @@ pytest tests/test_integration.py -v
 ### Run Specific Test Function
 
 ```bash
+# Test hubness detection
 pytest tests/test_hubness.py::test_hubness_detection -v
+
+# Test ranking methods
+pytest tests/test_hubness.py::test_hubness_detection_with_hybrid_search -v
+pytest tests/test_adapters.py::test_faiss_adapter_hybrid_search -v
+
+# Test metrics
+pytest tests/test_metrics.py::TestRankingMetrics -v
+pytest tests/test_metrics.py::TestDetectionMetrics -v
 ```
 
 ### Run with Coverage
@@ -55,6 +64,28 @@ This generates an HTML coverage report in `htmlcov/index.html`.
 ```bash
 pytest tests/ --tb=short
 ```
+
+## Test Categories
+
+### Core Functionality Tests
+- `test_hubness.py`: Hubness detection with various ranking methods
+- `test_adapters.py`: Vector database adapter implementations
+- `test_vector_index.py`: VectorIndex interface and methods
+- `test_config.py`: Configuration management and validation
+
+### Ranking Methods Tests
+- `test_hubness.py`: Tests for hybrid, lexical, and reranked search
+- `test_adapters.py`: Adapter implementations for ranking methods
+- `test_vector_index.py`: VectorIndex interface methods (search_hybrid, search_lexical, search_reranked)
+
+### Metrics Tests
+- `test_metrics.py`: Ranking quality metrics (NDCG, MRR, MAP, Precision@k, Recall@k)
+- `test_metrics.py`: Detection performance metrics (AUC-ROC, AUC-PR, confusion matrix)
+
+### Integration Tests
+- `test_integration.py`: End-to-end scan workflows
+- `test_sdk.py`: SDK function tests
+- `test_cli.py`: CLI command tests
 
 ## Test Structure
 

@@ -202,19 +202,29 @@ class FAISSIndex(VectorIndex):
             
             distances = np.array(combined_distances, dtype=np.float32)
             indices = np.array(combined_indices, dtype=np.int64)
-            
+            metadata = {
+                "ranking_method": "hybrid",
+                "alpha": alpha,
+                "fallback": False,
+            }
         elif vector_distances is not None:
+            # Fallback to vector-only
             distances = vector_distances
             indices = vector_indices
+            metadata = {
+                "ranking_method": "vector",
+                "alpha": alpha,
+                "fallback": True,
+            }
         else:
+            # Fallback to lexical-only
             distances = lexical_scores
             indices = lexical_indices
-        
-        metadata = {
-            "ranking_method": "hybrid",
-            "alpha": alpha,
-            "fallback": False,
-        }
+            metadata = {
+                "ranking_method": "lexical",
+                "alpha": alpha,
+                "fallback": True,
+            }
         
         return distances, indices, metadata
     

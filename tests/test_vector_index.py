@@ -115,3 +115,47 @@ def test_faiss_adapter_access_underlying():
     assert adapter.faiss_index is faiss_index
     assert isinstance(adapter.faiss_index, faiss.Index)
 
+
+def test_vector_index_search_hybrid_fallback():
+    """Test VectorIndex search_hybrid fallback to vector search."""
+    index = MockVectorIndex(ntotal=100, dimension=128)
+    
+    queries = np.random.randn(5, 128).astype(np.float32)
+    distances, indices, metadata = index.search_hybrid(
+        query_vectors=queries,
+        query_texts=None,
+        k=10,
+        alpha=0.5
+    )
+    
+    assert distances.shape == (5, 10)
+    assert indices.shape == (5, 10)
+    assert metadata["ranking_method"] == "vector"
+    assert metadata["fallback"] is True
+
+
+def test_vector_index_search_lexical_not_implemented():
+    """Test VectorIndex search_lexical raises NotImplementedError."""
+    index = MockVectorIndex(ntotal=100, dimension=128)
+    
+    query_texts = ["test query"] * 5
+    with pytest.raises(NotImplementedError):
+        index.search_lexical(query_texts, k=10)
+
+
+def test_vector_index_search_reranked():
+    """Test VectorIndex search_reranked default implementation."""
+    index = MockVectorIndex(ntotal=100, dimension=128)
+    
+    queries = np.random.randn(5, 128).astype(np.float32)
+    distances, indices, metadata = index.search_reranked(
+        query_vectors=queries,
+        k=5,
+        rerank_top_n=20
+    )
+    
+    assert distances.shape == (5, 5)
+    assert indices.shape == (5, 5)
+    assert metadata["ranking_method"] == "reranked"
+    assert metadata["rerank_top_n"] == 20
+

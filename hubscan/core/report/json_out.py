@@ -38,6 +38,7 @@ def generate_json_report(
     num_queries: int = 0,
     runtime_seconds: float = 0.0,
     num_docs: int = 0,
+    detection_metrics: Optional[Dict[str, Any]] = None,
 ) -> Dict[str, Any]:
     """
     Generate JSON report.
@@ -131,6 +132,7 @@ def generate_json_report(
             "runtime_seconds": runtime_seconds,
             "index_type": config.index.type,
             "metric": config.input.metric,
+            "ranking_method": config.scan.ranking.method,
         },
         "summary": {
             "verdict_counts": verdict_counts,
@@ -149,6 +151,16 @@ def generate_json_report(
             "max_score": float(np.max(result.scores)),
             "median_score": float(np.median(result.scores)),
         }
+        
+        # Add ranking method info if available
+        if name == "hubness" and "ranking_method" in result.metadata:
+            report["detector_summary"][name]["ranking_method"] = result.metadata["ranking_method"]
+            if "hybrid_alpha" in result.metadata:
+                report["detector_summary"][name]["hybrid_alpha"] = result.metadata["hybrid_alpha"]
+    
+    # Add metrics if available
+    if detection_metrics:
+        report["detection_metrics"] = detection_metrics
     
     return report
 

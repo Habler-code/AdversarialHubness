@@ -4,28 +4,32 @@
 
 This benchmark evaluates the effectiveness of HubScan in detecting adversarial hubs in real-world RAG systems built from actual documents (e.g., Wikipedia articles).
 
-## Benchmark Results (Default Configuration)
+## Benchmark Results
 
 **Dataset**: 28 Wikipedia articles, 665 chunks, 24 adversarial hubs (3.6%)
 
-### Overall Performance
-- **Precision**: 70.6%
-- **Recall**: 100%
-- **F1 Score**: 82.8%
-- **False Positive Rate**: 1.6%
-- **Runtime**: 0.17 seconds
+### Performance by Ranking Method (Optimized Configuration)
+
+| Method | Precision | Recall | F1 Score | Best For |
+|--------|-----------|--------|----------|----------|
+| **Vector** | 93.75% | 83.33% | 0.882 | Vector-optimized hubs |
+| **Reranked** | 93.75% | 83.33% | 0.882 | Vector-optimized hubs |
+| **Hybrid** | 94.12% | 66.67% | 0.780 | All hub types |
+| **Lexical** | 75.00% | 100.00% | 0.857 | Lexical-optimized hubs |
 
 ### Detection by Strategy
-| Strategy | Hubs | Recall (HIGH) | Detection |
-|----------|------|---------------|-----------|
-| **Gradient-Based** | 8 | 100% | Perfect |
-| **Geometric** | 8 | 100% | Perfect |
-| **Multi-Centroid** | 8 | 100% | Perfect |
+
+| Strategy | Hubs | Best Detected By | Detection Rate |
+|----------|------|------------------|----------------|
+| **Gradient-Based** | 6 | Vector/Reranked/Hybrid | 83-100% |
+| **Geometric** | 6 | Vector/Reranked/Hybrid | 83-100% |
+| **Multi-Centroid** | 6 | Vector/Reranked/Hybrid | 83-100% |
+| **Lexical** | 6 | Lexical/Hybrid | 100% |
 
 **Key Findings**:
-- **Perfect recall**: 100% detection across all hub strategies
-- **High precision**: 70.6% with very low false positive rate (1.6%)
-- **Fast**: 0.17 seconds for 665 documents
+- **High precision**: 75-94% precision across all ranking methods
+- **Excellent recall**: 67-100% recall depending on ranking method
+- **Method-specific optimization**: Each ranking method performs best on its optimized hub types
 - **Production-ready**: Excellent performance on real Wikipedia data
 
 ## Benchmark Approach
@@ -41,32 +45,66 @@ This benchmark evaluates the effectiveness of HubScan in detecting adversarial h
 - Create a hub embedding as the weighted average of multiple diverse document embeddings
 - This hub will be geometrically close to many queries
 - **Detection difficulty**: Easy to Medium
-- **Detection rate**: 100%
+- **Detection rate**: 100% (vector/reranked search)
+- **Best detected by**: Vector search, Hybrid search, Reranked search
 
 #### Strategy B: Multi-Centroid Hub
 - Create multiple hub variants that target different semantic clusters
 - Each variant is optimized for a specific cluster of queries
 - **Detection difficulty**: Medium
-- **Detection rate**: 100%
+- **Detection rate**: 100% (vector/reranked search)
+- **Best detected by**: Vector search, Hybrid search, Reranked search
 
 #### Strategy C: Gradient-Based Adversarial Hub
 - Use gradient descent to optimize hub embedding
 - Maximize retrieval probability across diverse queries
 - **Detection difficulty**: Hard
-- **Detection rate**: 100%
+- **Detection rate**: 100% (vector/reranked search)
+- **Best detected by**: Vector search, Hybrid search, Reranked search
+
+#### Strategy D: Lexical Hub (Keyword-Optimized)
+- Creates hubs optimized for lexical/keyword search (BM25)
+- Generates documents containing common keywords from queries
+- These hubs rank highly in BM25-based retrieval
+- **Detection difficulty**: Medium (for lexical search)
+- **Detection rate**: Varies (optimized for lexical/hybrid search)
+- **Best detected by**: Lexical search, Hybrid search
+- **Note**: Requires `query_texts.json` to be generated (done automatically by `create_wikipedia_benchmark.py`)
 
 ### 3. Ground Truth
 - Track which chunks are adversarial hubs
 - Track which chunks are legitimate
 - Enables precision/recall/F1 calculation
 
-### 4. Metrics
+### 4. Ranking Methods
 
-#### Detection Metrics
+The benchmark supports comparing detection performance across different ranking methods:
+- **Vector Search (KNN)**: Classic vector similarity search (default)
+- **Hybrid Search**: Combines vector similarity with lexical matching (BM25)
+- **Lexical Search**: Pure keyword-based search using BM25
+- **Reranked Search**: Initial vector retrieval followed by semantic reranking
+
+To compare ranking methods:
+```bash
+python3 run_benchmark.py \
+  --dataset data/wikipedia_small/ \
+  --config configs/default.yaml \
+  --output results/wikipedia/ \
+  --ranking-methods vector hybrid lexical reranked
+```
+
+### 5. Detection Metrics
+
+HubScan focuses on detection performance metrics:
+
 - **Precision**: What fraction of detected hubs are true positives?
 - **Recall**: What fraction of true hubs are detected?
 - **F1 Score**: Harmonic mean of precision and recall
 - **False Positive Rate**: How many legitimate documents are flagged?
+- **AUC-ROC**: Area under ROC curve (if ground truth available)
+- **AUC-PR**: Area under Precision-Recall curve (if ground truth available)
+- **Confusion Matrix**: TP, FP, TN, FN counts
+- **Per-Class Metrics**: Precision, Recall, F1 for each verdict class
 
 #### Effectiveness Metrics
 - **Hub Rate**: Fraction of queries retrieving each hub
@@ -75,33 +113,54 @@ This benchmark evaluates the effectiveness of HubScan in detecting adversarial h
 
 ## Configuration
 
-The benchmark uses the default HubScan configuration:
+The benchmark uses optimized HubScan configurations. The default configuration (`configs/default.yaml`) includes:
 
 ```yaml
 scan:
   k: 20                    # Top-k documents per query
   num_queries: 5000        # Number of test queries
+  ranking:
+    method: vector         # Can be vector, hybrid, lexical, or reranked
 
 detectors:
   hubness:
     enabled: true
-    use_rank_weights: false      # Binary counting for best performance
-    use_distance_weights: false  # Binary counting for best performance
+    use_rank_weights: true      # Rank-aware scoring for better precision
+    use_distance_weights: true  # Distance-based scoring for better precision
   cluster_spread:
     enabled: true
   dedup:
     enabled: true
 
+scoring:
+  weights:
+    hub_z: 0.75           # Weight for hubness z-score
+    cluster_spread: 0.2
+    stability: 0.05
+    boilerplate: 0.2
+
 thresholds:
-  hub_z: 4.0              # Robust z-score threshold
-  percentile: 0.05        # Top 5% by composite score
+  policy: hybrid
+  hub_z: 6.0              # Z-score threshold
+  percentile: 0.012        # Top 1.2% by composite score
+  method_specific:         # Optional: method-specific thresholds
+    vector:
+      hub_z: 6.0
+      percentile: 0.012
+    hybrid:
+      hub_z: 5.0          # Relaxed for hybrid to improve recall
+      percentile: 0.02
+    lexical:
+      hub_z: 6.0
+      percentile: 0.012
 ```
 
-This configuration achieves:
-- 100% recall on all adversarial hub types
-- 70.6% precision
-- 1.6% false positive rate
-- Fast execution (< 0.2 seconds for 1000 documents)
+The optimized configuration (`configs/method_specific.yaml`) uses method-specific thresholds for optimal performance across all ranking methods.
+
+Performance with optimized configuration:
+- Vector/Reranked: 93.75% precision, 83.3% recall
+- Hybrid: 94.1% precision, 66.7% recall
+- Lexical: 75% precision, 100% recall
 
 ## Usage
 
@@ -111,13 +170,24 @@ cd benchmarks
 python3 create_wikipedia_benchmark.py --size small --output data/wikipedia_small/
 
 # Step 2: Plant adversarial hubs
+# Plant all strategies (including lexical hubs)
 python3 plant_hubs.py --dataset data/wikipedia_small/ --strategy all --rate 0.04
 
-# Step 3: Run benchmark
+# Or plant only lexical hubs for testing lexical search
+python3 plant_hubs.py --dataset data/wikipedia_small/ --strategy lexical --rate 0.04
+
+# Step 3: Run benchmark (vector search only)
 python3 run_benchmark.py \
   --dataset data/wikipedia_small/ \
   --config configs/default.yaml \
   --output results/wikipedia/
+
+# Step 3b: Compare all ranking methods
+python3 run_benchmark.py \
+  --dataset data/wikipedia_small/ \
+  --config configs/default.yaml \
+  --output results/wikipedia/ \
+  --ranking-methods vector hybrid lexical reranked
 
 # Step 4: View results
 cat results/wikipedia/benchmark_results.json
@@ -146,38 +216,11 @@ multi_centroid_hub:
   Recall (HIGH): 1.0000  # Perfect detection
 ```
 
-## Directory Structure
-
-```
-benchmarks/
-├── README.md                          # This file
-├── QUICKSTART.md                      # Quick start guide
-├── configs/                           # HubScan configurations
-│   ├── default.yaml                   # Default config (no weights)
-│   ├── aggressive.yaml                # Aggressive detection
-│   └── no_weights.yaml                # Same as default
-├── data/
-│   └── wikipedia_small/               # Benchmark dataset
-│       ├── embeddings.npy             # Document embeddings with hubs
-│       ├── metadata.json              # Chunk metadata
-│       ├── ground_truth.json          # Hub labels
-│       └── dataset_info.json          # Dataset information
-├── results/
-│   └── wikipedia/                     # Benchmark results
-│       ├── benchmark_results.json     # Metrics and analysis
-│       ├── report.json                # HubScan report
-│       └── report.html                # HubScan HTML report
-├── create_wikipedia_benchmark.py      # Download and prepare Wikipedia data
-├── plant_hubs.py                      # Plant adversarial hubs
-├── run_benchmark.py                   # Run benchmark and calculate metrics
-└── hub_strategies.py                  # Hub planting strategies
-```
-
 ## Key Insights
 
-1. **Perfect Detection**: HubScan achieves 100% recall on all adversarial hub types
-2. **High Precision**: 70.6% precision with only 1.6% false positive rate
-3. **Fast**: Processes 665 documents in 0.17 seconds
-4. **Simple Works Best**: Binary counting (no rank/distance weights) outperforms complex weighting
-5. **Production Ready**: Excellent performance on real Wikipedia documents
+1. **Method-Specific Optimization**: Each ranking method performs best on hubs optimized for that method
+2. **High Precision**: 75-94% precision across all ranking methods with optimized thresholds
+3. **Excellent Recall**: 67-100% recall depending on ranking method and hub type
+4. **Rank-Aware Scoring**: Rank and distance weights improve precision significantly
+5. **Production Ready**: Excellent performance on real Wikipedia documents with method-specific thresholds
 

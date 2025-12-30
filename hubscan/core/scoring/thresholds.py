@@ -36,6 +36,7 @@ def apply_thresholds(
     combined_scores: np.ndarray,
     config: ThresholdsConfig,
     hub_z_scores: Optional[np.ndarray] = None,
+    ranking_method: Optional[str] = None,
 ) -> Dict[int, Verdict]:
     """
     Apply thresholds to assign verdicts.
@@ -45,6 +46,7 @@ def apply_thresholds(
         combined_scores: Combined risk scores
         config: Threshold configuration
         hub_z_scores: Optional hubness z-scores (if not in detector_results)
+        ranking_method: Optional ranking method name for method-specific thresholds
         
     Returns:
         Dictionary mapping document index to verdict
@@ -54,27 +56,36 @@ def apply_thresholds(
     elif hub_z_scores is None:
         hub_z_scores = np.zeros(len(combined_scores))
     
+    # Get method-specific thresholds if available
+    hub_z_threshold = config.hub_z
+    percentile_threshold = config.percentile
+    
+    if ranking_method and config.method_specific and ranking_method in config.method_specific:
+        method_thresholds = config.method_specific[ranking_method]
+        hub_z_threshold = method_thresholds.get("hub_z", config.hub_z)
+        percentile_threshold = method_thresholds.get("percentile", config.percentile)
+    
     verdicts: Dict[int, Verdict] = {}
     
     for doc_idx in range(len(combined_scores)):
         hub_z = hub_z_scores[doc_idx]
         
         if config.policy == "percentile":
-            threshold = np.percentile(combined_scores, 100 * (1 - config.percentile))
+            threshold = np.percentile(combined_scores, 100 * (1 - percentile_threshold))
             verdict = Verdict.HIGH if combined_scores[doc_idx] >= threshold else Verdict.LOW
         
         elif config.policy == "z_score":
-            verdict = Verdict.HIGH if hub_z >= config.hub_z else Verdict.LOW
+            verdict = Verdict.HIGH if hub_z >= hub_z_threshold else Verdict.LOW
         
         elif config.policy == "hybrid":
             # Either condition triggers HIGH
-            percentile_threshold = np.percentile(combined_scores, 100 * (1 - config.percentile))
-            high_by_percentile = combined_scores[doc_idx] >= percentile_threshold
-            high_by_zscore = hub_z >= config.hub_z
+            percentile_val = np.percentile(combined_scores, 100 * (1 - percentile_threshold))
+            high_by_percentile = combined_scores[doc_idx] >= percentile_val
+            high_by_zscore = hub_z >= hub_z_threshold
             
             if high_by_percentile or high_by_zscore:
                 verdict = Verdict.HIGH
-            elif combined_scores[doc_idx] >= percentile_threshold * 0.5 or hub_z >= config.hub_z * 0.5:
+            elif combined_scores[doc_idx] >= percentile_val * 0.5 or hub_z >= hub_z_threshold * 0.5:
                 verdict = Verdict.MEDIUM
             else:
                 verdict = Verdict.LOW

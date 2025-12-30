@@ -38,12 +38,43 @@ hubscan scan --config <config.yaml> [OPTIONS]
 - `--config, -c`: Path to YAML configuration file (required)
 - `--output, -o`: Output directory (overrides config)
 - `--summary-only`: Show only summary, don't save full reports
+- `--ranking-method`: Ranking method ("vector", "hybrid", "lexical", "reranked")
+- `--hybrid-alpha`: Weight for vector search in hybrid mode (0.0-1.0, default: 0.5)
+- `--query-texts`: Path to query texts file (for lexical/hybrid search)
 - `--verbose, -v`: Enable verbose logging
 
-**Example:**
+**Examples:**
 ```bash
+# Standard vector search
 hubscan scan --config examples/toy_config.yaml
+
+# Hybrid search
+hubscan scan --config config.yaml --ranking-method hybrid --hybrid-alpha 0.6 --query-texts queries.json
+
+# Lexical search
+hubscan scan --config config.yaml --ranking-method lexical --query-texts queries.json
+
+# Compare ranking methods
+hubscan compare-ranking --config config.yaml --query-texts queries.json --methods vector hybrid lexical
 ```
+
+### Detector Compatibility with Ranking Methods
+
+HubScan automatically selects appropriate detectors based on the ranking method:
+
+| Detector | Vector | Hybrid | Lexical | Reranked |
+|----------|--------|--------|---------|----------|
+| **Hubness** | Yes | Yes | Yes | Yes |
+| **Cluster Spread** | Yes | Yes | No | Yes |
+| **Stability** | Yes | Yes | No | Yes |
+| **Deduplication** | Yes | Yes | Yes | Yes |
+
+**Notes:**
+- **Lexical Search**: Cluster spread and stability detectors are automatically skipped because:
+  - Cluster spread requires semantic query clustering (not applicable for keyword-based retrieval)
+  - Stability requires query embeddings to perturb (lexical search uses text, not embeddings)
+- **Hybrid Search**: All detectors use hybrid search internally for consistency
+- **Vector/Reranked Search**: All detectors are used
 
 #### `build-index`
 
@@ -75,6 +106,25 @@ hubscan explain --doc-id <index> --report <report.json>
 hubscan explain --doc-id 42 --report reports/report.json
 ```
 
+#### `compare-ranking`
+
+Compare detection performance across multiple ranking methods.
+
+```bash
+hubscan compare-ranking --config <config.yaml> [OPTIONS]
+```
+
+**Options:**
+- `--config, -c`: Path to YAML configuration file (required)
+- `--query-texts`: Path to query texts file (required for lexical/hybrid)
+- `--methods`: Ranking methods to compare (default: ["vector", "hybrid"])
+- `--output, -o`: Output directory (default: "reports/comparison")
+
+**Example:**
+```bash
+hubscan compare-ranking --config config.yaml --query-texts queries.json --methods vector hybrid lexical
+```
+
 ## SDK Usage
 
 ### Basic Scan
@@ -104,6 +154,41 @@ from hubscan.sdk import quick_scan
 
 embeddings = np.random.randn(1000, 128).astype(np.float32)
 results = quick_scan(embeddings, k=10, num_queries=100)
+```
+
+### Ranking Methods
+
+```python
+from hubscan.sdk import scan_with_ranking, compare_ranking_methods
+
+# Hybrid search (combines vector + lexical)
+results = scan_with_ranking(
+    embeddings_path="data/embeddings.npy",
+    query_texts_path="data/queries.json",
+    ranking_method="hybrid",
+    hybrid_alpha=0.6,  # 60% vector, 40% lexical
+    k=20
+)
+
+# Compare multiple ranking methods
+comparison = compare_ranking_methods(
+    embeddings_path="data/embeddings.npy",
+    query_texts_path="data/queries.json",
+    methods=["vector", "hybrid", "lexical"],
+    k=20
+)
+
+# Access comparison results
+for method, method_results in comparison["results"].items():
+    verdicts = method_results["verdicts"]
+    print(f"{method}: {sum(1 for v in verdicts.values() if v.value == 'HIGH')} HIGH risk docs")
+    
+    # Access detection metrics if available
+    if method_results.get("detection_metrics"):
+        metrics = method_results["detection_metrics"]
+        print(f"  Precision: {metrics.get('precision', 'N/A'):.3f}")
+        print(f"  Recall: {metrics.get('recall', 'N/A'):.3f}")
+        print(f"  F1: {metrics.get('f1', 'N/A'):.3f}")
 ```
 
 ### Get Suspicious Documents
@@ -145,6 +230,12 @@ config = Config.from_yaml("config.yaml")
 config.scan.k = 30
 config.detectors.stability.enabled = True
 config.thresholds.hub_z = 5.0
+# Or use method-specific thresholds:
+config.thresholds.method_specific = {
+    "vector": {"hub_z": 6.0, "percentile": 0.012},
+    "hybrid": {"hub_z": 5.0, "percentile": 0.02},
+    "lexical": {"hub_z": 6.0, "percentile": 0.012}
+}
 
 # Run scan
 scanner = Scanner(config)

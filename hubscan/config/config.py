@@ -16,7 +16,7 @@
 
 """Configuration management using Pydantic models."""
 
-from typing import Literal, Optional, Dict, Any
+from typing import Literal, Optional, Dict, Any, Union
 from pydantic import BaseModel, Field, field_validator
 from pydantic_settings import BaseSettings
 
@@ -74,9 +74,9 @@ class IndexConfig(BaseModel):
 
 class RankingConfig(BaseModel):
     """Ranking method configuration."""
-    method: Literal["vector", "hybrid", "lexical", "reranked"] = Field(
+    method: str = Field(
         default="vector",
-        description="Ranking method to use for retrieval"
+        description="Ranking method name (built-in: vector, hybrid, lexical, reranked, or custom registered name)"
     )
     hybrid_alpha: float = Field(
         default=0.5,
@@ -92,6 +92,10 @@ class RankingConfig(BaseModel):
     lexical_backend: Optional[str] = Field(
         default=None,
         description="Lexical search backend (e.g., 'bm25', 'tfidf')"
+    )
+    custom_params: Dict[str, Any] = Field(
+        default_factory=dict,
+        description="Custom parameters for ranking method (passed as **kwargs to search method)"
     )
 
 
@@ -178,6 +182,11 @@ class ThresholdsConfig(BaseModel):
     policy: Literal["percentile", "z_score", "hybrid"] = Field(default="hybrid", description="Threshold policy")
     hub_z: float = Field(default=6.0, description="Z-score threshold")
     percentile: float = Field(default=0.001, ge=0.0, le=1.0, description="Percentile threshold (0.001 = top 0.1%)")
+    # Method-specific thresholds (optional, falls back to defaults if not specified)
+    method_specific: Optional[Dict[str, Dict[str, float]]] = Field(
+        default=None,
+        description="Method-specific thresholds: {'vector': {'hub_z': 6.0, 'percentile': 0.012}, ...}"
+    )
 
 
 class OutputConfig(BaseModel):

@@ -239,6 +239,26 @@ def create_benchmark_dataset(
         json.dump(chunks, f, indent=2)
     print(f"Saved metadata: {output_dir / 'metadata.json'}")
     
+    # Save query texts for lexical/hybrid search
+    # Extract sample queries from chunks (first 100-200 words of each chunk)
+    query_texts = []
+    for chunk in chunks:
+        words = chunk["text"].split()
+        # Take first 50-100 words as a query-like text
+        query_length = min(100, len(words))
+        if query_length > 20:  # Only if chunk is long enough
+            query_text = " ".join(words[:query_length])
+            query_texts.append(query_text)
+    
+    # Also add some article titles as queries
+    article_titles = list(set(chunk["article_title"] for chunk in chunks))
+    query_texts.extend(article_titles[:50])  # Add up to 50 article titles
+    
+    # Save query texts
+    with open(output_dir / "query_texts.json", "w") as f:
+        json.dump(query_texts, f, indent=2)
+    print(f"Saved query texts: {output_dir / 'query_texts.json'} ({len(query_texts)} queries)")
+    
     # Save dataset info
     dataset_info = {
         "size": size,
@@ -255,7 +275,7 @@ def create_benchmark_dataset(
         json.dump(dataset_info, f, indent=2)
     print(f"Saved dataset info: {output_dir / 'dataset_info.json'}")
     
-    print(f"\n✅ Benchmark dataset created successfully!")
+    print(f"\nBenchmark dataset created successfully!")
     print(f"   Location: {output_dir}")
     print(f"   Articles: {len(articles)}")
     print(f"   Chunks: {len(chunks)}")

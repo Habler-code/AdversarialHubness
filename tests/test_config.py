@@ -21,7 +21,7 @@ import tempfile
 import yaml
 from pathlib import Path
 
-from hubscan.config import Config, InputConfig, ScanConfig, ThresholdsConfig
+from hubscan.config import Config, InputConfig, ScanConfig, ThresholdsConfig, RankingConfig
 
 
 def test_config_defaults():
@@ -106,4 +106,75 @@ def test_thresholds_config():
     assert config.policy == "hybrid"
     assert config.hub_z == 5.0
     assert config.percentile == 0.001
+
+
+def test_ranking_config_defaults():
+    """Test ranking configuration defaults."""
+    config = RankingConfig()
+    
+    assert config.method == "vector"
+    assert config.hybrid_alpha == 0.5
+    assert config.rerank_top_n == 100
+    assert config.lexical_backend is None
+
+
+def test_ranking_config_validation():
+    """Test ranking configuration validation."""
+    # Valid configs
+    config = RankingConfig(method="hybrid", hybrid_alpha=0.7)
+    assert config.method == "hybrid"
+    assert config.hybrid_alpha == 0.7
+    
+    config = RankingConfig(method="lexical", lexical_backend="bm25")
+    assert config.method == "lexical"
+    assert config.lexical_backend == "bm25"
+    
+    config = RankingConfig(method="reranked", rerank_top_n=50)
+    assert config.method == "reranked"
+    assert config.rerank_top_n == 50
+    
+    # Invalid alpha (should be clamped or raise error)
+    with pytest.raises(Exception):
+        RankingConfig(hybrid_alpha=1.5)  # > 1.0
+    
+    with pytest.raises(Exception):
+        RankingConfig(hybrid_alpha=-0.1)  # < 0.0
+    
+    # Invalid rerank_top_n
+    with pytest.raises(Exception):
+        RankingConfig(rerank_top_n=0)  # < 1
+
+
+def test_scan_config_with_ranking():
+    """Test scan configuration includes ranking config."""
+    config = ScanConfig()
+    
+    assert hasattr(config, "ranking")
+    assert isinstance(config.ranking, RankingConfig)
+    assert config.ranking.method == "vector"
+
+
+def test_config_from_yaml_with_ranking(tmp_path):
+    """Test loading configuration with ranking from YAML."""
+    config_data = {
+        "scan": {
+            "k": 20,
+            "num_queries": 1000,
+            "ranking": {
+                "method": "hybrid",
+                "hybrid_alpha": 0.6,
+                "rerank_top_n": 50
+            }
+        }
+    }
+    
+    config_file = tmp_path / "test_config.yaml"
+    with open(config_file, "w") as f:
+        yaml.dump(config_data, f)
+    
+    config = Config.from_yaml(str(config_file))
+    
+    assert config.scan.ranking.method == "hybrid"
+    assert config.scan.ranking.hybrid_alpha == 0.6
+    assert config.scan.ranking.rerank_top_n == 50
 

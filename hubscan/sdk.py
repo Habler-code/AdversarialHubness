@@ -59,6 +59,7 @@ def scan(
         - combined_scores: Combined risk scores array
         - verdicts: Verdict dictionary mapping doc indices to Verdict enum
         - runtime: Runtime in seconds
+        - detection_metrics: Optional detection performance metrics
         
     Example:
         ```python
@@ -214,6 +215,153 @@ def get_suspicious_documents(
         suspicious = suspicious[:top_k]
     
     return suspicious
+
+
+def scan_with_ranking(
+    embeddings_path: Optional[str] = None,
+    index_path: Optional[str] = None,
+    metadata_path: Optional[str] = None,
+    query_texts_path: Optional[str] = None,
+    ranking_method: str = "vector",
+    hybrid_alpha: float = 0.5,
+    output_dir: str = "reports/",
+    k: int = 20,
+    num_queries: int = 10000,
+    **kwargs,
+) -> Dict[str, Any]:
+    """
+    Run a scan with specified ranking method.
+    
+    Args:
+        embeddings_path: Path to embeddings file (.npy/.npz)
+        index_path: Path to FAISS index file (.index)
+        metadata_path: Optional path to metadata file
+        query_texts_path: Optional path to query texts file (for lexical/hybrid search)
+        ranking_method: Ranking method ("vector", "hybrid", "lexical", "reranked")
+        hybrid_alpha: Weight for vector search in hybrid mode (0.0-1.0)
+        output_dir: Directory to save reports
+        k: Number of nearest neighbors to retrieve
+        num_queries: Number of queries to sample
+        **kwargs: Additional configuration options
+        
+    Returns:
+        Scan results dictionary
+        
+    Example:
+        ```python
+        from hubscan.sdk import scan_with_ranking
+        
+        # Hybrid search
+        results = scan_with_ranking(
+            embeddings_path="data/embeddings.npy",
+            query_texts_path="data/queries.json",
+            ranking_method="hybrid",
+            hybrid_alpha=0.6
+        )
+        ```
+    """
+    config = _create_config_from_params(
+        embeddings_path=embeddings_path,
+        index_path=index_path,
+        metadata_path=metadata_path,
+        output_dir=output_dir,
+        k=k,
+        num_queries=num_queries,
+        **kwargs,
+    )
+    
+    # Set ranking configuration
+    config.scan.ranking.method = ranking_method
+    config.scan.ranking.hybrid_alpha = hybrid_alpha
+    if query_texts_path:
+        config.scan.query_texts_path = query_texts_path
+    
+    scanner = Scanner(config)
+    scanner.load_data()
+    return scanner.scan()
+
+
+def compare_ranking_methods(
+    embeddings_path: str,
+    metadata_path: Optional[str] = None,
+    query_texts_path: Optional[str] = None,
+    methods: Optional[list] = None,
+    output_dir: str = "reports/",
+    k: int = 20,
+    num_queries: int = 10000,
+    **kwargs,
+) -> Dict[str, Any]:
+    """
+    Compare detection performance across multiple ranking methods.
+    
+    Args:
+        embeddings_path: Path to embeddings file (.npy/.npz)
+        metadata_path: Optional path to metadata file
+        query_texts_path: Optional path to query texts file (required for lexical/hybrid)
+        methods: List of ranking methods to compare (default: ["vector", "hybrid"])
+        output_dir: Directory to save reports
+        k: Number of nearest neighbors to retrieve
+        num_queries: Number of queries to sample
+        **kwargs: Additional configuration options
+        
+    Returns:
+        Dictionary with comparison results:
+        - methods: List of methods tested
+        - results: Dictionary mapping method names to scan results
+        - comparison: Comparison metrics
+        
+    Example:
+        ```python
+        from hubscan.sdk import compare_ranking_methods
+        
+        comparison = compare_ranking_methods(
+            embeddings_path="data/embeddings.npy",
+            query_texts_path="data/queries.json",
+            methods=["vector", "hybrid", "lexical"]
+        )
+        
+        for method, results in comparison["results"].items():
+            print(f"{method}: {len(results['verdicts'])} suspicious docs")
+        ```
+    """
+    if methods is None:
+        methods = ["vector", "hybrid"]
+    
+    results_by_method = {}
+    
+    for method in methods:
+        if method in ["lexical", "hybrid"] and not query_texts_path:
+            continue  # Skip methods that require query texts
+        
+        method_results = scan_with_ranking(
+            embeddings_path=embeddings_path,
+            metadata_path=metadata_path,
+            query_texts_path=query_texts_path,
+            ranking_method=method,
+            output_dir=f"{output_dir}/{method}",
+            k=k,
+            num_queries=num_queries,
+            **kwargs,
+        )
+        results_by_method[method] = method_results
+    
+    # Compute comparison metrics if ground truth available
+    comparison_metrics = None
+    if metadata_path:
+        # Try to load ground truth
+        from .core.io.metadata import load_metadata
+        metadata = load_metadata(metadata_path)
+        if metadata.has_field("is_adversarial"):
+            comparison_metrics = {}
+            for method, method_results in results_by_method.items():
+                if method_results.get("detection_metrics"):
+                    comparison_metrics[method] = method_results["detection_metrics"]
+    
+    return {
+        "methods": list(results_by_method.keys()),
+        "results": results_by_method,
+        "comparison": comparison_metrics,
+    }
 
 
 def explain_document(

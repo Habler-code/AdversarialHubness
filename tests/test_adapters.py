@@ -266,3 +266,137 @@ def test_create_index_unsupported_mode():
     with pytest.raises(ValueError, match="Unsupported backend mode"):
         create_index(config)
 
+
+def test_faiss_adapter_lexical_search():
+    """Test FAISS adapter lexical search with BM25."""
+    pytest.importorskip("rank_bm25")
+    import faiss
+    
+    dimension = 64
+    num_vectors = 20
+    embeddings = np.random.randn(num_vectors, dimension).astype(np.float32)
+    embeddings = embeddings / np.linalg.norm(embeddings, axis=1, keepdims=True)
+    
+    faiss_index = faiss.IndexFlatIP(dimension)
+    faiss_index.add(embeddings)
+    
+    # Create document texts
+    document_texts = [f"document {i} with some text content" for i in range(num_vectors)]
+    
+    adapter = FAISSIndex(faiss_index, document_texts=document_texts)
+    
+    # Test lexical search
+    query_texts = ["document", "text", "content"] * 2  # 6 queries
+    distances, indices, metadata = adapter.search_lexical(query_texts, k=5)
+    
+    assert distances.shape == (6, 5)
+    assert indices.shape == (6, 5)
+    assert metadata["ranking_method"] == "lexical"
+    assert metadata["backend"] == "bm25"
+    assert np.all(indices >= 0)
+    assert np.all(indices < num_vectors)
+
+
+def test_faiss_adapter_lexical_search_no_texts():
+    """Test FAISS adapter lexical search raises error without document texts."""
+    import faiss
+    
+    dimension = 64
+    embeddings = np.random.randn(20, dimension).astype(np.float32)
+    faiss_index = faiss.IndexFlatIP(dimension)
+    faiss_index.add(embeddings)
+    
+    adapter = FAISSIndex(faiss_index)  # No document texts
+    
+    query_texts = ["test query"]
+    with pytest.raises(ValueError, match="document_texts"):
+        adapter.search_lexical(query_texts, k=5)
+
+
+def test_faiss_adapter_hybrid_search():
+    """Test FAISS adapter hybrid search."""
+    pytest.importorskip("rank_bm25")
+    import faiss
+    
+    dimension = 64
+    num_vectors = 20
+    embeddings = np.random.randn(num_vectors, dimension).astype(np.float32)
+    embeddings = embeddings / np.linalg.norm(embeddings, axis=1, keepdims=True)
+    
+    faiss_index = faiss.IndexFlatIP(dimension)
+    faiss_index.add(embeddings)
+    
+    document_texts = [f"document {i} with text" for i in range(num_vectors)]
+    adapter = FAISSIndex(faiss_index, document_texts=document_texts)
+    
+    queries = np.random.randn(3, dimension).astype(np.float32)
+    queries = queries / np.linalg.norm(queries, axis=1, keepdims=True)
+    query_texts = ["document", "text", "content"]
+    
+    distances, indices, metadata = adapter.search_hybrid(
+        query_vectors=queries,
+        query_texts=query_texts,
+        k=5,
+        alpha=0.5
+    )
+    
+    assert distances.shape == (3, 5)
+    assert indices.shape == (3, 5)
+    assert metadata["ranking_method"] == "hybrid"
+    assert metadata["alpha"] == 0.5
+    assert metadata["fallback"] is False
+
+
+def test_faiss_adapter_hybrid_search_vector_only():
+    """Test FAISS adapter hybrid search with only vectors falls back to vector search."""
+    import faiss
+    
+    dimension = 64
+    embeddings = np.random.randn(20, dimension).astype(np.float32)
+    faiss_index = faiss.IndexFlatIP(dimension)
+    faiss_index.add(embeddings)
+    
+    adapter = FAISSIndex(faiss_index)
+    
+    queries = np.random.randn(3, dimension).astype(np.float32)
+    distances, indices, metadata = adapter.search_hybrid(
+        query_vectors=queries,
+        query_texts=None,
+        k=5,
+        alpha=0.5
+    )
+    
+    assert distances.shape == (3, 5)
+    assert indices.shape == (3, 5)
+    assert metadata["ranking_method"] == "vector"
+    assert metadata["fallback"] is True
+
+
+def test_faiss_adapter_reranked_search():
+    """Test FAISS adapter reranked search."""
+    import faiss
+    
+    dimension = 64
+    num_vectors = 50
+    embeddings = np.random.randn(num_vectors, dimension).astype(np.float32)
+    embeddings = embeddings / np.linalg.norm(embeddings, axis=1, keepdims=True)
+    
+    faiss_index = faiss.IndexFlatIP(dimension)
+    faiss_index.add(embeddings)
+    
+    adapter = FAISSIndex(faiss_index)
+    
+    queries = np.random.randn(3, dimension).astype(np.float32)
+    queries = queries / np.linalg.norm(queries, axis=1, keepdims=True)
+    
+    distances, indices, metadata = adapter.search_reranked(
+        query_vectors=queries,
+        k=5,
+        rerank_top_n=20
+    )
+    
+    assert distances.shape == (3, 5)
+    assert indices.shape == (3, 5)
+    assert metadata["ranking_method"] == "reranked"
+    assert metadata["rerank_top_n"] == 20
+

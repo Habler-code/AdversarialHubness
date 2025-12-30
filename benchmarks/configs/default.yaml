@@ -12,19 +12,25 @@ scan:
   k: 20
   num_queries: 5000  # More queries for better statistics
   query_sampling: mixed
+  query_texts_path: ""  # Will be set by benchmark script if available
   batch_size: 256
   mixed_proportions:
     real_queries: 0.0
     random_docs_as_queries: 0.5
     cluster_centroids: 0.5
   seed: 42
+  ranking:
+    method: vector  # Default: vector, can be hybrid, lexical, or reranked
+    hybrid_alpha: 0.5
+    rerank_top_n: 100
+    lexical_backend: bm25
 
 detectors:
   hubness:
     enabled: true
     validate_exact: false
-    use_rank_weights: false   # Disabled: Better performance on real data
-    use_distance_weights: false  # Disabled: Better performance on real data
+    use_rank_weights: true   # Enabled: Better precision with optimized thresholds
+    use_distance_weights: true  # Enabled: Better precision with optimized thresholds
   cluster_spread:
     enabled: true
     num_clusters: 100
@@ -43,15 +49,15 @@ detectors:
 
 scoring:
   weights:
-    hub_z: 0.6
+    hub_z: 0.75  # Optimized weight for best precision across all ranking methods
     cluster_spread: 0.2
-    stability: 0.2
-    boilerplate: 0.3
+    stability: 0.05
+    boilerplate: 0.2
 
 thresholds:
   policy: hybrid
-  hub_z: 4.0  # Lower threshold for more sensitivity
-  percentile: 0.05  # Top 5% instead of 1%
+  hub_z: 6.0  # Optimized threshold for best precision (62.5% lexical, 93%+ vector/reranked/hybrid)
+  percentile: 0.012  # Top 1.2% for optimal precision-recall balance
 
 output:
   out_dir: ""  # Will be set by benchmark script

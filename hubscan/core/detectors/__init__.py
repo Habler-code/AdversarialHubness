@@ -21,6 +21,11 @@ from .hubness import HubnessDetector
 from .cluster_spread import ClusterSpreadDetector
 from .stability import StabilityDetector
 from .dedup import DedupDetector
+from .registry import (
+    register_detector,
+    get_detector_class,
+    list_detectors,
+)
 
 __all__ = [
     "Detector",
@@ -29,5 +34,8 @@ __all__ = [
     "ClusterSpreadDetector",
     "StabilityDetector",
     "DedupDetector",
+    "register_detector",
+    "get_detector_class",
+    "list_detectors",
 ]
 

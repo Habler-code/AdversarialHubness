@@ -17,7 +17,7 @@
 """Stability detector - detects stability under query perturbations."""
 
 import numpy as np
-from typing import Optional, Dict, Any, TYPE_CHECKING
+from typing import Optional, Dict, Any, List, TYPE_CHECKING
 
 from .base import Detector, DetectorResult
 from ..io.metadata import Metadata
@@ -66,10 +66,17 @@ class StabilityDetector(Detector):
         metadata: Optional[Metadata] = None,
         candidate_indices: Optional[np.ndarray] = None,
         seed: Optional[int] = None,
+        ranking_method: str = "vector",
+        hybrid_alpha: float = 0.5,
+        query_texts: Optional[List[str]] = None,
+        rerank_top_n: int = 100,
         **kwargs,
     ) -> DetectorResult:
         """
         Detect stability by perturbing queries and checking retrieval consistency.
+        
+        Note: Stability requires query embeddings to perturb, so it's not applicable
+        for pure lexical search. For lexical ranking, this detector will be skipped.
         
         Args:
             index: VectorIndex instance (supports FAISS, Pinecone, Qdrant, Weaviate, etc.)
@@ -78,11 +85,20 @@ class StabilityDetector(Detector):
             k: Number of nearest neighbors
             candidate_indices: Optional pre-selected candidate document indices
             seed: Random seed for reproducibility (default: 42)
+            ranking_method: Ranking method ("vector", "hybrid", "lexical", "reranked")
+            hybrid_alpha: Weight for vector search in hybrid mode (0.0-1.0)
+            query_texts: Optional query texts for lexical/hybrid search
+            rerank_top_n: Number of candidates for reranking
             
         Returns:
             DetectorResult with stability scores
         """
         if not self.enabled:
+            return DetectorResult(scores=np.zeros(len(doc_embeddings)))
+        
+        # Stability requires query embeddings to perturb, not applicable for pure lexical search
+        if ranking_method == "lexical":
+            logger.info("Stability detection skipped for lexical ranking (requires query embeddings to perturb)")
             return DetectorResult(scores=np.zeros(len(doc_embeddings)))
         
         # Check for empty queries
@@ -135,8 +151,29 @@ class StabilityDetector(Detector):
                 if self.normalize:
                     perturbed = normalize_vectors(perturbed)
                 
-                # Search
-                distances, indices = index.search(perturbed, k)
+                # Use appropriate search method based on ranking_method
+                if ranking_method == "vector":
+                    distances, indices = index.search(perturbed, k)
+                elif ranking_method == "hybrid":
+                    batch_query_texts = None
+                    if query_texts is not None:
+                        batch_query_texts = [query_texts[query_idx]]
+                    distances, indices, _ = index.search_hybrid(
+                        query_vectors=perturbed,
+                        query_texts=batch_query_texts,
+                        k=k,
+                        alpha=hybrid_alpha,
+                    )
+                elif ranking_method == "reranked":
+                    distances, indices, _ = index.search_reranked(
+                        query_vectors=perturbed,
+                        k=k,
+                        rerank_top_n=rerank_top_n,
+                    )
+                else:
+                    # Fallback to vector search
+                    distances, indices = index.search(perturbed, k)
+                
                 neighbors = indices[0]
                 
                 # Count retrievals for candidate documents
@@ -159,6 +196,7 @@ class StabilityDetector(Detector):
             "num_candidates": len(candidate_indices),
             "num_queries_used": num_queries_to_use,
             "max_possible_count": max_possible_count,
+            "ranking_method": ranking_method,
         }
         
         return DetectorResult(scores=stability_scores, metadata=result_metadata)

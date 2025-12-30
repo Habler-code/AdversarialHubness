@@ -63,9 +63,37 @@ HubScan uses robust statistical methods (median/MAD-based z-scores) to identify 
   - **Hubness Detection**: Reverse-kNN frequency analysis with robust z-scores
     - Rank-aware scoring: Higher weights for documents appearing at top ranks (rank 1 > rank k)
     - Distance-based scoring: Incorporates similarity/distance scores for more accurate detection
+    - **Works with**: All ranking methods (vector, hybrid, lexical, reranked)
   - **Cluster Spread Analysis**: Entropy-based detection of multi-cluster proximity
+    - Measures how many diverse semantic query clusters retrieve each document
+    - **Works with**: Vector, hybrid, reranked (skipped for lexical - requires semantic clustering)
   - **Stability Testing**: Consistency analysis under query perturbations
+    - Tests retrieval consistency by perturbing query embeddings
+    - **Works with**: Vector, hybrid, reranked (skipped for lexical - requires query embeddings)
   - **Deduplication**: Boilerplate and duplicate detection
+    - **Works with**: All ranking methods (doesn't depend on retrieval method)
+
+- **Multiple Ranking Methods**:
+  - **Vector Search (KNN)**: Classic vector similarity search (default)
+    - Uses all detection strategies
+    - Best for: Detecting vector-optimized adversarial hubs
+  - **Hybrid Search**: Combines vector similarity with lexical/keyword matching (BM25)
+    - Uses all detection strategies (cluster spread and stability use hybrid search)
+    - Best for: Detecting both vector-optimized and lexical-optimized hubs
+    - May benefit from relaxed thresholds (see method-specific configuration)
+  - **Lexical Search**: Pure keyword-based search using BM25/TF-IDF
+    - Uses only hubness and dedup detectors (cluster spread and stability automatically skipped)
+    - Best for: Detecting keyword-optimized adversarial hubs
+  - **Reranked Search**: Initial vector retrieval followed by semantic reranking
+    - Uses all detection strategies
+    - Best for: High-precision detection with semantic reranking
+  - Supports comparison across ranking methods to evaluate detection effectiveness
+  - Method-specific thresholds available for fine-tuning per ranking method
+  - **Pluggable Architecture**: Extend HubScan with custom ranking methods and detectors (see [Plugin System](docs/PLUGINS.md))
+
+- **Comprehensive Detection Metrics**:
+  - **Detection Performance Metrics**: AUC-ROC, AUC-PR, confusion matrix, per-class metrics
+  - **Comparative Analysis**: Evaluate detection performance across different ranking methods
 
 - **Flexible Input Modes** (Plug-and-Play Architecture):
   - `embeddings_only`: Build vector index on-the-fly from embeddings (uses FAISS by default)
@@ -98,6 +126,29 @@ HubScan uses robust statistical methods (median/MAD-based z-scores) to identify 
 <img src="docs/images/detection-pipeline.png" alt="HubScan Detection Pipeline" width="600"/>
 
 *The HubScan detection pipeline processes embeddings through multiple parallel detectors, combines scores, applies thresholds, and generates comprehensive reports.*
+
+### Ranking Methods
+
+<img src="docs/images/ranking-methods.png" alt="Ranking Methods" width="600"/>
+
+*HubScan supports multiple ranking methods: Vector Search (KNN), Hybrid Search (vector + lexical), Lexical Search (BM25), and Reranked Search (initial retrieval + semantic reranking).*
+
+### Multi-Ranking Detection Pipeline
+
+<img src="docs/images/multi-ranking-pipeline.png" alt="Multi-Ranking Detection Pipeline" width="600"/>
+
+*The complete pipeline shows how different ranking methods feed into the detection system, with metrics computation for evaluating detection performance across ranking strategies.*
+
+### Detection Performance Metrics
+
+HubScan provides comprehensive metrics for evaluating detection performance:
+
+| Metric | Description |
+|--------|-------------|
+| **AUC-ROC** | Area under ROC curve (TPR vs FPR) |
+| **AUC-PR** | Area under Precision-Recall curve |
+| **Confusion Matrix** | TP, FP, TN, FN counts |
+| **Per-Class Metrics** | Precision, Recall, F1 for each class |
 
 ### Vector Database Abstraction Layer
 
@@ -176,205 +227,114 @@ This demonstrates:
 
 ### Command-Line Interface
 
-#### Run a Scan
-
 ```bash
+# Run a scan
 hubscan scan --config config.yaml
-hubscan scan --config config.yaml --output custom_reports/
-hubscan scan --config config.yaml --summary-only
-```
 
-#### Build an Index
+# Use different ranking methods
+hubscan scan --config config.yaml --ranking-method hybrid --query-texts queries.json
+hubscan scan --config config.yaml --ranking-method lexical --query-texts queries.json
 
-```bash
+# Compare ranking methods
+hubscan compare-ranking --config config.yaml --methods vector hybrid lexical
+
+# Build an index
 hubscan build-index --config config.yaml
-```
-
-#### Explain a Document
-
-```bash
-hubscan explain --doc-id 42 --report reports/report.json
 ```
 
 ### Python SDK
 
-#### Simple Scan
-
 ```python
 from hubscan.sdk import scan, get_suspicious_documents, Verdict
 
-# Run scan
+# Simple scan
 results = scan(
     embeddings_path="data/embeddings.npy",
-    metadata_path="data/metadata.json",
     k=20,
     num_queries=10000
 )
 
 # Get high-risk documents
 high_risk = get_suspicious_documents(results, verdict=Verdict.HIGH, top_k=10)
-
-for doc in high_risk:
-    print(f"Doc {doc['doc_index']}: Risk={doc['risk_score']:.4f}")
 ```
 
-#### Quick In-Memory Scan
-
-```python
-import numpy as np
-from hubscan.sdk import quick_scan
-
-embeddings = np.random.randn(1000, 128).astype(np.float32)
-results = quick_scan(embeddings, k=10, num_queries=100)
-```
-
-#### Advanced Usage
+### Advanced Usage
 
 ```python
 from hubscan import Config, Scanner
 
-# Load and customize configuration
 config = Config.from_yaml("config.yaml")
-config.scan.k = 30
-config.detectors.stability.enabled = True
-
-# Run scan
 scanner = Scanner(config)
 scanner.load_data()
 results = scanner.scan()
 ```
 
-See [docs/USAGE.md](docs/USAGE.md) and [docs/SDK.md](docs/SDK.md) for detailed documentation.
+For complete usage documentation, examples, and API reference, see:
+- [Usage Guide](docs/USAGE.md) - Complete usage documentation
+- [SDK Documentation](docs/SDK.md) - Python SDK reference
+
+### Plugin System
+
+HubScan supports a pluggable architecture that allows you to extend the system with custom ranking methods and detectors. Custom components integrate seamlessly with the existing pipeline and are automatically included in reports and scoring.
+
+For complete documentation, code examples, and integration guides, see [Plugin System Documentation](docs/PLUGINS.md).
 
 ## Configuration
 
-HubScan uses YAML configuration files. See `examples/toy_config.yaml` for a complete example.
+HubScan uses YAML configuration files to control all aspects of the scanning process. Configuration includes:
 
-### Key Configuration Sections
+- **Input**: Data sources (embeddings, indices, vector databases)
+- **Index**: FAISS index type and parameters
+- **Scan**: Query sampling, ranking methods, batch processing
+- **Detectors**: Enable/configure detection algorithms
+- **Scoring**: Weight detector outputs and set thresholds
+- **Output**: Report generation and privacy settings
 
-#### Input Configuration
+### Example Configuration
 
 ```yaml
 input:
-  mode: embeddings_only  # or "faiss_index" or "vector_db_export"
-  embeddings_path: path/to/embeddings.npy
-  metadata_path: path/to/metadata.json  # Optional
-  metric: cosine  # or "ip" (inner product) or "l2"
-```
+  mode: embeddings_only
+  embeddings_path: data/embeddings.npy
+  metric: cosine
 
-#### Index Configuration
-
-```yaml
-index:
-  type: flat  # or "hnsw" or "ivf_pq"
-  params:
-    M: 32  # HNSW: number of connections
-    efSearch: 128  # HNSW: search width
-    nlist: 4096  # IVF-PQ: number of clusters
-    nprobe: 16  # IVF-PQ: search clusters
-  save_path: path/to/index.index  # Optional
-```
-
-#### Scan Configuration
-
-```yaml
 scan:
-  k: 20  # Number of nearest neighbors
-  num_queries: 10000  # Total queries to sample
-  query_sampling: mixed  # Strategy: "real_queries", "random_docs_as_queries", 
-                         #          "cluster_centroids", "mixed"
-  batch_size: 2048  # Batch size for processing
-  seed: 42  # Random seed for reproducibility
-```
+  k: 20
+  num_queries: 10000
+  ranking:
+    method: vector
 
-#### Detector Configuration
-
-```yaml
 detectors:
   hubness:
     enabled: true
-    validate_exact: false  # Validate with exact search (expensive)
-    use_rank_weights: true  # Weight hits by rank position (rank 1 > rank k)
-    use_distance_weights: true  # Weight hits by similarity/distance scores
-  
   cluster_spread:
     enabled: true
-    num_clusters: 1024  # Number of query clusters
-  
-  stability:
-    enabled: false  # Expensive, enable for deep scans
-    candidates_top_x: 200  # Only test top X candidates
-    perturbations: 5  # Number of perturbations per query
-    sigma: 0.01  # Noise level
-  
-  dedup:
-    enabled: true
-    text_hash_field: text_hash  # Field name for text hash
-    duplicate_threshold: 0.95
-    suppress_boilerplate: true
 ```
 
-#### Scoring and Thresholds
-
-```yaml
-scoring:
-  weights:
-    hub_z: 0.6  # Weight for hubness z-score
-    cluster_spread: 0.2  # Weight for cluster spread
-    stability: 0.2  # Weight for stability
-    boilerplate: 0.3  # Penalty for boilerplate (subtracted)
-
-thresholds:
-  policy: hybrid  # "percentile", "z_score", or "hybrid"
-  hub_z: 6.0  # Z-score threshold
-  percentile: 0.001  # Top 0.1% by risk score
+For complete configuration reference, see [Usage Guide](docs/USAGE.md) and example configurations in `examples/` and `benchmarks/configs/`.
 ```
 
 ## Understanding Results
 
-### Score Calculation Flow
-
-<img src="docs/images/score-calculation.png" alt="Score Calculation Flow" width="600"/>
-
-*HubScan calculates risk scores by combining multiple detector outputs with weighted scoring, then applies thresholds to assign verdicts.*
-
-### Normal Document vs Adversarial Hub
-
-<img src="docs/images/normal-vs-adversarial.png" alt="Normal vs Adversarial Comparison" width="600"/>
-
-*Comparison showing how adversarial hubs differ from normal documents in terms of hub rate, z-score, cluster diversity, and final verdict.*
+HubScan generates comprehensive reports with risk scores, verdicts, and detailed metrics for each document. Reports are available in JSON (machine-readable) and HTML (visual dashboard) formats.
 
 ### Verdict Levels
 
-- **HIGH**: Document is highly suspicious (adversarial hub likely)
-  - Action: Quarantine immediately and investigate
-- **MEDIUM**: Document shows some suspicious characteristics
-  - Action: Review and monitor
-- **LOW**: Document appears normal
-  - Action: No action needed
+- **HIGH**: Highly suspicious (adversarial hub likely) - Quarantine and investigate
+- **MEDIUM**: Some suspicious characteristics - Review and monitor
+- **LOW**: Appears normal - No action needed
 
 ### Key Metrics
 
-| Metric | Description | Normal Range | Suspicious |
-|--------|-------------|--------------|------------|
-| **Hub Rate** | Weighted fraction of queries retrieving document (rank & distance weighted) | 0.02-0.05 | >0.15 |
-| **Hub Z-Score** | Robust z-score of weighted hub rate | -2 to 2 | >5 |
-| **Cluster Spread** | Normalized entropy across clusters | 0.2-0.5 | >0.7 |
-| **Stability** | Consistency under perturbations | 0.3-0.6 | >0.8 |
-| **Risk Score** | Combined weighted score | 0.0-2.0 | >4.0 |
+HubScan evaluates documents using multiple metrics:
 
-**Note**: Hub rate and hub z-score now use rank-aware and distance-based weighting by default. Documents appearing at higher ranks (rank 1) and with higher similarity scores are weighted more heavily than those appearing at lower ranks or with lower similarity. This provides more accurate detection by distinguishing between documents that consistently appear at top ranks versus those that barely make it into the top-k results.
+- **Hub Rate**: Weighted fraction of queries retrieving the document (rank and distance weighted)
+- **Hub Z-Score**: Robust z-score indicating statistical anomaly
+- **Cluster Spread**: Diversity of semantic clusters retrieving the document
+- **Stability**: Consistency under query perturbations
+- **Risk Score**: Combined weighted score from all detectors
 
-### Recommended Actions
-
-When a hub is detected:
-
-1. **Quarantine**: Temporarily remove from index
-2. **Review**: Examine document content, source, and metadata
-3. **Investigate**: Check if part of attack pattern
-4. **Re-embed**: If legitimate, re-embed with different model/parameters
-5. **Downrank**: If acceptable but too prominent, adjust ranking weights
-6. **Monitor**: Track similar patterns across corpus
+Reports include detailed explanations, example queries, and evidence for each detected hub. For complete documentation on interpreting results, see [Usage Guide](docs/USAGE.md).
 
 ## Performance Tuning
 
@@ -551,6 +511,9 @@ For issues, questions, or contributions:
 
 - **GitHub Issues**: [https://github.com/Habler-code/AdversarialHubness/issues](https://github.com/Habler-code/AdversarialHubness/issues)
 - **Documentation**: See `docs/` directory for detailed guides
+  - [Usage Guide](docs/USAGE.md) - Complete usage documentation
+  - [SDK Documentation](docs/SDK.md) - Python SDK reference
+  - [Plugin System](docs/PLUGINS.md) - Extending HubScan with custom components
 
 ## Acknowledgments
 
