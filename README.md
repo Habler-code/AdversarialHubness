@@ -41,7 +41,7 @@ In vector search systems, **hubness** is a natural phenomenon where some documen
 3. **Stability**: Consistently appear under query perturbations
 4. **Statistical Anomaly**: Hub rates that are 5-10+ standard deviations above the median
 
-HubScan uses robust statistical methods (median/MAD-based z-scores) to identify these anomalies while being resistant to false positives from legitimate popular content. The detection system employs rank-aware and distance-based scoring to provide more accurate identification of adversarial hubs by weighting documents that appear at higher ranks and with higher similarity scores more heavily.
+HubScan uses robust statistical methods (median/MAD-based z-scores) to identify these anomalies while being resistant to false positives from legitimate popular content. The detection system employs rank-aware and distance-based scoring to provide more accurate identification of adversarial hubs by weighting documents that appear at higher ranks and with higher similarity scores more heavily. Detection metrics vary significantly between different retrieval techniques (vector similarity, hybrid search, lexical matching, reranking), so HubScan offers a flexible, puzzle-like approach where you can mix and match ranking methods and detectors to uncover adversarial patterns that might be missed by any single technique.
 
 ### Detection Metrics
 
