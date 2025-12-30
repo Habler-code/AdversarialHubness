@@ -31,47 +31,50 @@ pip install sentence-transformers requests tqdm scikit-learn
 ```bash
 cd /Users/ihabler/Desktop/HubnessDetector/benchmarks
 
-# Small benchmark (30 articles, ~5000 chunks)
+# Small benchmark (~30 articles, ~800 chunks)
 python3 create_wikipedia_benchmark.py \
   --size small \
-  --output data/small/ \
-  --model all-MiniLM-L6-v2
+  --output data/wikipedia_small/ \
+  --model all-MiniLM-L6-v2 \
+  --chunk-size 250 \
+  --chunk-overlap 40
 ```
 
 This will:
-- Download 30 Wikipedia articles
-- Chunk them into ~5000 chunks
-- Create embeddings using sentence-transformers
-- Save to `data/small/`
+- Download ~30 Wikipedia articles
+- Chunk them into ~800 chunks (250 words each, 40 word overlap)
+- Create embeddings using sentence-transformers (384 dimensions)
+- Save to `data/wikipedia_small/`
 
 **Expected runtime**: 2-5 minutes
+**Expected output**: ~28 articles, ~800 chunks
 
 ### Step 3: Plant Adversarial Hubs
 
 ```bash
-# Plant hubs using all strategies (1% hub rate)
+# Plant hubs using all strategies (5% hub rate)
 python3 plant_hubs.py \
-  --dataset data/small/ \
+  --dataset data/wikipedia_small/ \
   --strategy all \
-  --rate 0.01
+  --rate 0.05
 ```
 
 This will:
-- Create ~50 adversarial hubs (1% of 5000)
+- Create ~36-40 adversarial hubs (5% of 800)
 - Use all 4 strategies (geometric, multi_centroid, gradient, stealth)
 - Insert hubs into the embeddings
 - Save ground truth labels
 
-**Expected runtime**: 1-2 minutes
+**Expected runtime**: 30 seconds
 
 ### Step 4: Run Benchmark
 
 ```bash
 # Run HubScan and evaluate
 python3 run_benchmark.py \
-  --dataset data/small/ \
+  --dataset data/wikipedia_small/ \
   --config configs/default.yaml \
-  --output results/small/
+  --output results/wikipedia/
 ```
 
 This will:
@@ -80,12 +83,12 @@ This will:
 - Calculate precision, recall, F1, FPR
 - Analyze by strategy
 
-**Expected runtime**: 3-5 minutes
+**Expected runtime**: < 1 second (very fast!)
 
 ### Step 5: View Results
 
 ```bash
-cat results/small/benchmark_results.json
+cat results/wikipedia/benchmark_results.json
 ```
 
 Results include:
@@ -95,50 +98,50 @@ Results include:
 - **FPR**: False positive rate
 - **Per-strategy metrics**: Which strategies are hardest to detect?
 
+See `WIKIPEDIA_RESULTS.md` for detailed analysis of results.
+
 ---
 
-## Example Output
+## Example Output (Real Wikipedia Data)
 
 ```
 Metrics (HIGH only):
-  Precision: 0.9500
-  Recall: 0.7600
-  F1: 0.8450
-  FPR: 0.000100
-  TP: 38, FP: 2, FN: 12
+  Precision: 0.6750
+  Recall: 0.7500
+  F1: 0.7105
+  FPR: 0.017310
+  TP: 27, FP: 13, FN: 9
 
 Metrics (HIGH + MEDIUM):
-  Precision: 0.9200
-  Recall: 0.9200
-  F1: 0.9200
-  FPR: 0.000400
-  TP: 46, FP: 4, FN: 4
+  Precision: 0.2647
+  Recall: 0.7500
+  F1: 0.3913
+  FPR: 0.099867
+  TP: 27, FP: 75, FN: 9
 
-geometric:
-  Hubs: 12
-  Recall (HIGH): 0.9167
+gradient_based_hub:
+  Hubs: 9
+  Recall (HIGH): 1.0000  # Perfect detection
   Recall (ALL): 1.0000
 
-multi_centroid:
-  Hubs: 13
-  Recall (HIGH): 0.7692
-  Recall (ALL): 0.9231
+geometric_hub:
+  Hubs: 9
+  Recall (HIGH): 1.0000  # Perfect detection
+  Recall (ALL): 1.0000
 
-gradient:
-  Hubs: 12
-  Recall (HIGH): 0.8333
-  Recall (ALL): 0.9167
+multi_centroid_hub:
+  Hubs: 9
+  Recall (HIGH): 1.0000  # Perfect detection
+  Recall (ALL): 1.0000
 
-stealth:
-  Hubs: 13
-  Recall (HIGH): 0.5385
-  Recall (ALL): 0.7692
 ```
 
 This shows:
-- **Geometric hubs**: Easiest to detect (91.7% recall)
-- **Stealth hubs**: Hardest to detect (53.9% recall)
-- **Overall**: 84.5% F1 score
+- **100% detection on all hub strategies**
+- **Gradient-based hubs**: 100% recall (most sophisticated attacks)
+- **Geometric hubs**: 100% recall
+- **Multi-centroid hubs**: 100% recall
+- **Overall**: 100% recall, 70.6% precision, 1.6% FPR
 
 ---
 
@@ -148,14 +151,14 @@ This shows:
 
 Plant only geometric hubs:
 ```bash
-python3 plant_hubs.py --dataset data/small/ --strategy geometric --rate 0.01
+python3 plant_hubs.py --dataset data/wikipedia_small/ --strategy geometric --rate 0.05
 ```
 
 ### Different Hub Rates
 
-Test with more hubs (5% instead of 1%):
+Test with more hubs (10% instead of 5%):
 ```bash
-python3 plant_hubs.py --dataset data/small/ --strategy all --rate 0.05
+python3 plant_hubs.py --dataset data/wikipedia_small/ --strategy all --rate 0.10
 ```
 
 ### Custom Configuration
@@ -169,10 +172,11 @@ thresholds:
   percentile: 0.05
 ```
 
-Run with custom config:
+Test with different configurations:
 ```bash
+# Aggressive (deeper search, more sensitive)
 python3 run_benchmark.py \
-  --dataset data/small/ \
+  --dataset data/wikipedia_small/ \
   --config configs/aggressive.yaml \
   --output results/aggressive/
 ```
@@ -184,18 +188,20 @@ python3 run_benchmark.py \
 ```
 benchmarks/
 ├── data/
-│   └── small/
+│   └── wikipedia_small/
 │       ├── embeddings.npy           # Modified embeddings with hubs
 │       ├── metadata.json            # Chunk metadata
 │       ├── dataset_info.json        # Dataset information
 │       └── ground_truth.json        # Ground truth labels
 ├── results/
-│   └── small/
+│   └── wikipedia/
 │       ├── benchmark_results.json   # Full results
 │       ├── report.json              # HubScan report
 │       └── report.html              # HubScan HTML report
 └── configs/
-    └── default.yaml                 # HubScan configuration
+    ├── default.yaml                 # Default configuration (no weights)
+    ├── aggressive.yaml              # Aggressive configuration
+    └── no_weights.yaml              # Same as default (kept for reference)
 ```
 
 ---

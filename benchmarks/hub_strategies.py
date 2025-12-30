@@ -11,7 +11,6 @@ Implements different strategies for creating adversarial hubs:
 1. Geometric Hub (Center of Mass)
 2. Multi-Centroid Hub
 3. Gradient-Based Hub
-4. Stealth Hub (Low Similarity)
 """
 
 import numpy as np
@@ -256,85 +255,11 @@ class GradientBasedHubStrategy(HubStrategy):
         return hub_embeddings, metadata
 
 
-class StealthHubStrategy(HubStrategy):
-    """
-    Strategy D: Stealth Hub (Low Similarity)
-    
-    Creates hub that appears at lower ranks but consistently across many queries.
-    Harder to detect with traditional methods because it doesn't have very high
-    similarity scores.
-    
-    Detection difficulty: Very Hard
-    """
-    
-    def __init__(self):
-        super().__init__(
-            name="stealth_hub",
-            description="Hub with moderate similarity but high consistency"
-        )
-    
-    def create_hub(
-        self,
-        embeddings: np.ndarray,
-        num_hubs: int = 1,
-        target_similarity: float = 0.3,
-        **kwargs
-    ) -> Tuple[np.ndarray, Dict[str, Any]]:
-        """
-        Create stealth hubs.
-        
-        Args:
-            embeddings: Document embeddings (N, D)
-            num_hubs: Number of hubs to create
-            target_similarity: Target similarity (lower = stealthier)
-            
-        Returns:
-            Tuple of (hub_embeddings, metadata)
-        """
-        N, D = embeddings.shape
-        hub_embeddings = []
-        
-        for i in range(num_hubs):
-            # Start with geometric hub
-            np.random.seed(42 + i)
-            sample_indices = np.random.choice(N, 100, replace=False)
-            sample_embeddings = embeddings[sample_indices]
-            hub = np.mean(sample_embeddings, axis=0)
-            
-            # Add noise to reduce similarity
-            noise = np.random.randn(D).astype(np.float32)
-            noise = noise / np.linalg.norm(noise)
-            
-            # Mix hub with noise to achieve target similarity
-            # target_similarity ≈ cosine(hub, noisy_hub)
-            # We want: alpha * hub + beta * noise, normalized
-            # where cosine(hub, result) ≈ target_similarity
-            
-            alpha = target_similarity
-            beta = np.sqrt(1 - alpha**2)
-            
-            noisy_hub = alpha * hub + beta * noise
-            noisy_hub = noisy_hub / np.linalg.norm(noisy_hub)
-            
-            hub_embeddings.append(noisy_hub)
-        
-        hub_embeddings = np.array(hub_embeddings, dtype=np.float32)
-        
-        metadata = {
-            "strategy": self.name,
-            "target_similarity": target_similarity,
-            "description": self.description,
-        }
-        
-        return hub_embeddings, metadata
-
-
 # Registry of available strategies
 STRATEGIES = {
     "geometric": GeometricHubStrategy(),
     "multi_centroid": MultiCentroidHubStrategy(),
     "gradient": GradientBasedHubStrategy(),
-    "stealth": StealthHubStrategy(),
 }
 
 

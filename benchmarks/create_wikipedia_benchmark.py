@@ -106,7 +106,7 @@ def download_wikipedia_article(title: str) -> Dict[str, Any]:
         return None
 
 
-def chunk_text(text: str, chunk_size: int = 300, overlap: int = 50) -> List[str]:
+def chunk_document_text(text: str, chunk_size: int = 300, overlap: int = 50) -> List[str]:
     """
     Chunk text into overlapping segments.
     
@@ -177,7 +177,7 @@ def create_benchmark_dataset(
     chunk_id = 0
     
     for article in tqdm(articles, desc="Chunking"):
-        article_chunks = chunk_text(article["content"], chunk_size, chunk_overlap)
+        article_chunks = chunk_document_text(article["content"], chunk_size, chunk_overlap)
         
         for i, chunk_text in enumerate(article_chunks):
             # Skip very short chunks

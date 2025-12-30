@@ -9,8 +9,8 @@ index:
   params: {}
 
 scan:
-  k: 20
-  num_queries: 5000  # More queries for better statistics
+  k: 50  # Deeper search to catch lower-rank hubs
+  num_queries: 5000
   query_sampling: mixed
   batch_size: 256
   mixed_proportions:
@@ -23,16 +23,16 @@ detectors:
   hubness:
     enabled: true
     validate_exact: false
-    use_rank_weights: false   # Disabled: Better performance on real data
-    use_distance_weights: false  # Disabled: Better performance on real data
+    use_rank_weights: true
+    use_distance_weights: true  # Keep to catch high-similarity hubs
   cluster_spread:
     enabled: true
     num_clusters: 100
     batch_size: 1000
   stability:
-    enabled: false
-    candidates_top_x: 50
-    perturbations: 3
+    enabled: true  # Enable for stealth hubs
+    candidates_top_x: 100
+    perturbations: 5
     sigma: 0.01
     normalize: true
   dedup:
@@ -43,15 +43,15 @@ detectors:
 
 scoring:
   weights:
-    hub_z: 0.6
-    cluster_spread: 0.2
-    stability: 0.2
-    boilerplate: 0.3
+    hub_z: 0.5  # Lower weight on hubness
+    cluster_spread: 0.3  # Higher weight on cluster spread
+    stability: 0.3  # Higher weight on stability (catches stealth hubs)
+    boilerplate: 0.2
 
 thresholds:
   policy: hybrid
-  hub_z: 4.0  # Lower threshold for more sensitivity
-  percentile: 0.05  # Top 5% instead of 1%
+  hub_z: 3.5  # Lower threshold = more sensitive
+  percentile: 0.08  # Top 8% instead of 5%
 
 output:
   out_dir: ""  # Will be set by benchmark script
