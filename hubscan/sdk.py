@@ -224,6 +224,10 @@ def scan_with_ranking(
     query_texts_path: Optional[str] = None,
     ranking_method: str = "vector",
     hybrid_alpha: float = 0.5,
+    rerank: bool = False,
+    rerank_method: str = "default",
+    rerank_top_n: int = 100,
+    rerank_params: Optional[Dict[str, Any]] = None,
     output_dir: str = "reports/",
     k: int = 20,
     num_queries: int = 10000,
@@ -237,8 +241,12 @@ def scan_with_ranking(
         index_path: Path to FAISS index file (.index)
         metadata_path: Optional path to metadata file
         query_texts_path: Optional path to query texts file (for lexical/hybrid search)
-        ranking_method: Ranking method ("vector", "hybrid", "lexical", "reranked")
+        ranking_method: Ranking method ("vector", "hybrid", "lexical")
         hybrid_alpha: Weight for vector search in hybrid mode (0.0-1.0)
+        rerank: Whether to enable reranking as post-processing
+        rerank_method: Reranking method name (default: "default")
+        rerank_top_n: Number of candidates to retrieve before reranking
+        rerank_params: Custom parameters for reranking method
         output_dir: Directory to save reports
         k: Number of nearest neighbors to retrieve
         num_queries: Number of queries to sample
@@ -251,12 +259,15 @@ def scan_with_ranking(
         ```python
         from hubscan.sdk import scan_with_ranking
         
-        # Hybrid search
+        # Hybrid search with reranking
         results = scan_with_ranking(
             embeddings_path="data/embeddings.npy",
             query_texts_path="data/queries.json",
             ranking_method="hybrid",
-            hybrid_alpha=0.6
+            hybrid_alpha=0.6,
+            rerank=True,
+            rerank_method="default",
+            rerank_top_n=100
         )
         ```
     """
@@ -275,6 +286,14 @@ def scan_with_ranking(
     config.scan.ranking.hybrid_alpha = hybrid_alpha
     if query_texts_path:
         config.scan.query_texts_path = query_texts_path
+    
+    # Set reranking configuration
+    config.scan.ranking.rerank = rerank
+    if rerank:
+        config.scan.ranking.rerank_method = rerank_method
+        config.scan.ranking.rerank_top_n = rerank_top_n
+        if rerank_params:
+            config.scan.ranking.rerank_params = rerank_params
     
     scanner = Scanner(config)
     scanner.load_data()

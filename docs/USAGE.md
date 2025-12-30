@@ -41,9 +41,12 @@ hubscan scan --config <config.yaml> [OPTIONS]
 - `--ranking-method`: Retrieval method ("vector", "hybrid", "lexical")
 - `--hybrid-alpha`: Weight for vector search in hybrid mode (0.0-1.0, default: 0.5)
 - `--query-texts`: Path to query texts file (for lexical/hybrid search)
+- `--rerank`: Enable reranking as post-processing step
+- `--rerank-method`: Reranking method name (default: "default")
+- `--rerank-top-n`: Number of candidates to retrieve before reranking (default: 100)
 - `--verbose, -v`: Enable verbose logging
 
-**Note**: Reranking methods are configured via the config file (`ranking.rerank: true`, `ranking.rerank_method`), not as a separate retrieval method.
+**Note**: Reranking is a post-processing step that can be applied to any ranking method. Use `--rerank` flag to enable it, or configure via config file (`ranking.rerank: true`, `ranking.rerank_method`).
 
 **Examples:**
 ```bash
@@ -55,6 +58,12 @@ hubscan scan --config config.yaml --ranking-method hybrid --hybrid-alpha 0.6 --q
 
 # Lexical search
 hubscan scan --config config.yaml --ranking-method lexical --query-texts queries.json
+
+# Vector search with reranking
+hubscan scan --config config.yaml --ranking-method vector --rerank --rerank-method default --rerank-top-n 100
+
+# Hybrid search with reranking
+hubscan scan --config config.yaml --ranking-method hybrid --rerank --query-texts queries.json
 
 # Compare ranking methods
 hubscan compare-ranking --config config.yaml --query-texts queries.json --methods vector hybrid lexical
@@ -184,6 +193,14 @@ comparison = compare_ranking_methods(
     k=20
 )
 
+# Compare with reranking
+comparison_with_rerank = compare_ranking_methods(
+    embeddings_path="data/embeddings.npy",
+    query_texts_path="data/queries.json",
+    methods=["vector", "vector+rerank", "hybrid", "hybrid+rerank"],
+    k=20
+)
+
 # Access comparison results
 for method, method_results in comparison["results"].items():
     verdicts = method_results["verdicts"]
@@ -236,6 +253,12 @@ config = Config.from_yaml("config.yaml")
 config.scan.k = 30
 config.detectors.stability.enabled = True
 config.thresholds.hub_z = 5.0
+
+# Enable reranking
+config.scan.ranking.rerank = True
+config.scan.ranking.rerank_method = "default"
+config.scan.ranking.rerank_top_n = 100
+
 # Or use method-specific thresholds:
 config.thresholds.method_specific = {
     "vector": {"hub_z": 6.0, "percentile": 0.012},

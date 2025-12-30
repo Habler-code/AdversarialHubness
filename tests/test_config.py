@@ -129,8 +129,11 @@ def test_ranking_config_validation():
     assert config.method == "lexical"
     assert config.lexical_backend == "bm25"
     
-    config = RankingConfig(method="reranked", rerank_top_n=50)
-    assert config.method == "reranked"
+    # Test reranking configuration
+    config = RankingConfig(method="vector", rerank=True, rerank_method="default", rerank_top_n=50)
+    assert config.method == "vector"
+    assert config.rerank == True
+    assert config.rerank_method == "default"
     assert config.rerank_top_n == 50
     
     # Invalid alpha (should be clamped or raise error)

@@ -129,20 +129,37 @@ results = scan_with_ranking(
     k=20
 )
 
-# Reranked search
+# Vector search with reranking
 results = scan_with_ranking(
     embeddings_path="data/embeddings.npy",
-    ranking_method="reranked",
+    ranking_method="vector",
+    rerank=True,
+    rerank_method="default",
+    rerank_top_n=100,
+    k=20
+)
+
+# Hybrid search with reranking
+results = scan_with_ranking(
+    embeddings_path="data/embeddings.npy",
+    query_texts_path="data/queries.json",
+    ranking_method="hybrid",
+    hybrid_alpha=0.6,
+    rerank=True,
+    rerank_method="default",
     rerank_top_n=100,
     k=20
 )
 ```
 
 **Parameters:**
-- `ranking_method`: One of `"vector"`, `"hybrid"`, `"lexical"`, `"reranked"`
+- `ranking_method`: One of `"vector"`, `"hybrid"`, `"lexical"`
 - `hybrid_alpha`: Weight for vector search in hybrid mode (0.0-1.0, default: 0.5)
 - `query_texts_path`: Path to query texts file (required for lexical/hybrid)
-- `rerank_top_n`: Number of top-N results for reranking (default: 100)
+- `rerank`: Whether to enable reranking as post-processing (default: False)
+- `rerank_method`: Reranking method name (default: "default")
+- `rerank_top_n`: Number of candidates to retrieve before reranking (default: 100)
+- `rerank_params`: Optional dictionary of custom parameters for reranking method
 
 ### `compare_ranking_methods()`
 
@@ -199,7 +216,15 @@ results = scan(
         "hybrid": {"hub_z": 5.0, "percentile": 0.02},
         "lexical": {"hub_z": 6.0, "percentile": 0.012}
     },
+    # Reranking configuration (optional)
+    scan__ranking__rerank=True,
+    scan__ranking__rerank_method="default",
+    scan__ranking__rerank_top_n=100,
 )
+
+# Note: For lexical ranking, cluster_spread and stability detectors are automatically skipped
+# Only hubness and dedup detectors are used (cluster spread requires semantic clustering,
+# stability requires query embeddings to perturb)
 
 # Note: For lexical ranking, cluster_spread and stability detectors are automatically skipped
 # Only hubness and dedup detectors are used (cluster spread requires semantic clustering,

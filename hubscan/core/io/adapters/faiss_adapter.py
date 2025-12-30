@@ -74,6 +74,14 @@ class FAISSIndex(VectorIndex):
         
         # Tokenize documents
         tokenized_docs = [doc.split() if isinstance(doc, str) else [] for doc in self._document_texts]
+        
+        # Check if we have any non-empty documents
+        if not tokenized_docs or all(len(doc) == 0 for doc in tokenized_docs):
+            # Skip BM25 index building if all documents are empty
+            # This prevents division by zero errors in BM25
+            self._bm25_index = None
+            return
+        
         self._bm25_index = BM25Okapi(tokenized_docs)
     
     def search(

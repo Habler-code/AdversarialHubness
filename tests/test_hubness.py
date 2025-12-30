@@ -301,12 +301,16 @@ def test_hubness_detection_with_reranked_search():
         doc_embeddings,
         queries,
         k=5,
-        ranking_method="reranked",
+        ranking_method="vector",  # Use vector as base method
+        rerank=True,  # Enable reranking
+        rerank_method="default",
         rerank_top_n=20,
     )
     
     assert len(result.scores) == num_docs
-    assert result.metadata["ranking_method"] == "reranked"
+    assert result.metadata["ranking_method"] == "vector"
+    assert result.metadata["reranking_enabled"] == True
+    assert result.metadata["rerank_method"] == "default"
     assert result.metadata["rerank_top_n"] == 20
     assert "ranking_metadata" in result.metadata
 

@@ -49,7 +49,7 @@ def test_ranking_methods():
         print("  Install with: pip install rank-bm25\n")
     
     # Test each ranking method
-    methods_to_test = ["vector", "reranked"]
+    methods_to_test = ["vector"]
     if has_bm25:
         methods_to_test.extend(["hybrid", "lexical"])
     
@@ -116,15 +116,25 @@ def test_ranking_methods():
                 )
                 print(f"   Lexical search works: {indices.shape}, method={metadata.get('ranking_method')}")
                 
-            elif method == "reranked":
-                queries = np.random.randn(5, dim).astype(np.float32)
-                queries = queries / np.linalg.norm(queries, axis=1, keepdims=True)
-                distances, indices, metadata = index.search_reranked(
-                    query_vectors=queries,
-                    k=5,
-                    rerank_top_n=20
-                )
-                print(f"   Reranked search works: {indices.shape}, method={metadata.get('ranking_method')}")
+            # Test reranking as post-processing (can be applied to any method)
+            if method == "vector":
+                # Also test reranking with vector
+                from hubscan.core.reranking import get_reranking_method
+                rerank_method = get_reranking_method("default")
+                if rerank_method:
+                    queries = np.random.randn(5, dim).astype(np.float32)
+                    queries = queries / np.linalg.norm(queries, axis=1, keepdims=True)
+                    # Get initial results
+                    initial_distances, initial_indices, _ = index.search(queries, k=20)
+                    # Apply reranking
+                    distances, indices, metadata = rerank_method.rerank(
+                        distances=initial_distances,
+                        indices=initial_indices,
+                        query_vectors=queries,
+                        query_texts=None,
+                        k=5
+                    )
+                    print(f"   Reranking works: {indices.shape}, method={metadata.get('reranking_method')}")
             
             print(f"   {method} ranking method is working correctly")
             

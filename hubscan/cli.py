@@ -61,9 +61,12 @@ def cli(verbose: bool):
 @click.option("--config", "-c", required=True, type=click.Path(exists=True), help="Path to config YAML file")
 @click.option("--output", "-o", type=str, help="Output directory (overrides config)")
 @click.option("--summary-only", is_flag=True, help="Show only summary, don't save full reports")
-@click.option("--ranking-method", type=click.Choice(["vector", "hybrid", "lexical", "reranked"]), help="Ranking method to use")
+@click.option("--ranking-method", type=click.Choice(["vector", "hybrid", "lexical"]), help="Ranking method to use")
 @click.option("--hybrid-alpha", type=float, default=0.5, help="Weight for vector search in hybrid mode (0.0-1.0)")
 @click.option("--query-texts", type=click.Path(exists=True), help="Path to query texts file (for lexical/hybrid search)")
+@click.option("--rerank", is_flag=True, help="Enable reranking as post-processing step")
+@click.option("--rerank-method", type=str, default="default", help="Reranking method name (default: default)")
+@click.option("--rerank-top-n", type=int, default=100, help="Number of candidates to retrieve before reranking")
 def scan(
     config: str,
     output: Optional[str],
@@ -71,6 +74,9 @@ def scan(
     ranking_method: Optional[str],
     hybrid_alpha: float,
     query_texts: Optional[str],
+    rerank: bool,
+    rerank_method: str,
+    rerank_top_n: int,
 ):
     """Run a scan for adversarial hubs."""
     logger = get_logger()
@@ -99,6 +105,12 @@ def scan(
                 cfg.scan.ranking.hybrid_alpha = hybrid_alpha
             if query_texts:
                 cfg.scan.query_texts_path = query_texts
+            
+            # Override reranking config from CLI if provided
+            if rerank:
+                cfg.scan.ranking.rerank = True
+                cfg.scan.ranking.rerank_method = rerank_method
+                cfg.scan.ranking.rerank_top_n = rerank_top_n
             
             progress.update(task, completed=True)
             

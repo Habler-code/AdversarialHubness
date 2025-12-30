@@ -69,7 +69,11 @@ class TestRankingMethodRegistry:
         assert "vector" in methods
         assert "hybrid" in methods
         assert "lexical" in methods
-        assert "reranked" in methods
+        # Note: reranked is no longer a ranking method, it's a post-processing step
+        # Check reranking methods instead
+        from hubscan.core.reranking import list_reranking_methods
+        rerank_methods = list_reranking_methods()
+        assert "default" in rerank_methods
     
     def test_register_custom_method(self):
         """Test registering a custom ranking method."""
@@ -231,23 +235,36 @@ class TestBuiltinRankingMethods:
                 k=5
             )
     
-    def test_reranked_ranking(self):
-        """Test reranked ranking method."""
-        method = get_ranking_method("reranked")
-        assert method is not None
+    def test_reranking_as_post_processing(self):
+        """Test reranking as post-processing step."""
+        from hubscan.core.reranking import get_reranking_method
         
-        distances, indices, metadata = method.search(
+        # Get default reranking method
+        rerank_method = get_reranking_method("default")
+        assert rerank_method is not None
+        
+        # First get initial results from ranking method
+        ranking_method = get_ranking_method("vector")
+        distances, indices, _ = ranking_method.search(
             index=self.index,
             query_vectors=self.queries,
             query_texts=None,
-            k=5,
-            rerank_top_n=10
+            k=10  # Retrieve more candidates
         )
         
-        assert distances.shape == (5, 5)
-        assert indices.shape == (5, 5)
-        assert metadata["ranking_method"] == "reranked"
-        assert metadata.get("rerank_top_n") == 10
+        # Apply reranking
+        reranked_distances, reranked_indices, metadata = rerank_method.rerank(
+            distances=distances,
+            indices=indices,
+            query_vectors=self.queries,
+            query_texts=None,
+            k=5  # Final k after reranking
+        )
+        
+        assert reranked_distances.shape == (5, 5)
+        assert reranked_indices.shape == (5, 5)
+        assert metadata["reranking_method"] == "default"
+        assert metadata.get("final_k") == 5
 
 
 class TestRankingMethodIntegration:

@@ -186,7 +186,7 @@ class TestBackwardCompatibility:
         assert get_ranking_method("vector") is not None
         assert get_ranking_method("hybrid") is not None
         assert get_ranking_method("lexical") is not None
-        assert get_ranking_method("reranked") is not None
+        # Note: reranked is no longer a ranking method, it's a post-processing step
     
     def test_builtin_detectors_still_work(self):
         """Test that built-in detectors work as before."""
@@ -213,8 +213,11 @@ class TestBackwardCompatibility:
         config.scan.ranking.method = "lexical"
         assert config.scan.ranking.method == "lexical"
         
-        config.scan.ranking.method = "reranked"
-        assert config.scan.ranking.method == "reranked"
+        # Test reranking as post-processing
+        config.scan.ranking.rerank = True
+        config.scan.ranking.rerank_method = "default"
+        assert config.scan.ranking.rerank == True
+        assert config.scan.ranking.rerank_method == "default"
     
     def test_custom_params_in_config(self):
         """Test that custom_params field works in config."""
