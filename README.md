@@ -174,16 +174,45 @@ pip install -e .
 pip install -r requirements.txt
 ```
 
+### Install with Optional Dependencies
+
+HubScan supports optional dependencies for vector database adapters and GPU acceleration:
+
+```bash
+# Install with specific vector database support
+pip install -e ".[pinecone]"      # Pinecone support
+pip install -e ".[qdrant]"        # Qdrant support
+pip install -e ".[weaviate]"      # Weaviate support
+pip install -e ".[vector-dbs]"    # All vector database adapters
+
+# Install with GPU support (includes faiss-gpu; you may want to uninstall faiss-cpu)
+pip install -e ".[gpu]"
+# Note: If using GPU, consider: pip uninstall faiss-cpu
+
+# Install with all optional dependencies
+pip install -e ".[all]"
+
+# Combine multiple extras
+pip install -e ".[pinecone,qdrant,gpu]"
+```
+
 ### Dependencies
 
-Core dependencies:
+**Core dependencies** (installed by default):
 - `numpy` - Numerical computations
-- `faiss-cpu` - Vector similarity search (or `faiss-gpu` for GPU support)
+- `faiss-cpu` - Vector similarity search (CPU version)
 - `scikit-learn` - Clustering and ML utilities
 - `pydantic` - Configuration validation
-- `rich` - CLI formatting (optional)
+- `rich` - CLI formatting
+- `scipy`, `pandas`, `tqdm`, `click`, `jinja2`, `pyyaml` - Supporting libraries
 
-See `requirements.txt` for complete list.
+**Optional dependencies**:
+- `pinecone-client>=3.0.0` - For Pinecone vector database support
+- `qdrant-client>=1.7.0` - For Qdrant vector database support
+- `weaviate-client>=4.0.0` - For Weaviate vector database support
+- `faiss-gpu>=1.7.4` - GPU-accelerated vector search (alternative to faiss-cpu)
+
+See `requirements.txt` and `pyproject.toml` for complete dependency lists.
 
 ## Quick Start
 
@@ -419,7 +448,12 @@ output:
 ```bash
 git clone https://github.com/Habler-code/AdversarialHubness.git
 cd AdversarialHubness
+
+# Install with development dependencies
 pip install -e ".[dev]"
+
+# Or install with all optional dependencies for testing
+pip install -e ".[dev,all]"
 ```
 
 ### Running Tests
