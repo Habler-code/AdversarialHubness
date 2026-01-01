@@ -27,12 +27,12 @@ from hubscan import Config, Scanner
 def test_toy_scan():
     """Test scanning on toy dataset."""
     # Generate toy data if it doesn't exist
-    toy_embeddings_path = Path("examples/toy_embeddings.npy")
+    toy_embeddings_path = Path("examples/data/toy_embeddings.npy")
     if not toy_embeddings_path.exists():
-        pytest.skip("Toy data not generated. Run examples/generate_toy_data.py first.")
+        pytest.skip("Toy data not generated. Run examples/scripts/generate_toy_data.py first.")
     
     # Load config
-    config_path = Path("examples/toy_config.yaml")
+    config_path = Path("examples/configs/toy_config.yaml")
     if not config_path.exists():
         pytest.skip("Toy config not found.")
     

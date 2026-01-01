@@ -6,7 +6,7 @@
 
 ```bash
 # Run a scan with config file
-hubscan scan --config examples/toy_config.yaml
+hubscan scan --config examples/configs/toy_config.yaml
 
 # Run scan with custom output directory
 hubscan scan --config config.yaml --output custom_reports/
@@ -68,7 +68,7 @@ hubscan scan --config <config.yaml> [OPTIONS]
 **Examples:**
 ```bash
 # Standard vector search
-hubscan scan --config examples/toy_config.yaml
+hubscan scan --config examples/configs/toy_config.yaml
 
 # Hybrid search
 hubscan scan --config config.yaml --ranking-method hybrid --hybrid-alpha 0.6 --query-texts queries.json
@@ -376,7 +376,7 @@ Rich-formatted summary with tables and progress bars (if `rich` is installed).
 
 ## Configuration
 
-See `examples/toy_config.yaml` for a complete configuration example.
+See `examples/configs/toy_config.yaml` for a complete configuration example.
 
 Key configuration sections:
 - `input`: Input data configuration (supports FAISS, Pinecone, Qdrant, Weaviate)

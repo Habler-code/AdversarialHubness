@@ -6,7 +6,7 @@ input:
   qdrant_collection_name: your-collection-name
   qdrant_url: http://localhost:6333  # Change for Qdrant Cloud
   qdrant_api_key: null  # Optional, required for Qdrant Cloud
-  metadata_path: examples/toy_metadata.json  # Optional
+  metadata_path: examples/data/toy_metadata.json  # Optional
 
 scan:
   k: 20

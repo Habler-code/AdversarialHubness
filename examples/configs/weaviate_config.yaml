@@ -6,7 +6,7 @@ input:
   weaviate_class_name: YourClassName
   weaviate_url: http://localhost:8080  # Change for Weaviate Cloud
   weaviate_api_key: null  # Optional, required for Weaviate Cloud
-  metadata_path: examples/toy_metadata.json  # Optional
+  metadata_path: examples/data/toy_metadata.json  # Optional
 
 scan:
   k: 20

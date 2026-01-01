@@ -138,10 +138,10 @@ See `plugins/custom_reranking_example.py` for complete example.
 
 ## Data Files
 
-Pre-generated toy dataset for quick testing:
-- `toy_embeddings.npy`: 1000 documents, 128-dimensional embeddings
-- `toy_metadata.json`: Document metadata
-- `toy_index.index`: Pre-built FAISS index
+Pre-generated toy dataset for quick testing (in `data/` directory):
+- `data/toy_embeddings.npy`: 1000 documents, 128-dimensional embeddings
+- `data/toy_metadata.json`: Document metadata
+- `data/toy_index.index`: Pre-built FAISS index
 
 **Generate fresh toy data:**
 ```bash

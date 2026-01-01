@@ -39,7 +39,7 @@ def sample_config(tmp_path):
     config_content = """
 input:
   mode: embeddings_only
-  embeddings_path: examples/toy_embeddings.npy
+  embeddings_path: examples/data/toy_embeddings.npy
   metric: cosine
 
 index:

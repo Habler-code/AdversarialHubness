@@ -1,13 +1,13 @@
 input:
   mode: embeddings_only
-  embeddings_path: examples/toy_embeddings.npy
-  metadata_path: examples/toy_metadata.json
+  embeddings_path: examples/data/toy_embeddings.npy
+  metadata_path: examples/data/toy_metadata.json
   metric: cosine
 
 index:
   type: flat
   params: {}
-  save_path: examples/toy_index.index
+  save_path: examples/data/toy_index.index
 
 scan:
   k: 10
@@ -55,7 +55,7 @@ thresholds:
   percentile: 0.05
 
 output:
-  out_dir: examples/reports/
+  out_dir: examples/data/reports/
   privacy_mode: false
   emit_embeddings: false
   max_example_queries: 5
