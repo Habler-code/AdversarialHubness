@@ -5,7 +5,7 @@ The HubScan SDK provides a simple, programmatic interface for detecting adversar
 ## Quick Start
 
 ```python
-from hubscan.sdk import scan, Verdict
+from hubscan import scan, Verdict
 
 # Run a scan
 results = scan(
@@ -16,7 +16,7 @@ results = scan(
 )
 
 # Get high-risk documents
-from hubscan.sdk import get_suspicious_documents
+from hubscan import get_suspicious_documents
 high_risk = get_suspicious_documents(results, verdict=Verdict.HIGH, top_k=10)
 ```
 
@@ -53,7 +53,7 @@ Run a scan on in-memory embeddings (no file I/O).
 
 ```python
 import numpy as np
-from hubscan.sdk import quick_scan
+from hubscan import quick_scan
 
 embeddings = np.random.randn(1000, 128).astype(np.float32)
 results = quick_scan(
@@ -68,17 +68,55 @@ results = quick_scan(
 Run a scan from a YAML configuration file.
 
 ```python
-from hubscan.sdk import scan_from_config
+from hubscan import scan_from_config
 
 results = scan_from_config("config.yaml")
 ```
+
+### `extract_embeddings()`
+
+Extract embeddings from a vector database using the Scanner class.
+
+```python
+from hubscan import Config, Scanner
+
+# Load configuration
+config = Config.from_yaml("config.yaml")
+scanner = Scanner(config)
+scanner.load_data()
+
+# Extract embeddings
+embeddings, ids = scanner.extract_embeddings(
+    output_path="embeddings.npy",  # Optional: save to file
+    batch_size=1000,                # Vectors per batch
+    limit=None                      # None = extract all
+)
+
+print(f"Extracted {len(embeddings)} embeddings")
+print(f"Shape: {embeddings.shape}")
+```
+
+**Parameters:**
+- `output_path` (str, optional): Path to save embeddings (.npy file)
+- `batch_size` (int): Number of vectors to retrieve per batch (default: 1000)
+- `limit` (int, optional): Maximum number of vectors to extract (None = all)
+
+**Returns:**
+- `embeddings` (np.ndarray): Array of shape (N, D) containing all vectors
+- `ids` (List[Any]): List of document IDs corresponding to each embedding
+
+**Supported Databases:**
+- FAISS: Direct reconstruction from index
+- Pinecone: Query-based discovery + fetch API
+- Qdrant: Scroll API pagination
+- Weaviate: Cursor-based pagination
 
 ### `get_suspicious_documents()`
 
 Extract suspicious documents from scan results.
 
 ```python
-from hubscan.sdk import get_suspicious_documents, Verdict
+from hubscan import get_suspicious_documents, Verdict
 
 # Get high-risk documents
 high_risk = get_suspicious_documents(
@@ -96,7 +134,7 @@ all_suspicious = get_suspicious_documents(results)
 Get detailed explanation for why a document was flagged.
 
 ```python
-from hubscan.sdk import explain_document
+from hubscan import explain_document
 
 explanation = explain_document(results, doc_index=42)
 if explanation:
@@ -109,7 +147,7 @@ if explanation:
 Run a scan with a specific ranking method.
 
 ```python
-from hubscan.sdk import scan_with_ranking
+from hubscan import scan_with_ranking
 
 # Hybrid search
 results = scan_with_ranking(
@@ -139,15 +177,18 @@ results = scan_with_ranking(
     k=20
 )
 
-# Hybrid search with reranking
+# Multi-index scan with late fusion (gold standard architecture)
 results = scan_with_ranking(
-    embeddings_path="data/embeddings.npy",
-    query_texts_path="data/queries.json",
-    ranking_method="hybrid",
-    hybrid_alpha=0.6,
-    rerank=True,
-    rerank_method="default",
-    rerank_top_n=100,
+    text_index_path="data/text_index.index",
+    text_embeddings_path="data/text_embeddings.npy",
+    image_index_path="data/image_index.index",
+    image_embeddings_path="data/image_embeddings.npy",
+    metadata_path="data/metadata.json",
+    late_fusion=True,
+    fusion_method="rrf",
+    text_weight=0.4,
+    image_weight=0.4,
+    modality_aware=True,
     k=20
 )
 ```
@@ -160,13 +201,24 @@ results = scan_with_ranking(
 - `rerank_method`: Reranking method name (default: "default")
 - `rerank_top_n`: Number of candidates to retrieve before reranking (default: 100)
 - `rerank_params`: Optional dictionary of custom parameters for reranking method
+- `concept_aware`: Enable concept-aware hub detection (default: False)
+- `modality_aware`: Enable modality-aware hub detection (default: False)
+- `num_concepts`: Number of concept clusters for auto-detection (default: 10)
+- `text_index_path`: Path to text index file (for multi-index mode)
+- `text_embeddings_path`: Path to text embeddings file (for multi-index mode)
+- `image_index_path`: Path to image index file (for multi-index mode)
+- `image_embeddings_path`: Path to image embeddings file (for multi-index mode)
+- `late_fusion`: Enable late fusion of multi-index results (default: False)
+- `fusion_method`: Late fusion method - "rrf", "weighted_sum", or "max" (default: "rrf")
+- `text_weight`: Weight for text index in fusion (default: 0.4)
+- `image_weight`: Weight for image index in fusion (default: 0.4)
 
 ### `compare_ranking_methods()`
 
 Compare detection performance across multiple ranking methods.
 
 ```python
-from hubscan.sdk import compare_ranking_methods
+from hubscan import compare_ranking_methods
 
 comparison = compare_ranking_methods(
     embeddings_path="data/embeddings.npy",

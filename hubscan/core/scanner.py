@@ -17,7 +17,7 @@
 """Main scanner orchestrator."""
 
 import time
-from typing import Optional, Dict
+from typing import Optional, Dict, Tuple, Any, List
 
 import numpy as np
 import faiss
@@ -26,6 +26,7 @@ from ..config import Config
 from ..utils.logging import get_logger
 from .io import (
     load_embeddings,
+    save_embeddings,
     load_faiss_index,
     build_faiss_index,
     save_faiss_index,
@@ -34,6 +35,8 @@ from .io import (
 )
 from .io.vector_index import VectorIndex
 from .io.adapters import FAISSIndex, create_index
+from .io.adapters.multi_index_adapter import MultiIndexAdapter
+from .fusion import parallel_retrieve, fuse_results, enforce_diversity
 from .sampling import sample_queries
 from .detectors import (
     HubnessDetector,
@@ -44,6 +47,8 @@ from .detectors import (
 )
 from .ranking import get_ranking_method
 from .reranking import get_reranking_method
+from .concepts.providers import create_concept_provider
+from .modalities.resolvers import create_modality_resolver
 from .scoring import combine_scores, apply_thresholds
 from .report import (
     generate_json_report,
@@ -64,6 +69,14 @@ class Scanner:
         self.index: Optional[VectorIndex] = None
         self.doc_embeddings: Optional[np.ndarray] = None
         self.metadata: Optional[Metadata] = None
+        
+        # Multi-index support (for gold standard architecture)
+        self.text_index: Optional[VectorIndex] = None
+        self.image_index: Optional[VectorIndex] = None
+        self.unified_index: Optional[VectorIndex] = None
+        self.text_embeddings: Optional[np.ndarray] = None
+        self.image_embeddings: Optional[np.ndarray] = None
+        self.unified_embeddings: Optional[np.ndarray] = None
     
     def load_data(self):
         """Load embeddings, index, and metadata according to config."""
@@ -174,6 +187,90 @@ class Scanner:
             # Load from vector DB export (generic JSONL adapter)
             raise NotImplementedError("vector_db_export mode not yet implemented")
         
+        elif input_mode == "multi_index":
+            # Gold standard: parallel retrieval from separate indexes
+            if not self.config.input.multi_index:
+                raise ValueError("multi_index config required for multi_index mode")
+            
+            multi_config = self.config.input.multi_index
+            logger.info("Loading multi-index setup (gold standard architecture)...")
+            
+            # Load text index
+            if multi_config.text_index_path:
+                logger.info(f"Loading text index from {multi_config.text_index_path}")
+                text_faiss = load_faiss_index(multi_config.text_index_path)
+                document_texts = None
+                if self.metadata and self.metadata.has_field("text"):
+                    num_text_docs = text_faiss.ntotal
+                    try:
+                        document_texts = [self.metadata.get_field("text", i) for i in range(num_text_docs)]
+                    except:
+                        document_texts = None
+                self.text_index = FAISSIndex(text_faiss, document_texts=document_texts)
+            
+            if multi_config.text_embeddings_path:
+                logger.info(f"Loading text embeddings from {multi_config.text_embeddings_path}")
+                self.text_embeddings = load_embeddings(
+                    multi_config.text_embeddings_path,
+                    normalize=(multi_config.text_metric == "cosine")
+                )
+            
+            # Load image index
+            if multi_config.image_index_path:
+                logger.info(f"Loading image index from {multi_config.image_index_path}")
+                image_faiss = load_faiss_index(multi_config.image_index_path)
+                self.image_index = FAISSIndex(image_faiss, document_texts=None)
+            
+            if multi_config.image_embeddings_path:
+                logger.info(f"Loading image embeddings from {multi_config.image_embeddings_path}")
+                self.image_embeddings = load_embeddings(
+                    multi_config.image_embeddings_path,
+                    normalize=(multi_config.image_metric == "cosine")
+                )
+            
+            # Load unified/cross-modal index (optional recall backstop)
+            if multi_config.unified_index_path:
+                logger.info(f"Loading unified index from {multi_config.unified_index_path}")
+                unified_faiss = load_faiss_index(multi_config.unified_index_path)
+                self.unified_index = FAISSIndex(unified_faiss, document_texts=None)
+            
+            if multi_config.unified_embeddings_path:
+                logger.info(f"Loading unified embeddings from {multi_config.unified_embeddings_path}")
+                self.unified_embeddings = load_embeddings(
+                    multi_config.unified_embeddings_path,
+                    normalize=(multi_config.unified_metric == "cosine")
+                )
+            
+            # Combine embeddings for detectors (use text as primary, or create combined)
+            # For hubness detection, we need a unified doc_embeddings
+            # Use text embeddings as primary, or combine if needed
+            if self.text_embeddings is not None:
+                self.doc_embeddings = self.text_embeddings
+                # If we have image embeddings, we could concatenate, but for now use text as primary
+                # The actual retrieval will use separate indexes
+            elif self.image_embeddings is not None:
+                self.doc_embeddings = self.image_embeddings
+            else:
+                raise ValueError("At least one embeddings file required in multi_index mode")
+            
+            # Create multi-index adapter if late fusion is enabled
+            if self.config.input.late_fusion and self.config.input.late_fusion.enabled:
+                logger.info("Creating multi-index adapter with late fusion...")
+                self.index = MultiIndexAdapter(
+                    text_index=self.text_index,
+                    image_index=self.image_index,
+                    unified_index=self.unified_index,
+                    config=self.config,
+                    doc_embeddings=self.doc_embeddings,
+                )
+            else:
+                # Set primary index to text index if available (for backward compatibility)
+                self.index = self.text_index or self.image_index or self.unified_index
+            
+            logger.info(f"Multi-index setup complete: text={self.text_index is not None}, "
+                       f"image={self.image_index is not None}, unified={self.unified_index is not None}, "
+                       f"fusion={self.config.input.late_fusion and self.config.input.late_fusion.enabled}")
+        
         logger.info(f"Loaded {len(self.doc_embeddings) if self.doc_embeddings is not None else 'unknown'} documents")
     
     def scan(self) -> Dict:
@@ -194,10 +291,13 @@ class Scanner:
         if num_docs == 0:
             raise ValueError("Cannot scan empty document set")
         
-        # Sample queries
+        # Use doc embeddings directly
+        doc_embeddings_processed = self.doc_embeddings
+        
+        # Sample queries (use processed embeddings)
         logger.info("Sampling queries...")
         queries = sample_queries(
-            self.doc_embeddings,
+            doc_embeddings_processed,
             self.config.scan,
             self.metadata,
         )
@@ -263,6 +363,93 @@ class Scanner:
         # Initialize detectors dynamically using registry
         detectors: Dict[str, any] = {}
         
+        # Create concept and modality assignments if enabled
+        concept_assignment = None
+        modality_assignment = None
+        query_metadata = None
+        doc_metadata_list = None  # Shared between concept and modality providers
+        
+        # Check if concept-aware detection is enabled
+        concept_aware_enabled = (
+            hasattr(self.config.detectors, 'concept_aware') and 
+            self.config.detectors.concept_aware.enabled
+        )
+        modality_aware_enabled = (
+            hasattr(self.config.detectors, 'modality_aware') and 
+            self.config.detectors.modality_aware.enabled
+        )
+        
+        if concept_aware_enabled:
+            logger.info("Creating concept assignments...")
+            concept_config = self.config.detectors.concept_aware
+            concept_provider = create_concept_provider(
+                mode=concept_config.mode,
+                metadata_field=concept_config.metadata_field,
+                num_concepts=concept_config.num_concepts,
+                clustering_params=concept_config.clustering_params,
+            )
+            
+            # Prepare metadata for concept provider (as List[Dict])
+            doc_metadata_list = None
+            if self.metadata:
+                # Build doc_metadata as a list of dicts
+                doc_metadata_list = []
+                for i in range(num_docs):
+                    record = {}
+                    for field in self.metadata.data.keys():
+                        value = self.metadata.get_field(field, i)
+                        if value is not None:
+                            record[field] = value
+                    doc_metadata_list.append(record)
+            
+            # Use query embeddings for concept assignment
+            concept_assignment = concept_provider.assign_concepts(
+                doc_embeddings=self.doc_embeddings,
+                query_embeddings=queries,
+                doc_metadata=doc_metadata_list,
+                query_metadata=None,  # Query metadata from config if available
+            )
+            logger.info(f"Assigned {concept_assignment.num_concepts} concepts")
+        
+        if modality_aware_enabled:
+            logger.info("Creating modality assignments...")
+            modality_config = self.config.detectors.modality_aware
+            modality_resolver = create_modality_resolver(
+                mode=modality_config.mode,
+                query_modality_field=modality_config.query_modality_field,
+                doc_modality_field=modality_config.doc_modality_field,
+            )
+            
+            # Reuse doc_metadata_list from concept provider if available
+            if doc_metadata_list is None and self.metadata:
+                # Build doc_metadata as a list of dicts
+                doc_metadata_list = []
+                for i in range(num_docs):
+                    record = {}
+                    for field in self.metadata.data.keys():
+                        value = self.metadata.get_field(field, i)
+                        if value is not None:
+                            record[field] = value
+                    doc_metadata_list.append(record)
+            
+            modality_assignment = modality_resolver.resolve_modalities(
+                query_metadata=None,  # Query metadata from config if available
+                doc_metadata=doc_metadata_list,
+                num_queries=num_queries,
+                num_docs=num_docs,
+            )
+            logger.info(f"Found modalities: {modality_assignment.all_modalities}")
+        
+        # Get concept hub z threshold if concept aware
+        concept_hub_z_threshold = 4.0
+        if concept_aware_enabled:
+            concept_hub_z_threshold = getattr(self.config.detectors.concept_aware, 'concept_hub_z_threshold', 4.0)
+        
+        # Get cross-modal penalty if modality aware
+        cross_modal_penalty = 1.5
+        if modality_aware_enabled:
+            cross_modal_penalty = getattr(self.config.detectors.modality_aware, 'cross_modal_penalty', 1.5)
+        
         # Map config detector names to detector classes
         detector_config_map = {
             "hubness": (HubnessDetector, {
@@ -271,6 +458,13 @@ class Scanner:
                 "use_rank_weights": self.config.detectors.hubness.use_rank_weights,
                 "use_distance_weights": self.config.detectors.hubness.use_distance_weights,
                 "metric": self.config.input.metric,
+                "concept_aware_enabled": concept_aware_enabled,
+                "concept_hub_z_threshold": concept_hub_z_threshold,
+                "modality_aware_enabled": modality_aware_enabled,
+                "cross_modal_penalty": cross_modal_penalty,
+                # Contrastive bucket detection for concept-targeted attacks
+                "use_contrastive_delta": getattr(self.config.detectors.hubness, 'use_contrastive_delta', True),
+                "use_bucket_concentration": getattr(self.config.detectors.hubness, 'use_bucket_concentration', True),
             }),
             "cluster_spread": (ClusterSpreadDetector, {
                 "num_clusters": self.config.detectors.cluster_spread.num_clusters,
@@ -318,6 +512,10 @@ class Scanner:
             "rerank_top_n": self.config.scan.ranking.rerank_top_n if self.config.scan.ranking.rerank else None,
             "ranking_custom_params": self.config.scan.ranking.custom_params,
             "rerank_params": self.config.scan.ranking.rerank_params if self.config.scan.ranking.rerank else {},
+            # Concept/modality assignments for hubness detector
+            "concept_assignment": concept_assignment,
+            "modality_assignment": modality_assignment,
+            "query_metadata": query_metadata,
         }
         
         for name, detector in detectors.items():
@@ -330,7 +528,7 @@ class Scanner:
             
             result = detector.detect(
                 self.index,
-                self.doc_embeddings,
+                doc_embeddings_processed,  # Use processed embeddings if hubness reduction applied
                 queries,
                 self.config.scan.k,
                 self.metadata,
@@ -429,4 +627,35 @@ class Scanner:
             "runtime": runtime,
             "detection_metrics": detection_metrics,
         }
-
+    
+    def extract_embeddings(
+        self,
+        output_path: Optional[str] = None,
+        batch_size: int = 1000,
+        limit: Optional[int] = None,
+    ) -> Tuple[np.ndarray, List[Any]]:
+        """
+        Extract embeddings from the loaded vector index.
+        
+        Args:
+            output_path: Optional path to save embeddings (.npy file)
+            batch_size: Number of vectors to retrieve per batch
+            limit: Optional maximum number of vectors to extract
+            
+        Returns:
+            Tuple of (embeddings, ids) where:
+            - embeddings: Array of shape (N, D) containing all vectors
+            - ids: List of document IDs corresponding to each embedding
+        """
+        if self.index is None:
+            raise ValueError("No index loaded. Call load_data() first.")
+        
+        logger.info("Extracting embeddings from vector index...")
+        embeddings, ids = self.index.extract_embeddings(batch_size=batch_size, limit=limit)
+        
+        if output_path:
+            save_embeddings(embeddings, output_path)
+            logger.info(f"Saved {len(embeddings)} embeddings to {output_path}")
+        
+        return embeddings, ids
+    

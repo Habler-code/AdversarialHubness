@@ -121,7 +121,6 @@ class StabilityDetector(Detector):
         # Select candidates if not provided
         if candidate_indices is None:
             # Use all documents (can be expensive)
-            # In practice, this should be limited to top candidates from hubness detector
             candidate_indices = np.arange(N)
         
         # Limit to top candidates

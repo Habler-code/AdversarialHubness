@@ -21,6 +21,41 @@ from pydantic import BaseModel, Field, field_validator
 from pydantic_settings import BaseSettings
 
 
+class MultiIndexConfig(BaseModel):
+    """Multi-index configuration for gold standard architecture."""
+    text_index_path: Optional[str] = Field(default=None, description="Path to text index file (.index)")
+    text_embeddings_path: Optional[str] = Field(default=None, description="Path to text embeddings file (.npy)")
+    image_index_path: Optional[str] = Field(default=None, description="Path to image index file (.index)")
+    image_embeddings_path: Optional[str] = Field(default=None, description="Path to image embeddings file (.npy)")
+    unified_index_path: Optional[str] = Field(default=None, description="Path to unified/cross-modal index file (.index) - optional recall backstop")
+    unified_embeddings_path: Optional[str] = Field(default=None, description="Path to unified/cross-modal embeddings file (.npy)")
+    text_metric: Literal["cosine", "ip", "l2"] = Field(default="cosine", description="Distance metric for text index")
+    image_metric: Literal["cosine", "ip", "l2"] = Field(default="cosine", description="Distance metric for image index")
+    unified_metric: Literal["cosine", "ip", "l2"] = Field(default="cosine", description="Distance metric for unified index")
+
+
+class LateFusionConfig(BaseModel):
+    """Late fusion configuration for multi-index retrieval."""
+    enabled: bool = Field(default=False, description="Enable late fusion of results from multiple indexes")
+    normalize_scores: bool = Field(default=True, description="Normalize scores from different indexes before merging")
+    fusion_method: Literal["rrf", "weighted_sum", "max"] = Field(
+        default="rrf",
+        description="Fusion method: 'rrf' (Reciprocal Rank Fusion), 'weighted_sum', or 'max'"
+    )
+    text_weight: float = Field(default=0.4, ge=0.0, le=1.0, description="Weight for text index results")
+    image_weight: float = Field(default=0.4, ge=0.0, le=1.0, description="Weight for image index results")
+    unified_weight: float = Field(default=0.2, ge=0.0, le=1.0, description="Weight for unified/cross-modal index results (recall backstop)")
+    rrf_k: int = Field(default=60, ge=1, description="RRF constant (higher = more weight to top results)")
+    unified_top_k: Optional[int] = Field(default=None, description="Max results from unified index (None = use scan.k)")
+
+
+class DiversityConfig(BaseModel):
+    """Diversity enforcement configuration."""
+    enabled: bool = Field(default=False, description="Enable diversity enforcement in final results")
+    min_distance: float = Field(default=0.3, ge=0.0, le=1.0, description="Minimum cosine distance between results")
+    max_results_per_cluster: Optional[int] = Field(default=None, description="Max results per semantic cluster")
+
+
 class InputConfig(BaseModel):
     """Input configuration."""
     mode: Literal[
@@ -30,6 +65,7 @@ class InputConfig(BaseModel):
         "pinecone",
         "qdrant",
         "weaviate",
+        "multi_index",
     ] = Field(
         default="embeddings_only",
         description="Input mode"
@@ -40,6 +76,11 @@ class InputConfig(BaseModel):
     adapter: Optional[str] = Field(default="generic_jsonl", description="Adapter for vector_db_export mode")
     metric: Literal["cosine", "ip", "l2"] = Field(default="cosine", description="Distance metric")
     dimension: Optional[int] = Field(default=None, description="Vector dimension (required for some backends)")
+    
+    # Multi-index configuration (for gold standard architecture)
+    multi_index: Optional[MultiIndexConfig] = Field(default=None, description="Multi-index configuration for parallel retrieval")
+    late_fusion: Optional[LateFusionConfig] = Field(default=None, description="Late fusion configuration")
+    diversity: Optional[DiversityConfig] = Field(default=None, description="Diversity enforcement configuration")
     
     # Pinecone-specific configuration
     pinecone_index_name: Optional[str] = Field(default=None, description="Pinecone index name")
@@ -109,6 +150,11 @@ class RankingConfig(BaseModel):
         default_factory=dict,
         description="Custom parameters for reranking method (passed as **kwargs to rerank method)"
     )
+    # Multi-index parallel retrieval
+    parallel_retrieval: bool = Field(
+        default=False,
+        description="Enable parallel retrieval from multiple indexes (requires multi_index config)"
+    )
 
 
 class ScanConfig(BaseModel):
@@ -142,6 +188,16 @@ class HubnessDetectorConfig(BaseModel):
     exact_validation_queries: Optional[int] = Field(default=None, description="Number of queries for exact validation")
     use_rank_weights: bool = Field(default=True, description="Weight hits by rank position (rank 1 > rank k)")
     use_distance_weights: bool = Field(default=True, description="Weight hits by similarity/distance scores")
+    
+    # Contrastive bucket detection (for concept-targeted attacks)
+    use_contrastive_delta: bool = Field(
+        default=True,
+        description="Detect documents with hub rates much higher in one concept than others"
+    )
+    use_bucket_concentration: bool = Field(
+        default=True,
+        description="Detect documents with highly concentrated hub rates (Gini coefficient)"
+    )
 
 
 class ClusterSpreadDetectorConfig(BaseModel):
@@ -168,12 +224,119 @@ class DedupDetectorConfig(BaseModel):
     suppress_boilerplate: bool = Field(default=True, description="Suppress obvious boilerplate")
 
 
+class ConceptAwareConfig(BaseModel):
+    """Concept-aware hub detection configuration.
+    
+    Enables detection of hubs that are localized to specific semantic concepts/topics.
+    When enabled, queries are partitioned by concept and hub rates are computed per-concept.
+    """
+    enabled: bool = Field(default=False, description="Enable concept-aware hub detection")
+    mode: Literal["metadata", "query_clustering", "doc_clustering", "hybrid"] = Field(
+        default="hybrid",
+        description="Concept assignment mode: 'metadata' uses existing labels, 'query_clustering' clusters queries, 'doc_clustering' clusters documents, 'hybrid' tries metadata first then falls back to clustering"
+    )
+    metadata_field: Optional[str] = Field(
+        default="concept",
+        description="Metadata field containing concept/topic labels (used in 'metadata' and 'hybrid' modes)"
+    )
+    num_concepts: int = Field(
+        default=10,
+        ge=2,
+        le=1000,
+        description="Number of concept clusters (used in clustering modes)"
+    )
+    clustering_algorithm: Literal["minibatch_kmeans", "kmeans"] = Field(
+        default="minibatch_kmeans",
+        description="Clustering algorithm for auto-concept detection"
+    )
+    clustering_params: Dict[str, Any] = Field(
+        default_factory=lambda: {
+            "batch_size": 1024,
+            "n_init": 3,
+            "max_iter": 100,
+        },
+        description="Parameters for clustering algorithm"
+    )
+    min_concept_size: int = Field(
+        default=10,
+        ge=1,
+        description="Minimum number of queries per concept (smaller concepts merged to 'other')"
+    )
+    concept_hub_z_threshold: float = Field(
+        default=4.0,
+        ge=0.0,
+        description="Z-score threshold for flagging concept-specific hubs (can be lower than global)"
+    )
+    seed: int = Field(default=42, description="Random seed for reproducible clustering")
+
+
+class ModalityAwareConfig(BaseModel):
+    """Modality-aware hub detection configuration.
+    
+    Enables detection of cross-modal hubs in multi-modal embedding spaces.
+    Cross-modal hubs are documents that appear in top-K for queries of a different modality.
+    """
+    enabled: bool = Field(default=False, description="Enable modality-aware hub detection")
+    mode: Literal["metadata", "default_text"] = Field(
+        default="default_text",
+        description="Modality resolution mode: 'metadata' reads from metadata field, 'default_text' assumes all text"
+    )
+    doc_modality_field: Optional[str] = Field(
+        default="modality",
+        description="Metadata field containing document modality (e.g., 'text', 'image', 'audio')"
+    )
+    query_modality_field: Optional[str] = Field(
+        default="modality",
+        description="Metadata field containing query modality"
+    )
+    default_doc_modality: str = Field(
+        default="text",
+        description="Default modality for documents without metadata"
+    )
+    default_query_modality: str = Field(
+        default="text",
+        description="Default modality for queries without metadata"
+    )
+    known_modalities: list = Field(
+        default_factory=lambda: ["text", "image", "audio", "video", "code"],
+        description="List of known modalities for validation and reporting"
+    )
+    cross_modal_penalty: float = Field(
+        default=1.5,
+        ge=1.0,
+        description="Multiplier applied to hub score for cross-modal hits (>1.0 increases suspicion)"
+    )
+    separate_modality_stats: bool = Field(
+        default=True,
+        description="Compute hub statistics separately per modality combination"
+    )
+    # Subspace projection for cross-modal hub detection
+    use_subspace_projection: bool = Field(
+        default=False,
+        description="Project embeddings onto modality-specific subspaces to detect cross-modal anomalies"
+    )
+    subspace_components: int = Field(
+        default=64,
+        ge=16,
+        le=256,
+        description="Number of PCA components for modality subspace"
+    )
+    subspace_weight: float = Field(
+        default=0.3,
+        ge=0.0,
+        le=1.0,
+        description="Weight of subspace projection score in cross-modal detection"
+    )
+
+
 class DetectorsConfig(BaseModel):
     """Detectors configuration."""
     hubness: HubnessDetectorConfig = Field(default_factory=HubnessDetectorConfig)
     cluster_spread: ClusterSpreadDetectorConfig = Field(default_factory=ClusterSpreadDetectorConfig)
     stability: StabilityDetectorConfig = Field(default_factory=StabilityDetectorConfig)
     dedup: DedupDetectorConfig = Field(default_factory=DedupDetectorConfig)
+    concept_aware: ConceptAwareConfig = Field(default_factory=ConceptAwareConfig)
+    modality_aware: ModalityAwareConfig = Field(default_factory=ModalityAwareConfig)
 
 
 class ScoringWeights(BaseModel):
@@ -182,6 +345,17 @@ class ScoringWeights(BaseModel):
     cluster_spread: float = Field(default=0.2, ge=0.0, description="Weight for cluster spread score")
     stability: float = Field(default=0.2, ge=0.0, description="Weight for stability score")
     boilerplate: float = Field(default=0.3, ge=0.0, description="Penalty weight for boilerplate")
+    # Concept/Modality scoring weights (only used when enabled, default 0.0 for backward compat)
+    concept_hub_z: float = Field(
+        default=0.0, 
+        ge=0.0, 
+        description="Weight for max concept-specific hub z-score (0.0 = disabled)"
+    )
+    cross_modal: float = Field(
+        default=0.0, 
+        ge=0.0, 
+        description="Weight for cross-modal hub penalty (0.0 = disabled)"
+    )
 
 
 class ScoringConfig(BaseModel):
@@ -192,8 +366,15 @@ class ScoringConfig(BaseModel):
 class ThresholdsConfig(BaseModel):
     """Thresholds configuration."""
     policy: Literal["percentile", "z_score", "hybrid"] = Field(default="hybrid", description="Threshold policy")
-    hub_z: float = Field(default=6.0, description="Z-score threshold")
+    hub_z: float = Field(default=6.0, description="Z-score threshold for HIGH")
     percentile: float = Field(default=0.001, ge=0.0, le=1.0, description="Percentile threshold (0.001 = top 0.1%)")
+    # MEDIUM threshold as ratio of HIGH (for dense embeddings, use lower ratio)
+    medium_ratio: float = Field(
+        default=0.5,
+        ge=0.1,
+        le=0.9,
+        description="MEDIUM threshold as ratio of HIGH (0.5 = 50% of HIGH threshold). Lower values = more MEDIUM detections."
+    )
     # Method-specific thresholds (optional, falls back to defaults if not specified)
     method_specific: Optional[Dict[str, Dict[str, float]]] = Field(
         default=None,

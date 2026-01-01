@@ -168,7 +168,7 @@ class FAISSIndex(VectorIndex):
                     "when initializing FAISSIndex"
                 )
             lexical_distances, lexical_indices, _ = self.search_lexical(query_texts, k)
-            # BM25 scores are already similarity scores (higher = better)
+            # BM25 scores are similarity scores
             # Normalize to [0, 1]
             max_score = np.max(lexical_distances)
             if max_score > 0:
@@ -307,6 +307,61 @@ class FAISSIndex(VectorIndex):
         """
         # Use parent implementation which retrieves more and returns top k
         return super().search_reranked(query_vectors, k, rerank_top_n)
+    
+    def extract_embeddings(
+        self,
+        batch_size: int = 1000,
+        limit: Optional[int] = None,
+    ) -> Tuple[np.ndarray, List[Any]]:
+        """
+        Extract all embeddings from the FAISS index.
+        
+        Args:
+            batch_size: Number of vectors to retrieve per batch (unused for FAISS)
+            limit: Optional maximum number of vectors to extract (None = all)
+            
+        Returns:
+            Tuple of (embeddings, ids) where:
+            - embeddings: Array of shape (N, D) containing all vectors
+            - ids: List of document indices (0 to n-1)
+            
+        Note:
+            Uses FAISS reconstruct_n() method. Not all index types support this.
+            For indexes that don't support reconstruction, returns empty array.
+        """
+        n = self._index.ntotal
+        if n == 0:
+            return np.array([], dtype=np.float32).reshape(0, self.dimension), []
+        
+        if limit is not None:
+            n = min(n, limit)
+        
+        try:
+            # Try to reconstruct vectors
+            # FAISS reconstruct_n works for most index types
+            embeddings = self._index.reconstruct_n(0, n)
+            ids = list(range(n))
+            
+            return embeddings.astype(np.float32), ids
+            
+        except AttributeError:
+            # Index doesn't support reconstruct_n
+            # Try alternative: reconstruct one by one (slower)
+            try:
+                embeddings = []
+                ids = []
+                for i in range(n):
+                    vec = self._index.reconstruct(i)
+                    embeddings.append(vec)
+                    ids.append(i)
+                return np.array(embeddings, dtype=np.float32), ids
+            except AttributeError:
+                # Index doesn't support reconstruction at all
+                raise NotImplementedError(
+                    f"FAISS index type {type(self._index)} does not support "
+                    "embedding extraction. Only index types that support "
+                    "reconstruct() or reconstruct_n() can extract embeddings."
+                )
     
     @property
     def faiss_index(self) -> faiss.Index:

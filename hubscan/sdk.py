@@ -34,6 +34,20 @@ def scan(
     output_dir: str = "reports/",
     k: int = 20,
     num_queries: int = 10000,
+    concept_aware: bool = False,
+    modality_aware: bool = False,
+    concept_field: str = "concept",
+    modality_field: str = "modality",
+    num_concepts: int = 10,
+    # Multi-index / late fusion options
+    text_index_path: Optional[str] = None,
+    text_embeddings_path: Optional[str] = None,
+    image_index_path: Optional[str] = None,
+    image_embeddings_path: Optional[str] = None,
+    late_fusion: bool = False,
+    fusion_method: str = "rrf",
+    text_weight: float = 0.4,
+    image_weight: float = 0.4,
     **kwargs,
 ) -> Dict[str, Any]:
     """
@@ -49,6 +63,19 @@ def scan(
         output_dir: Directory to save reports
         k: Number of nearest neighbors to retrieve
         num_queries: Number of queries to sample
+        concept_aware: Enable concept-aware hub detection
+        modality_aware: Enable modality-aware hub detection
+        concept_field: Metadata field name for concept labels
+        modality_field: Metadata field name for modality labels
+        num_concepts: Number of concept clusters for auto-detection
+        text_index_path: Path to text index file (for multi-index mode)
+        text_embeddings_path: Path to text embeddings file (for multi-index mode)
+        image_index_path: Path to image index file (for multi-index mode)
+        image_embeddings_path: Path to image embeddings file (for multi-index mode)
+        late_fusion: Enable late fusion of multi-index results
+        fusion_method: Late fusion method ("rrf", "weighted_sum", "max")
+        text_weight: Weight for text index in fusion (0.0-1.0)
+        image_weight: Weight for image index in fusion (0.0-1.0)
         **kwargs: Additional configuration options
         
     Returns:
@@ -65,11 +92,34 @@ def scan(
         ```python
         from hubscan.sdk import scan
         
+        # Basic scan
         results = scan(
             embeddings_path="data/embeddings.npy",
             metadata_path="data/metadata.json",
             k=20,
             num_queries=5000
+        )
+        
+        # Concept and modality-aware scan
+        results = scan(
+            embeddings_path="data/embeddings.npy",
+            metadata_path="data/metadata.json",
+            concept_aware=True,
+            modality_aware=True,
+            concept_field="category",
+            modality_field="type"
+        )
+        
+        # Multi-index scan with late fusion (gold standard architecture)
+        results = scan(
+            text_index_path="data/text_index.index",
+            text_embeddings_path="data/text_embeddings.npy",
+            image_index_path="data/image_index.index",
+            image_embeddings_path="data/image_embeddings.npy",
+            metadata_path="data/metadata.json",
+            late_fusion=True,
+            fusion_method="rrf",
+            modality_aware=True
         )
         
         # Access results
@@ -92,6 +142,37 @@ def scan(
             num_queries=num_queries,
             **kwargs,
         )
+    
+    # Apply concept-aware and modality-aware settings
+    if concept_aware:
+        config.detectors.concept_aware.enabled = True
+        config.detectors.concept_aware.metadata_field = concept_field
+        config.detectors.concept_aware.num_concepts = num_concepts
+    if modality_aware:
+        config.detectors.modality_aware.enabled = True
+        config.detectors.modality_aware.doc_modality_field = modality_field
+        config.detectors.modality_aware.query_modality_field = modality_field
+    
+    # Apply multi-index configuration
+    if text_index_path or image_index_path:
+        from .config.config import MultiIndexConfig, LateFusionConfig
+        
+        config.input.mode = "multi_index"
+        config.input.multi_index = MultiIndexConfig(
+            text_index_path=text_index_path,
+            text_embeddings_path=text_embeddings_path,
+            image_index_path=image_index_path,
+            image_embeddings_path=image_embeddings_path,
+        )
+        config.scan.ranking.parallel_retrieval = True
+        
+        if late_fusion:
+            config.input.late_fusion = LateFusionConfig(
+                enabled=True,
+                fusion_method=fusion_method,
+                text_weight=text_weight,
+                image_weight=image_weight,
+            )
     
     # Create and run scanner
     scanner = Scanner(config)
@@ -228,6 +309,20 @@ def scan_with_ranking(
     rerank_method: str = "default",
     rerank_top_n: int = 100,
     rerank_params: Optional[Dict[str, Any]] = None,
+    concept_aware: bool = False,
+    modality_aware: bool = False,
+    concept_field: str = "concept",
+    modality_field: str = "modality",
+    num_concepts: int = 10,
+    # Multi-index / late fusion options
+    text_index_path: Optional[str] = None,
+    text_embeddings_path: Optional[str] = None,
+    image_index_path: Optional[str] = None,
+    image_embeddings_path: Optional[str] = None,
+    late_fusion: bool = False,
+    fusion_method: str = "rrf",
+    text_weight: float = 0.4,
+    image_weight: float = 0.4,
     output_dir: str = "reports/",
     k: int = 20,
     num_queries: int = 10000,
@@ -247,6 +342,19 @@ def scan_with_ranking(
         rerank_method: Reranking method name (default: "default")
         rerank_top_n: Number of candidates to retrieve before reranking
         rerank_params: Custom parameters for reranking method
+        concept_aware: Enable concept-aware hub detection
+        modality_aware: Enable modality-aware hub detection
+        concept_field: Metadata field name for concept labels
+        modality_field: Metadata field name for modality labels
+        num_concepts: Number of concept clusters for auto-detection
+        text_index_path: Path to text index file (for multi-index mode)
+        text_embeddings_path: Path to text embeddings file (for multi-index mode)
+        image_index_path: Path to image index file (for multi-index mode)
+        image_embeddings_path: Path to image embeddings file (for multi-index mode)
+        late_fusion: Enable late fusion of multi-index results
+        fusion_method: Late fusion method ("rrf", "weighted_sum", "max")
+        text_weight: Weight for text index in fusion (0.0-1.0)
+        image_weight: Weight for image index in fusion (0.0-1.0)
         output_dir: Directory to save reports
         k: Number of nearest neighbors to retrieve
         num_queries: Number of queries to sample
@@ -259,15 +367,25 @@ def scan_with_ranking(
         ```python
         from hubscan.sdk import scan_with_ranking
         
-        # Hybrid search with reranking
+        # Hybrid search with reranking and concept awareness
         results = scan_with_ranking(
             embeddings_path="data/embeddings.npy",
             query_texts_path="data/queries.json",
             ranking_method="hybrid",
             hybrid_alpha=0.6,
             rerank=True,
-            rerank_method="default",
-            rerank_top_n=100
+            concept_aware=True,
+            modality_aware=True
+        )
+        
+        # Multi-index scan with late fusion
+        results = scan_with_ranking(
+            text_index_path="data/text_index.index",
+            image_index_path="data/image_index.index",
+            metadata_path="data/metadata.json",
+            late_fusion=True,
+            fusion_method="rrf",
+            modality_aware=True
         )
         ```
     """
@@ -294,6 +412,37 @@ def scan_with_ranking(
         config.scan.ranking.rerank_top_n = rerank_top_n
         if rerank_params:
             config.scan.ranking.rerank_params = rerank_params
+    
+    # Apply concept-aware and modality-aware settings
+    if concept_aware:
+        config.detectors.concept_aware.enabled = True
+        config.detectors.concept_aware.metadata_field = concept_field
+        config.detectors.concept_aware.num_concepts = num_concepts
+    if modality_aware:
+        config.detectors.modality_aware.enabled = True
+        config.detectors.modality_aware.doc_modality_field = modality_field
+        config.detectors.modality_aware.query_modality_field = modality_field
+    
+    # Apply multi-index configuration
+    if text_index_path or image_index_path:
+        from .config.config import MultiIndexConfig, LateFusionConfig
+        
+        config.input.mode = "multi_index"
+        config.input.multi_index = MultiIndexConfig(
+            text_index_path=text_index_path,
+            text_embeddings_path=text_embeddings_path,
+            image_index_path=image_index_path,
+            image_embeddings_path=image_embeddings_path,
+        )
+        config.scan.ranking.parallel_retrieval = True
+        
+        if late_fusion:
+            config.input.late_fusion = LateFusionConfig(
+                enabled=True,
+                fusion_method=fusion_method,
+                text_weight=text_weight,
+                image_weight=image_weight,
+            )
     
     scanner = Scanner(config)
     scanner.load_data()

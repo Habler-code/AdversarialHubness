@@ -20,6 +20,9 @@ hubscan explain --doc-id 42 --report reports/report.json
 # Build an index from embeddings
 hubscan build-index --config config.yaml
 
+# Extract embeddings from a vector database
+hubscan extract-embeddings --config config.yaml --output embeddings.npy
+
 # Verbose logging
 hubscan scan --config config.yaml --verbose
 ```
@@ -44,6 +47,20 @@ hubscan scan --config <config.yaml> [OPTIONS]
 - `--rerank`: Enable reranking as post-processing step
 - `--rerank-method`: Reranking method name (default: "default")
 - `--rerank-top-n`: Number of candidates to retrieve before reranking (default: 100)
+- `--concept-aware`: Enable concept-aware hub detection
+- `--concept-field`: Metadata field for concept labels (default: "concept")
+- `--num-concepts`: Number of concept clusters for auto-detection (default: 10)
+- `--modality-aware`: Enable modality-aware hub detection
+- `--modality-field`: Metadata field for modality (default: "modality")
+- `--multi-index`: Enable multi-index mode (parallel retrieval)
+- `--text-index`: Path to text index file
+- `--image-index`: Path to image index file
+- `--text-embeddings`: Path to text embeddings file
+- `--image-embeddings`: Path to image embeddings file
+- `--late-fusion`: Enable late fusion of multi-index results
+- `--fusion-method`: Late fusion method ("rrf", "weighted_sum", "max")
+- `--text-weight`: Weight for text index in fusion (default: 0.4)
+- `--image-weight`: Weight for image index in fusion (default: 0.4)
 - `--verbose, -v`: Enable verbose logging
 
 **Note**: Reranking is a post-processing step that can be applied to any ranking method. Use `--rerank` flag to enable it, or configure via config file (`ranking.rerank: true`, `ranking.rerank_method`).
@@ -67,6 +84,20 @@ hubscan scan --config config.yaml --ranking-method hybrid --rerank --query-texts
 
 # Compare ranking methods
 hubscan compare-ranking --config config.yaml --query-texts queries.json --methods vector hybrid lexical
+
+# Multi-index scan with late fusion (gold standard architecture)
+hubscan scan --config config.yaml \
+  --multi-index \
+  --text-index data/text_index.index \
+  --image-index data/image_index.index \
+  --text-embeddings data/text_embeddings.npy \
+  --image-embeddings data/image_embeddings.npy \
+  --late-fusion \
+  --fusion-method rrf \
+  --modality-aware
+
+# Concept-aware scan
+hubscan scan --config config.yaml --concept-aware --num-concepts 15
 ```
 
 ### Detector Compatibility with Retrieval and Reranking Methods
@@ -121,6 +152,57 @@ hubscan explain --doc-id <index> --report <report.json>
 hubscan explain --doc-id 42 --report reports/report.json
 ```
 
+#### `extract-embeddings`
+
+Extract embeddings from a vector database for analysis or migration.
+
+```bash
+hubscan extract-embeddings \
+    --config config.yaml \
+    --output embeddings.npy \
+    --batch-size 1000 \
+    --limit 10000
+```
+
+**Options:**
+- `--config, -c`: Path to YAML configuration file (required)
+- `--output, -o`: Output path for embeddings file (.npy format, required)
+- `--batch-size`: Number of vectors to retrieve per batch (default: 1000)
+- `--limit`: Maximum number of vectors to extract (default: None, extract all)
+
+**Supported Databases:**
+- FAISS: Uses `reconstruct_n()` to extract embeddings
+- Pinecone: Uses query-based ID discovery + `fetch()` API
+- Qdrant: Uses `scroll()` API to iterate through all vectors
+- Weaviate: Uses cursor-based pagination
+
+**Example Configurations:**
+
+Pinecone:
+```yaml
+input:
+  mode: pinecone
+  pinecone_index_name: my-index
+  pinecone_api_key: your-api-key
+  dimension: 128
+```
+
+Qdrant:
+```yaml
+input:
+  mode: qdrant
+  qdrant_collection_name: my-collection
+  qdrant_url: http://localhost:6333
+```
+
+Weaviate:
+```yaml
+input:
+  mode: weaviate
+  weaviate_class_name: MyClass
+  weaviate_url: http://localhost:8080
+```
+
 #### `compare-ranking`
 
 Compare detection performance across multiple ranking methods.
@@ -145,7 +227,7 @@ hubscan compare-ranking --config config.yaml --query-texts queries.json --method
 ### Basic Scan
 
 ```python
-from hubscan.sdk import scan, Verdict
+from hubscan import scan, Verdict
 
 # Run a scan
 results = scan(
@@ -165,7 +247,7 @@ print(f"Verdicts: {results['json_report']['summary']['verdict_counts']}")
 
 ```python
 import numpy as np
-from hubscan.sdk import quick_scan
+from hubscan import quick_scan
 
 embeddings = np.random.randn(1000, 128).astype(np.float32)
 results = quick_scan(embeddings, k=10, num_queries=100)
@@ -174,7 +256,7 @@ results = quick_scan(embeddings, k=10, num_queries=100)
 ### Retrieval and Reranking Methods
 
 ```python
-from hubscan.sdk import scan_with_ranking, compare_ranking_methods
+from hubscan import scan_with_ranking, compare_ranking_methods
 
 # Hybrid retrieval (combines vector + lexical)
 results = scan_with_ranking(
@@ -217,7 +299,7 @@ for method, method_results in comparison["results"].items():
 ### Get Suspicious Documents
 
 ```python
-from hubscan.sdk import get_suspicious_documents, Verdict
+from hubscan import get_suspicious_documents, Verdict
 
 # Get high-risk documents
 high_risk = get_suspicious_documents(
@@ -233,7 +315,7 @@ for doc in high_risk:
 ### Explain Document
 
 ```python
-from hubscan.sdk import explain_document
+from hubscan import explain_document
 
 explanation = explain_document(results, doc_index=42)
 if explanation:
@@ -345,8 +427,35 @@ input:
 
 **Note**: For external vector databases (Pinecone, Qdrant, Weaviate), you may need to install additional dependencies:
 ```bash
-pip install pinecone-client  # For Pinecone
-pip install qdrant-client    # For Qdrant
-pip install weaviate-client  # For Weaviate
+pip install pinecone-client  # For Pinecone (or 'pinecone' for v3+)
+pip install qdrant-client      # For Qdrant
+pip install weaviate-client   # For Weaviate (v3: >=3.26.7,<4.0.0)
 ```
+
+### Extracting Embeddings
+
+HubScan can extract embeddings from vector databases for analysis, migration, or offline processing:
+
+**Use Cases:**
+- Migrate embeddings from one database to another
+- Analyze embeddings offline without database access
+- Create backups of vector data
+- Export embeddings for external analysis tools
+
+**Example:**
+```bash
+# Extract from Pinecone
+hubscan extract-embeddings \
+    --config pinecone_config.yaml \
+    --output pinecone_embeddings.npy \
+    --batch-size 1000
+
+# Extract from Qdrant (with limit)
+hubscan extract-embeddings \
+    --config qdrant_config.yaml \
+    --output qdrant_embeddings.npy \
+    --limit 50000
+```
+
+The extracted embeddings can then be used with HubScan's `embeddings_only` mode for scanning.
 

@@ -12,11 +12,11 @@ Tests for the ranking method plugin system:
 - **TestRankingMethodErrorHandling**: Tests error handling
 
 **Coverage:**
-- ✅ Registry operations (register, get, list)
-- ✅ Built-in methods (vector, hybrid, lexical, reranked)
-- ✅ Custom method registration and execution
-- ✅ Integration with detectors
-- ✅ Error handling (missing methods, invalid inputs)
+- Registry operations (register, get, list)
+- Built-in methods (vector, hybrid, lexical, reranked)
+- Custom method registration and execution
+- Integration with detectors
+- Error handling (missing methods, invalid inputs)
 
 ### `test_detector_plugins.py`
 Tests for the detector registry system:
@@ -26,11 +26,11 @@ Tests for the detector registry system:
 - **TestDetectorErrorHandling**: Tests error handling
 
 **Coverage:**
-- ✅ Registry operations (register, get, list)
-- ✅ Built-in detectors (hubness, cluster_spread, stability, dedup)
-- ✅ Custom detector registration and instantiation
-- ✅ Integration with Scanner
-- ✅ Error handling (invalid classes, missing detectors)
+- Registry operations (register, get, list)
+- Built-in detectors (hubness, cluster_spread, stability, dedup)
+- Custom detector registration and instantiation
+- Integration with Scanner
+- Error handling (invalid classes, missing detectors)
 
 ### `test_plugin_integration.py`
 Integration tests for the complete plugin system:
@@ -40,12 +40,12 @@ Integration tests for the complete plugin system:
 - **TestPluginErrorHandling**: Tests error scenarios
 
 **Coverage:**
-- ✅ Custom ranking methods with Scanner
-- ✅ Custom ranking methods with detectors
-- ✅ Custom detectors with Scanner
-- ✅ Backward compatibility (built-in methods/detectors still work)
-- ✅ Config with custom_params
-- ✅ Error handling for unknown methods
+- Custom ranking methods with Scanner
+- Custom ranking methods with detectors
+- Custom detectors with Scanner
+- Backward compatibility (built-in methods/detectors still work)
+- Config with custom_params
+- Error handling for unknown methods
 
 ## Running Tests
 
@@ -73,32 +73,32 @@ pytest tests/test_ranking_plugins.py::TestRankingMethodRegistry -v
 - **Detector plugin tests**: 13
 - **Integration tests**: 8
 
-All tests pass ✅
+All tests pass
 
 ## Key Test Scenarios
 
 ### Ranking Method Tests
-1. ✅ Built-in methods are registered automatically
-2. ✅ Custom methods can be registered and retrieved
-3. ✅ Custom methods execute correctly with VectorIndex
-4. ✅ Custom methods work with detectors
-5. ✅ Error handling for missing/invalid methods
-6. ✅ Warning when overwriting existing methods
+1. Built-in methods are registered automatically
+2. Custom methods can be registered and retrieved
+3. Custom methods execute correctly with VectorIndex
+4. Custom methods work with detectors
+5. Error handling for missing/invalid methods
+6. Warning when overwriting existing methods
 
 ### Detector Tests
-1. ✅ Built-in detectors are registered automatically
-2. ✅ Custom detectors can be registered and instantiated
-3. ✅ Custom detectors work with Scanner
-4. ✅ Error handling for invalid detector classes
-5. ✅ Disabled detectors return zero scores
+1. Built-in detectors are registered automatically
+2. Custom detectors can be registered and instantiated
+3. Custom detectors work with Scanner
+4. Error handling for invalid detector classes
+5. Disabled detectors return zero scores
 
 ### Integration Tests
-1. ✅ Custom ranking methods work with Scanner
-2. ✅ Custom ranking methods work with detectors
-3. ✅ Custom detectors can be instantiated and used
-4. ✅ Backward compatibility maintained
-5. ✅ Config supports custom_params
-6. ✅ Unknown methods raise appropriate errors
+1. Custom ranking methods work with Scanner
+2. Custom ranking methods work with detectors
+3. Custom detectors can be instantiated and used
+4. Backward compatibility maintained
+5. Config supports custom_params
+6. Unknown methods raise appropriate errors
 
 ## Mock Classes
 

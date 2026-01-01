@@ -23,14 +23,14 @@ import os
 from pathlib import Path
 from unittest.mock import patch, MagicMock
 
-from hubscan.sdk import (
+from hubscan import (
     scan,
     quick_scan,
     scan_from_config,
     get_suspicious_documents,
     explain_document,
+    Verdict,
 )
-from hubscan.core.scoring import Verdict
 from hubscan.config import Config
 
 

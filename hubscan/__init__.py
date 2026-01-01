@@ -14,7 +14,14 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-"""HubScan: Adversarial Hubness Detection for RAG Systems"""
+"""HubScan: Adversarial Hubness Detection for RAG Systems
+
+Example usage:
+    from hubscan import quick_scan, get_suspicious_documents, Verdict
+    
+    results = quick_scan(embeddings=embeddings, k=10)
+    suspicious = get_suspicious_documents(results, min_verdict=Verdict.MEDIUM)
+"""
 
 __version__ = "0.1.0"
 
@@ -34,9 +41,9 @@ from .core.io import (
 from .core.sampling import sample_queries
 from .core.scoring import combine_scores, apply_thresholds, Verdict
 
-# SDK functions
+# SDK functions - primary API for most users
 from .sdk import (
-    scan as scan_sdk,
+    scan,
     quick_scan,
     scan_from_config,
     get_suspicious_documents,
@@ -44,37 +51,27 @@ from .sdk import (
 )
 
 __all__ = [
+    # Core
     "Config",
     "Scanner",
+    # Detectors
     "HubnessDetector",
     "ClusterSpreadDetector",
     "StabilityDetector",
     "DedupDetector",
+    # I/O
     "load_embeddings",
     "load_faiss_index",
     "build_faiss_index",
+    # Utilities
     "sample_queries",
     "combine_scores",
     "apply_thresholds",
     "Verdict",
+    # SDK (primary API)
+    "scan",
+    "quick_scan",
+    "scan_from_config",
+    "get_suspicious_documents",
+    "explain_document",
 ]
-
-# SDK functions (imported separately to avoid circular imports)
-try:
-    from .sdk import (
-        scan,
-        quick_scan,
-        scan_from_config,
-        get_suspicious_documents,
-        explain_document,
-    )
-    __all__.extend([
-        "scan",
-        "quick_scan",
-        "scan_from_config",
-        "get_suspicious_documents",
-        "explain_document",
-    ])
-except ImportError:
-    pass
-

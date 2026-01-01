@@ -3,552 +3,723 @@
 [![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](LICENSE)
 [![Python](https://img.shields.io/badge/python-3.11%2B-blue.svg)](https://www.python.org/downloads/)
 
-HubScan is an open-source security scanner that audits vector indices and embeddings to detect **adversarial hubs** in Retrieval-Augmented Generation (RAG) and vector search systems. It supports multiple vector databases (FAISS, Pinecone, Qdrant, Weaviate) and identifies malicious document embeddings that manipulate retrieval results by appearing in top-k results for an unusually large fraction of diverse queries.
+HubScan is an open-source security scanner that detects adversarial hubs in vector indices and RAG systems. It identifies malicious embeddings that manipulate retrieval by appearing in top-k results for an unusually large fraction of queries.
+
+![Adversarial Hub Detection](docs/images/hubscan-hero.png)
+
+## Key Features
+
+**Three Detection Modes** for comprehensive coverage:
+
+![Detection Modes](docs/images/detection-modes.png)
+
+| Detection Mode | What It Catches | When to Use |
+|----------------|-----------------|-------------|
+| Global | Hubs dominating across all queries | Default, always recommended |
+| Concept-Aware | Hubs targeting specific topics or categories | When your data has semantic categories |
+| Modality-Aware | Cross-modal hubs exploiting text-image gaps | For multimodal systems |
+
+**Production-Ready Architecture** for multimodal systems:
+
+![Gold Standard Architecture](docs/images/gold-standard-architecture.png)
+
+## Benchmark Results
+
+| Dataset | Detection Type | Precision | Recall | F1 |
+|---------|----------------|-----------|--------|-----|
+| Wikipedia (text) | Concept-Aware | 96% | 100% | 0.98 |
+| Multimodal (image + text) | Modality-Aware | 100% | 100% | 1.00 |
+
+See the [benchmarks documentation](benchmarks/README.md) for detailed methodology and results.
 
 ## Table of Contents
 
-- [Overview](#overview)
 - [What is Adversarial Hubness?](#what-is-adversarial-hubness)
-- [Features](#features)
 - [Installation](#installation)
 - [Quick Start](#quick-start)
-- [Usage](#usage)
+- [Detection Modes](#detection-modes-1)
+- [CLI Reference](#cli-reference)
+- [SDK Reference](#sdk-reference)
+- [Customizing for Your Data](#customizing-for-your-data)
 - [Configuration](#configuration)
-- [Understanding Results](#understanding-results)
-- [Performance Tuning](#performance-tuning)
-- [Security Considerations](#security-considerations)
-- [Development](#development)
+- [Gold Standard Multimodal Architecture](#gold-standard-multimodal-architecture)
+- [Benchmarks](#benchmarks)
+- [Documentation](#documentation)
 - [Contributing](#contributing)
-- [License](#license)
-
-## Overview
-
-Adversarial hubs are a security vulnerability in vector search systems where malicious actors create document embeddings that appear in top-k retrieval results for many semantically diverse queries. This can be exploited to:
-
-- Inject malicious or unwanted content into RAG responses
-- Manipulate search rankings and results
-- Bypass content filters and moderation
-- Degrade system performance and user experience
-
-HubScan provides comprehensive detection capabilities using multiple statistical and machine learning techniques to identify these adversarial patterns.
 
 ## What is Adversarial Hubness?
 
-In vector search systems, **hubness** is a natural phenomenon where some documents appear more frequently in nearest-neighbor results. However, **adversarial hubs** are artificially created vectors that exhibit:
+In vector search, hubness is when some documents naturally appear in many nearest-neighbor results. Adversarial hubs are artificially crafted embeddings that exploit this phenomenon to:
 
-1. **Unusually High Hub Rate**: Appear in top-k results for 20-50%+ of queries (vs. typical 2-5%)
-2. **Cross-Cluster Spread**: Retrieved by queries from many diverse semantic clusters
-3. **Stability**: Consistently appear under query perturbations
-4. **Statistical Anomaly**: Hub rates that are 5-10+ standard deviations above the median
-
-HubScan uses robust statistical methods (median/MAD-based z-scores) to identify these anomalies while being resistant to false positives from legitimate popular content. The detection system employs rank-aware and distance-based scoring to provide more accurate identification of adversarial hubs by weighting documents that appear at higher ranks and with higher similarity scores more heavily. Detection metrics vary significantly between different retrieval techniques (vector similarity, hybrid search, lexical matching) and reranking methods, so HubScan offers a flexible, puzzle-like approach where you can mix and match retrieval methods, reranking methods, and detectors to uncover adversarial patterns that might be missed by any single technique.
+- Inject malicious content into RAG responses
+- Manipulate search rankings
+- Bypass content moderation
+- Degrade system quality
 
 ### Detection Metrics
 
-<img src="docs/images/detection-metrics.png" alt="Detection Metrics" width="600"/>
-
-*HubScan identifies adversarial hubs through four key detection metrics: unusually high hub rate, cross-cluster spread, stability under perturbations, and statistical anomaly detection using robust z-scores.*
-
-### Visualizing Adversarial Hubness
-
-<img src="docs/images/adversarial-hubness-concept.png" alt="Adversarial Hubness Concept" width="600"/>
-
-*An adversarial hub (red) appears in top-k results for queries from multiple diverse semantic clusters, making it statistically anomalous compared to normal documents (blue).*
-
-## Features
-
-### Core Capabilities
-
-- **Multiple Detection Strategies**:
-  - **Hubness Detection**: Reverse-kNN frequency analysis with robust z-scores
-    - Rank-aware scoring: Higher weights for documents appearing at top ranks (rank 1 > rank k)
-    - Distance-based scoring: Incorporates similarity/distance scores for more accurate detection
-    - **Works with**: All retrieval methods (vector, hybrid, lexical) with optional reranking
-  - **Cluster Spread Analysis**: Entropy-based detection of multi-cluster proximity
-    - Measures how many diverse semantic query clusters retrieve each document
-    - **Works with**: Vector, hybrid (with optional reranking) - skipped for lexical (requires semantic clustering)
-  - **Stability Testing**: Consistency analysis under query perturbations
-    - Tests retrieval consistency by perturbing query embeddings
-    - **Works with**: Vector, hybrid (with optional reranking) - skipped for lexical (requires query embeddings)
-  - **Deduplication**: Boilerplate and duplicate detection
-    - **Works with**: All ranking methods (doesn't depend on retrieval method)
-
-- **Multiple Retrieval Methods**:
-  - **Vector Search (KNN)**: Classic vector similarity search (default)
-    - Uses all detection strategies
-    - Best for: Detecting vector-optimized adversarial hubs
-  - **Hybrid Search**: Combines vector similarity with lexical/keyword matching (BM25)
-    - Uses all detection strategies (cluster spread and stability use hybrid search)
-    - Best for: Detecting both vector-optimized and lexical-optimized hubs
-    - May benefit from relaxed thresholds (see method-specific configuration)
-  - **Lexical Search**: Pure keyword-based search using BM25/TF-IDF
-    - Uses only hubness and dedup detectors (cluster spread and stability automatically skipped)
-    - Best for: Detecting keyword-optimized adversarial hubs
-  
-- **Reranking Methods (Post-Processing)**:
-  - Optional reranking step that can be applied to any retrieval method
-  - Retrieves more candidates (rerank_top_n), then reranks to return top k
-  - Can be enabled for vector, hybrid, or lexical retrieval
-  - Supports custom reranking algorithms via plugin system
-  - Works seamlessly with all detectors (hubness, cluster spread, stability, dedup)
-  - Best for: High-precision detection with semantic reranking or custom scoring
-  - Built-in: `default` reranking (simple top-k selection)
-  - Custom reranking methods can be registered via plugin system
-
-- **Comparison and Configuration**:
-  - Supports comparison across retrieval methods to evaluate detection effectiveness
-  - Method-specific thresholds available for fine-tuning per retrieval method
-  - **Pluggable Architecture**: Extend HubScan with custom retrieval methods, reranking methods, and detectors (see [Plugin System](docs/PLUGINS.md))
-
-- **Comprehensive Detection Metrics**:
-  - **Detection Performance Metrics**: AUC-ROC, AUC-PR, confusion matrix, per-class metrics
-  - **Comparative Analysis**: Evaluate detection performance across different retrieval methods
-
-- **Flexible Input Modes** (Plug-and-Play Architecture):
-  - `embeddings_only`: Build vector index on-the-fly from embeddings (uses FAISS by default)
-  - `faiss_index`: Use pre-built FAISS indices
-  - `pinecone`: Connect to Pinecone vector database
-  - `qdrant`: Connect to Qdrant vector database
-  - `weaviate`: Connect to Weaviate vector database
-  - `vector_db_export`: Import from vector database exports (planned)
-
-- **Scalable Architecture**:
-  - Designed for large corpora (1M+ vectors)
-  - Batch processing and streaming support
-  - Memory-efficient operations
-  - Configurable performance vs. accuracy trade-offs
-
-- **Rich Reporting**:
-  - Machine-readable JSON reports
-  - Human-friendly HTML visualizations
-  - Detailed metrics and evidence
-  - Privacy-safe mode for sensitive data
-
-- **Developer-Friendly**:
-  - Simple CLI interface
-  - Python SDK for programmatic access
-  - Comprehensive test suite
-  - Well-documented API
-
-### Multi-Ranking Detection Pipeline
-
-<img src="docs/images/multi-ranking-pipeline.png" alt="Multi-Ranking Detection Pipeline" width="600"/>
-
-*The complete pipeline shows how different retrieval methods (vector, hybrid, lexical) can optionally use reranking methods as post-processing, then feed into the detection system with multiple detectors (hubness, cluster spread, stability, dedup), score combination, and report generation.*
-
-### Detection Performance Metrics
-
-HubScan provides comprehensive metrics for evaluating detection performance:
-
-| Metric | Description |
-|--------|-------------|
-| **AUC-ROC** | Area under ROC curve (TPR vs FPR) |
-| **AUC-PR** | Area under Precision-Recall curve |
-| **Confusion Matrix** | TP, FP, TN, FN counts |
-| **Per-Class Metrics** | Precision, Recall, F1 for each class |
-
-### Vector Database Abstraction Layer
-
-<img src="docs/images/vector-db-abstraction.png" alt="Vector Database Abstraction" width="600"/>
-
-*HubScan's plug-and-play architecture supports multiple vector databases through a unified VectorIndex interface. Detectors work seamlessly with FAISS, Pinecone, Qdrant, Weaviate, and other backends via adapter pattern.*
+| Metric | Description | Threshold |
+|--------|-------------|-----------|
+| Hub Rate | Fraction of queries retrieving the document | Greater than 5% is suspicious |
+| Hub Z-Score | Statistical deviation from median | Greater than 5.0 is HIGH risk |
+| Cluster Spread | Diversity of query clusters | High entropy is suspicious |
+| Concept Hub Z | Per-topic hubness z-score | Greater than 4.0 is concept-specific hub |
 
 ## Installation
 
-### Prerequisites
-
-- Python 3.11 or higher
-- pip package manager
-
-### Install from Source
-
 ```bash
-# Clone the repository
-git clone https://github.com/Habler-code/AdversarialHubness.git
-cd AdversarialHubness
-
-# Install in development mode
+git clone https://github.com/cisco-ai-defense/hubscan.git
+cd hubscan
 pip install -e .
 
-# Or install dependencies directly
-pip install -r requirements.txt
+# With vector database support
+pip install -e ".[pinecone,qdrant,weaviate]"
 ```
 
-### Install with Optional Dependencies
-
-HubScan supports optional dependencies for vector database adapters and GPU acceleration:
-
-```bash
-# Install with specific vector database support
-pip install -e ".[pinecone]"      # Pinecone support
-pip install -e ".[qdrant]"        # Qdrant support
-pip install -e ".[weaviate]"      # Weaviate support
-pip install -e ".[vector-dbs]"    # All vector database adapters
-
-# Install with GPU support (includes faiss-gpu; you may want to uninstall faiss-cpu)
-pip install -e ".[gpu]"
-# Note: If using GPU, consider: pip uninstall faiss-cpu
-
-# Install with all optional dependencies
-pip install -e ".[all]"
-
-# Combine multiple extras
-pip install -e ".[pinecone,qdrant,gpu]"
-```
-
-### Dependencies
-
-**Core dependencies** (installed by default):
-- `numpy` - Numerical computations
-- `faiss-cpu` - Vector similarity search (CPU version)
-- `scikit-learn` - Clustering and ML utilities
-- `pydantic` - Configuration validation
-- `rich` - CLI formatting
-- `scipy`, `pandas`, `tqdm`, `click`, `jinja2`, `pyyaml` - Supporting libraries
-
-**Optional dependencies**:
-- `pinecone-client>=3.0.0` - For Pinecone vector database support
-- `qdrant-client>=1.7.0` - For Qdrant vector database support
-- `weaviate-client>=4.0.0` - For Weaviate vector database support
-- `faiss-gpu>=1.7.4` - GPU-accelerated vector search (alternative to faiss-cpu)
-
-See `requirements.txt` and `pyproject.toml` for complete dependency lists.
+Requirements: Python 3.11+
 
 ## Quick Start
 
-### 1. Generate Sample Data
+### Basic Scan
 
 ```bash
-python examples/generate_toy_data.py
+# Generate sample data (if needed)
+python examples/scripts/generate_toy_data.py
+
+# Run scan
+hubscan scan --config examples/configs/toy_config.yaml
+
+# View results
+open examples/reports/report.html
 ```
 
-This creates sample embeddings and metadata in `examples/` directory.
-
-### 2. Run Your First Scan
+### With Concept-Aware Detection
 
 ```bash
-hubscan scan --config examples/toy_config.yaml
+hubscan scan --config your_config.yaml --concept-aware --concept-field category
 ```
 
-### 3. View Results
-
-- **JSON Report**: `examples/reports/report.json` - Full machine-readable details
-- **HTML Report**: `examples/reports/report.html` - Visual dashboard
-
-### 4. Try the Demo
-
-See the complete adversarial hub detection demo:
+### With Modality-Aware Detection
 
 ```bash
-python examples/adversarial_hub_demo.py
+hubscan scan --config your_config.yaml --modality-aware --modality-field type
 ```
 
-This demonstrates:
-- Document generation and chunking
-- Embedding creation
-- Adversarial hub planting
-- Detection and identification
-
-## Usage
-
-### Command-Line Interface
+### With Multi-Index Late Fusion
 
 ```bash
-# Run a scan
-hubscan scan --config config.yaml
-
-# Use different retrieval methods
-hubscan scan --config config.yaml --ranking-method hybrid --query-texts queries.json
-hubscan scan --config config.yaml --ranking-method lexical --query-texts queries.json
-
-# Compare retrieval methods
-hubscan compare-ranking --config config.yaml --methods vector hybrid lexical
-
-# Build an index
-hubscan build-index --config config.yaml
+hubscan scan --config your_config.yaml \
+    --multi-index \
+    --text-index data/text_index.index \
+    --image-index data/image_index.index \
+    --late-fusion \
+    --fusion-method rrf
 ```
 
-### Python SDK
+## Detection Modes
+
+### Global Detection (Default)
+
+Detects documents appearing in top-k results for an anomalously high fraction of ALL queries.
+
+Best for: General-purpose detection, baseline security scanning
 
 ```python
-from hubscan.sdk import scan, get_suspicious_documents, Verdict
+from hubscan import scan
 
-# Simple scan
 results = scan(
     embeddings_path="data/embeddings.npy",
+    metadata_path="data/metadata.json",
+    k=20,
+    num_queries=10000
+)
+
+print(f"HIGH risk documents: {results['json_report']['summary']['verdict_counts']['HIGH']}")
+```
+
+CLI:
+```bash
+hubscan scan -c config.yaml
+```
+
+### Concept-Aware Detection
+
+Detects hubs that dominate within specific semantic categories but may be hidden in global statistics.
+
+Best for:
+- News or articles with categories
+- E-commerce with product types
+- Knowledge bases with topics
+
+How it works:
+1. Groups queries by concept (from metadata or automatic clustering)
+2. Computes hub rate per concept
+3. Flags documents with high z-scores in ANY concept
+
+```python
+from hubscan import scan
+
+results = scan(
+    embeddings_path="data/embeddings.npy",
+    metadata_path="data/metadata.json",
+    concept_aware=True,
+    concept_field="category",
+    k=20,
+    num_queries=10000
+)
+```
+
+CLI:
+```bash
+hubscan scan -c config.yaml --concept-aware --concept-field category
+```
+
+No metadata? HubScan auto-clusters queries into concepts:
+```yaml
+detectors:
+  concept_aware:
+    enabled: true
+    mode: query_clustering
+    num_concepts: 10
+```
+
+### Modality-Aware Detection
+
+Detects hubs exploiting cross-modal retrieval patterns.
+
+Best for:
+- Image-text search systems
+- Audio-text systems
+- Any multi-modal RAG
+
+How it works:
+1. Tracks query and document modalities
+2. Computes hits per modality combination
+3. Flags documents with anomalous cross-modal retrieval
+
+```python
+from hubscan import scan
+
+results = scan(
+    embeddings_path="data/embeddings.npy",
+    metadata_path="data/metadata.json",
+    modality_aware=True,
+    modality_field="modality",
+    k=20,
+    num_queries=5000
+)
+```
+
+CLI:
+```bash
+hubscan scan -c config.yaml --modality-aware --modality-field type
+```
+
+### Combined Detection
+
+Use all three modes together for maximum coverage:
+
+```python
+from hubscan import scan
+
+results = scan(
+    embeddings_path="data/embeddings.npy",
+    metadata_path="data/metadata.json",
+    concept_aware=True,
+    concept_field="category",
+    modality_aware=True,
+    modality_field="type",
+    k=20,
+    num_queries=10000
+)
+```
+
+CLI:
+```bash
+hubscan scan -c config.yaml \
+    --concept-aware --concept-field category \
+    --modality-aware --modality-field type
+```
+
+## CLI Reference
+
+```bash
+hubscan scan [OPTIONS]
+
+Options:
+  -c, --config PATH          Path to config YAML file [required]
+  -o, --output TEXT          Output directory
+  --summary-only             Show only summary, don't save reports
+  
+  # Ranking Method
+  --ranking-method [vector|hybrid|lexical]
+  --query-texts PATH         Query texts for lexical/hybrid search
+  --hybrid-alpha FLOAT       Vector weight in hybrid mode (0.0-1.0)
+  
+  # Reranking
+  --rerank                   Enable reranking post-processing
+  --rerank-method TEXT       Reranking method name
+  --rerank-top-n INTEGER     Candidates before reranking
+  
+  # Concept Detection
+  --concept-aware            Enable concept-aware detection
+  --concept-field TEXT       Metadata field for concepts [default: concept]
+  --num-concepts INTEGER     Number of auto-clusters if no metadata
+  
+  # Modality Detection
+  --modality-aware           Enable modality-aware detection
+  --modality-field TEXT      Metadata field for modality [default: modality]
+  
+  # Multi-Index Mode
+  --multi-index              Enable multi-index mode for multimodal systems
+  --text-index PATH          Path to text embedding index
+  --image-index PATH         Path to image embedding index
+  --text-embeddings PATH     Path to text embeddings file
+  --image-embeddings PATH    Path to image embeddings file
+  
+  # Late Fusion
+  --late-fusion              Enable late fusion of multi-index results
+  --fusion-method TEXT       Fusion method: rrf, weighted_sum, max [default: rrf]
+  --text-weight FLOAT        Weight for text index results [default: 0.5]
+  --image-weight FLOAT       Weight for image index results [default: 0.5]
+```
+
+### Extract Embeddings Command
+
+```bash
+hubscan extract-embeddings [OPTIONS]
+
+Options:
+  -c, --config PATH          Path to config YAML file [required]
+  -o, --output TEXT          Output path for embeddings (.npy file) [required]
+  --batch-size INTEGER       Number of vectors per batch [default: 1000]
+  --limit INTEGER            Maximum vectors to extract [default: None, all]
+```
+
+### Examples
+
+```bash
+# Basic scan
+hubscan scan -c config.yaml
+
+# Hybrid search with concept awareness
+hubscan scan -c config.yaml \
+    --ranking-method hybrid \
+    --query-texts queries.json \
+    --concept-aware
+
+# Full multimodal detection suite
+hubscan scan -c config.yaml \
+    --concept-aware --concept-field topic \
+    --modality-aware --modality-field media_type
+
+# Multi-index with late fusion
+hubscan scan -c config.yaml \
+    --multi-index \
+    --text-index data/text.index \
+    --image-index data/image.index \
+    --late-fusion --fusion-method rrf
+
+# Quick summary only
+hubscan scan -c config.yaml --summary-only
+```
+
+## SDK Reference
+
+### Basic Scan
+
+```python
+from hubscan import scan, get_suspicious_documents, Verdict
+
+results = scan(
+    embeddings_path="data/embeddings.npy",
+    metadata_path="data/metadata.json",
     k=20,
     num_queries=10000
 )
 
 # Get high-risk documents
-high_risk = get_suspicious_documents(results, verdict=Verdict.HIGH, top_k=10)
+suspicious = get_suspicious_documents(results, verdict=Verdict.HIGH, top_k=10)
+for doc in suspicious:
+    print(f"Doc {doc['doc_index']}: Risk={doc['risk_score']:.3f}")
 ```
 
-### Advanced Usage
+### With Concept and Modality Detection
 
+```python
+from hubscan import scan
+
+results = scan(
+    embeddings_path="data/embeddings.npy",
+    metadata_path="data/metadata.json",
+    concept_aware=True,
+    concept_field="category",
+    modality_aware=True,
+    modality_field="type",
+    k=20,
+    num_queries=10000
+)
+
+# Access concept-specific scores
+for doc in results['json_report']['suspicious_documents']:
+    print(f"Doc {doc['doc_index']}:")
+    print(f"  Global Hub Z: {doc['hubness'].get('hub_z', 'N/A')}")
+    print(f"  Max Concept Z: {doc['hubness'].get('max_concept_hub_z', 'N/A')}")
+```
+
+### Multi-Index with Late Fusion
+
+```python
+from hubscan import scan
+
+results = scan(
+    embeddings_path="data/embeddings.npy",
+    metadata_path="data/metadata.json",
+    text_index_path="data/text_index.index",
+    image_index_path="data/image_index.index",
+    text_embeddings_path="data/text_embeddings.npy",
+    image_embeddings_path="data/image_embeddings.npy",
+    late_fusion=True,
+    fusion_method="rrf",
+    text_weight=0.5,
+    image_weight=0.5,
+    k=20,
+    num_queries=5000
+)
+```
+
+### In-Memory Scan
+
+```python
+from hubscan import quick_scan
+import numpy as np
+
+# Scan embeddings directly without files
+embeddings = np.random.randn(10000, 384).astype(np.float32)
+results = quick_scan(embeddings, k=20, num_queries=1000)
+```
+
+### Full Configuration Control
+
+```python
+from hubscan import Config, Scanner
+
+config = Config.from_yaml("config.yaml")
+
+# Programmatic config overrides
+config.detectors.concept_aware.enabled = True
+config.detectors.concept_aware.metadata_field = "my_category_field"
+config.detectors.concept_aware.num_concepts = 15
+
+config.detectors.modality_aware.enabled = True
+config.detectors.modality_aware.doc_modality_field = "media_type"
+
+scanner = Scanner(config)
+scanner.load_data()
+results = scanner.scan()
+```
+
+## Customizing for Your Data
+
+### Your Metadata Uses Different Field Names?
+
+HubScan maps to your data's field names via configuration:
+
+| Your Field | HubScan Parameter | Example Values |
+|------------|-------------------|----------------|
+| category, topic, subject | concept_field | "news", "sports", "tech" |
+| type, media_type, format | modality_field | "text", "image", "video" |
+
+CLI:
+```bash
+hubscan scan -c config.yaml \
+    --concept-aware --concept-field topic \
+    --modality-aware --modality-field media_type
+```
+
+SDK:
+```python
+results = scan(
+    embeddings_path="data/embeddings.npy",
+    metadata_path="data/metadata.json",
+    concept_aware=True,
+    concept_field="topic",
+    modality_aware=True,
+    modality_field="media_type",
+)
+```
+
+Config YAML:
+```yaml
+detectors:
+  concept_aware:
+    enabled: true
+    mode: metadata
+    metadata_field: topic
+    
+  modality_aware:
+    enabled: true
+    mode: metadata
+    doc_modality_field: media_type
+```
+
+### No Concept Metadata? Use Auto-Clustering
+
+```yaml
+detectors:
+  concept_aware:
+    enabled: true
+    mode: query_clustering
+    num_concepts: 10
+    clustering_algorithm: minibatch_kmeans
+    seed: 42
+```
+
+Or use hybrid mode to try metadata first:
+```yaml
+detectors:
+  concept_aware:
+    enabled: true
+    mode: hybrid
+    metadata_field: category
+    num_concepts: 10
+```
+
+### Metadata Format
+
+JSON metadata file:
+```json
+{
+  "topic": ["news", "sports", "tech", "news", ...],
+  "media_type": ["text", "image", "text", "video", ...]
+}
+```
+
+## Configuration
+
+### Full Configuration Reference
+
+```yaml
+input:
+  mode: embeddings_only
+  embeddings_path: data/embeddings.npy
+  metadata_path: data/metadata.json
+  metric: cosine
+
+scan:
+  k: 20
+  num_queries: 10000
+  query_sampling: mixed
+  ranking:
+    method: vector
+    hybrid_alpha: 0.5
+    rerank: false
+    rerank_top_n: 100
+
+detectors:
+  hubness:
+    enabled: true
+    use_rank_weights: true
+    use_distance_weights: true
+    use_contrastive_delta: true
+    use_bucket_concentration: true
+    
+  cluster_spread:
+    enabled: true
+    num_clusters: 100
+    
+  stability:
+    enabled: false
+    
+  dedup:
+    enabled: true
+    
+  concept_aware:
+    enabled: false
+    mode: hybrid
+    metadata_field: concept
+    num_concepts: 10
+    concept_hub_z_threshold: 4.0
+    
+  modality_aware:
+    enabled: false
+    mode: metadata
+    doc_modality_field: modality
+    query_modality_field: modality
+    cross_modal_penalty: 1.5
+
+scoring:
+  weights:
+    hub_z: 0.6
+    cluster_spread: 0.15
+    stability: 0.05
+    boilerplate: 0.2
+
+thresholds:
+  policy: hybrid
+  hub_z: 5.0
+  percentile: 0.015
+
+output:
+  out_dir: reports/
+  privacy_mode: false
+```
+
+## Gold Standard Multimodal Architecture
+
+HubScan supports the production architecture for secure multimodal RAG systems.
+
+### Architecture Overview
+
+1. **Query Understanding**: Detect query modality (text/image/both) and topic/intent
+2. **Parallel Retrieval**: Query text and image indexes independently
+3. **Late Fusion**: Merge results using RRF, weighted sum, or max scoring
+4. **Rerank and Filter**: Apply hubness detection and diversity enforcement
+
+### Best Practices for Embedding Selection
+
+For secure RAG systems, embedding choice significantly impacts hubness detection effectiveness:
+
+**For Text Systems**:
+- Use domain-specific sentence transformers
+- Consider sparse-dense hybrid retrieval
+- Maintain semantic separation between topics
+
+**For Multimodal Systems**:
+- Use separate embedding spaces for each modality
+- Avoid unified cross-modal embedding spaces for security-critical applications
+- Combine modality-specific retrievers with late fusion
+
+### Configuration
+
+```yaml
+input:
+  mode: multi_index
+  multi_index:
+    text_index_path: "data/text_index.index"
+    text_embeddings_path: "data/text_embeddings.npy"
+    image_index_path: "data/image_index.index"
+    image_embeddings_path: "data/image_embeddings.npy"
+  
+  late_fusion:
+    enabled: true
+    fusion_method: rrf
+    text_weight: 0.5
+    image_weight: 0.5
+    rrf_k: 60
+  
+  diversity:
+    enabled: true
+    min_distance: 0.3
+
+scan:
+  ranking:
+    parallel_retrieval: true
+```
+
+### Usage
+
+```python
+from hubscan import Config, Scanner
+
+config = Config.from_yaml("multi_index_config.yaml")
+scanner = Scanner(config)
+scanner.load_data()
+results = scanner.scan()
+```
+
+The multi-index adapter automatically handles parallel retrieval and late fusion transparently.
+
+## Supported Vector Databases
+
+| Database | Mode | Status |
+|----------|------|--------|
+| FAISS | embeddings_only, faiss_index | Full support |
+| Pinecone | pinecone | Full support |
+| Qdrant | qdrant | Full support |
+| Weaviate | weaviate | Full support |
+| Multi-Index | multi_index | Gold standard multimodal |
+
+```bash
+pip install -e ".[pinecone,qdrant,weaviate]"
+```
+
+### Extracting Embeddings from Vector Databases
+
+HubScan can extract embeddings from external vector databases for analysis or migration:
+
+**CLI:**
+```bash
+hubscan extract-embeddings \
+    --config pinecone_config.yaml \
+    --output embeddings.npy \
+    --batch-size 1000 \
+    --limit 10000
+```
+
+**SDK:**
 ```python
 from hubscan import Config, Scanner
 
 config = Config.from_yaml("config.yaml")
 scanner = Scanner(config)
 scanner.load_data()
-results = scanner.scan()
+
+embeddings, ids = scanner.extract_embeddings(
+    output_path="embeddings.npy",
+    batch_size=1000,
+    limit=None  # None = extract all
+)
 ```
 
-For complete usage documentation, examples, and API reference, see:
-- [Usage Guide](docs/USAGE.md) - Complete usage documentation
-- [SDK Documentation](docs/SDK.md) - Python SDK reference
+Supported databases: FAISS, Pinecone, Qdrant, Weaviate. See [Usage Guide](docs/USAGE.md#extracting-embeddings) for details.
 
-### Plugin System
+## Benchmarks
 
-HubScan supports a pluggable architecture that allows you to extend the system with custom ranking methods and detectors. Custom components integrate seamlessly with the existing pipeline and are automatically included in reports and scoring.
+HubScan includes benchmarks with real datasets:
 
-For complete documentation, code examples, and integration guides, see [Plugin System Documentation](docs/PLUGINS.md).
+| Dataset | Type | Precision | Recall | F1 |
+|---------|------|-----------|--------|-----|
+| Wikipedia | Text with Categories | 96% | 100% | 0.98 |
+| Multimodal | Image + Text | 100% | 100% | 1.00 |
 
-## Configuration
-
-HubScan uses YAML configuration files to control all aspects of the scanning process. Configuration includes:
-
-- **Input**: Data sources (embeddings, indices, vector databases)
-- **Index**: FAISS index type and parameters
-- **Scan**: Query sampling, retrieval methods, reranking methods, batch processing
-- **Detectors**: Enable/configure detection algorithms
-- **Scoring**: Weight detector outputs and set thresholds
-- **Output**: Report generation and privacy settings
-
-### Example Configuration
-
-```yaml
-input:
-  mode: embeddings_only
-  embeddings_path: data/embeddings.npy
-  metric: cosine
-
-scan:
-  k: 20
-  num_queries: 10000
-  ranking:
-    method: vector  # Retrieval method: vector, hybrid, or lexical
-    rerank: true  # Enable reranking as post-processing
-    rerank_method: default  # Reranking method: default or custom registered method
-    rerank_top_n: 100  # Retrieve 100 candidates, rerank to top k
-
-detectors:
-  hubness:
-    enabled: true
-  cluster_spread:
-    enabled: true
-```
-
-For complete configuration reference, see [Usage Guide](docs/USAGE.md) and example configurations in `examples/` and `benchmarks/configs/`.
-```
-
-## Understanding Results
-
-HubScan generates comprehensive reports with risk scores, verdicts, and detailed metrics for each document. Reports are available in JSON (machine-readable) and HTML (visual dashboard) formats.
-
-### Verdict Levels
-
-- **HIGH**: Highly suspicious (adversarial hub likely) - Quarantine and investigate
-- **MEDIUM**: Some suspicious characteristics - Review and monitor
-- **LOW**: Appears normal - No action needed
-
-### Key Metrics
-
-HubScan evaluates documents using multiple metrics:
-
-- **Hub Rate**: Weighted fraction of queries retrieving the document (rank and distance weighted)
-- **Hub Z-Score**: Robust z-score indicating statistical anomaly
-- **Cluster Spread**: Diversity of semantic clusters retrieving the document
-- **Stability**: Consistency under query perturbations
-- **Risk Score**: Combined weighted score from all detectors
-
-Reports include detailed explanations, example queries, and evidence for each detected hub. For complete documentation on interpreting results, see [Usage Guide](docs/USAGE.md).
-
-## Performance Tuning
-
-### Fast Screening Scan
-
-For quick scans on large corpora:
-
-```yaml
-index:
-  type: flat  # Fastest for small-medium corpora
-
-scan:
-  num_queries: 1000  # Fewer queries
-  k: 10  # Smaller k
-
-detectors:
-  hubness:
-    enabled: true
-  cluster_spread:
-    enabled: false  # Disable expensive detectors
-  stability:
-    enabled: false
-```
-
-**Expected Runtime**: 1-5 minutes for 100K documents
-
-### Deep Scan
-
-For comprehensive analysis:
-
-```yaml
-index:
-  type: hnsw  # or ivf_pq for very large corpora
-  params:
-    M: 32
-    efSearch: 128
-
-scan:
-  num_queries: 10000  # More queries for better statistics
-  k: 20
-
-detectors:
-  hubness:
-    enabled: true
-    validate_exact: true  # Validate with exact search
-  cluster_spread:
-    enabled: true
-  stability:
-    enabled: true
-```
-
-**Expected Runtime**: 10-60 minutes for 1M documents
-
-## Security Considerations
-
-### Privacy Mode
-
-Enable privacy mode to redact sensitive information:
-
-```yaml
-output:
-  privacy_mode: true  # Redacts text, paths, tenant IDs
-  emit_embeddings: false  # Don't include raw embeddings
-```
-
-### Multi-Tenant Systems
-
-- Ensure scan results are properly secured
-- Use privacy mode when scanning shared indices
-- Be careful with metadata that may leak tenant information
-
-### Access Control
-
-- Restrict access to scan results
-- Use secure storage for reports
-- Audit scan execution logs
-
-## Development
-
-### Setup Development Environment
-
+Run benchmarks:
 ```bash
-git clone https://github.com/Habler-code/AdversarialHubness.git
-cd AdversarialHubness
+cd benchmarks/scripts
 
-# Install with development dependencies
-pip install -e ".[dev]"
+# Wikipedia benchmark
+python run_benchmark.py \
+    --dataset ../data/wikipedia/ \
+    --config ../configs/concept_modality.yaml
 
-# Or install with all optional dependencies for testing
-pip install -e ".[dev,all]"
+# Multimodal benchmark
+python run_benchmark.py \
+    --dataset ../data/multimodal/ \
+    --config ../configs/multimodal.yaml
 ```
 
-### Running Tests
+See [benchmarks/README.md](benchmarks/README.md) for complete documentation.
 
-```bash
-# Run all tests
-pytest tests/
+## Documentation
 
-# Run with coverage
-pytest tests/ --cov=hubscan --cov-report=html
-
-# Run specific test
-pytest tests/test_hubness.py -v
-```
-
-See [TESTING.md](TESTING.md) for detailed testing guide.
-
-### Code Quality
-
-```bash
-# Type checking
-mypy hubscan/
-
-# Linting
-ruff check hubscan/
-
-# Formatting
-black hubscan/
-```
-
-### Project Structure
-
-```
-AdversarialHubness/
-├── hubscan/              # Main package
-│   ├── __init__.py
-│   ├── cli.py           # CLI interface
-│   ├── sdk.py           # SDK functions
-│   ├── config/          # Configuration management
-│   ├── core/            # Core functionality
-│   │   ├── scanner.py  # Main orchestrator
-│   │   ├── io/         # I/O operations
-│   │   ├── sampling/   # Query sampling
-│   │   ├── detectors/  # Detection algorithms
-│   │   ├── scoring/    # Score combination
-│   │   └── report/     # Report generation
-│   └── utils/          # Utilities
-├── tests/               # Test suite
-├── examples/           # Examples and demos
-├── docs/               # Documentation
-├── pyproject.toml      # Project configuration
-└── README.md
-```
+- [Usage Guide](docs/USAGE.md): Complete CLI and configuration documentation
+- [SDK Reference](docs/SDK.md): Python SDK API reference
+- [Plugin System](docs/PLUGINS.md): Custom detectors and ranking methods
+- [Concept and Modality Guide](docs/CONCEPTS_AND_MODALITIES.md): Advanced detection modes
 
 ## Contributing
 
-Contributions are welcome! Please see our contributing guidelines:
-
 1. Fork the repository
 2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Make your changes
-4. Add tests for new functionality
-5. Ensure all tests pass (`pytest tests/`)
-6. Commit your changes (`git commit -m 'Add amazing feature'`)
-7. Push to the branch (`git push origin feature/amazing-feature`)
-8. Open a Pull Request
-
-### Development Guidelines
-
-- Follow PEP 8 style guidelines
-- Write comprehensive tests
-- Update documentation
-- Add type hints
-- Write clear commit messages
+3. Add tests for new functionality
+4. Ensure tests pass (`pytest tests/`)
+5. Submit a Pull Request
 
 ## License
 
-This project is licensed under the Apache License 2.0 - see the [LICENSE](LICENSE) file for details.
-
-## References
-
-- [FAISS Documentation](https://github.com/facebookresearch/faiss)
-- [Adversarial Hubness in RAG Systems](https://ztingwei.com/publication/preprint_hubness/)
-- [Vector Search Security Best Practices](https://github.com/cisco-ai-defense/vector-search-security)
+Apache License 2.0 - see [LICENSE](LICENSE)
 
 ## Support
 
-For issues, questions, or contributions:
-
-- **GitHub Issues**: [https://github.com/Habler-code/AdversarialHubness/issues](https://github.com/Habler-code/AdversarialHubness/issues)
-- **Documentation**: See `docs/` directory for detailed guides
-  - [Usage Guide](docs/USAGE.md) - Complete usage documentation
-  - [SDK Documentation](docs/SDK.md) - Python SDK reference
-  - [Plugin System](docs/PLUGINS.md) - Extending HubScan with custom components
-
-## Acknowledgments
-
-Developed with security and performance in mind for production RAG systems.
+- Issues: [GitHub Issues](https://github.com/cisco-ai-defense/hubscan/issues)
+- Documentation: See `docs/` directory

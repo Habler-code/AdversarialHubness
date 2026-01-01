@@ -30,7 +30,7 @@ except ImportError:
     QueryVector = None
 
 from ..vector_index import VectorIndex
-from ...utils.logging import get_logger
+from ....utils.logging import get_logger
 
 logger = get_logger()
 
@@ -57,11 +57,20 @@ class QdrantIndex(VectorIndex):
             url: Qdrant server URL
             api_key: Optional API key for Qdrant Cloud
         """
+        # Check import at runtime in case package was installed after module load
         if QdrantClient is None:
-            raise ImportError(
-                "Qdrant adapter requires 'qdrant-client' package. "
-                "Install with: pip install qdrant-client"
-            )
+            try:
+                from qdrant_client import QdrantClient as QC
+                from qdrant_client.models import Distance, VectorParams
+                # Update module-level variables
+                globals()['QdrantClient'] = QC
+                globals()['Distance'] = Distance
+                globals()['VectorParams'] = VectorParams
+            except ImportError:
+                raise ImportError(
+                    "Qdrant adapter requires 'qdrant-client' package. "
+                    "Install with: pip install qdrant-client"
+                )
         
         self.collection_name = collection_name
         
@@ -261,6 +270,93 @@ class QdrantIndex(VectorIndex):
         }
         
         return distances, indices, metadata
+    
+    def extract_embeddings(
+        self,
+        batch_size: int = 1000,
+        limit: Optional[int] = None,
+    ) -> Tuple[np.ndarray, List[Any]]:
+        """
+        Extract all embeddings from the Qdrant collection.
+        
+        Args:
+            batch_size: Number of vectors to retrieve per batch
+            limit: Optional maximum number of vectors to extract (None = all)
+            
+        Returns:
+            Tuple of (embeddings, ids) where:
+            - embeddings: Array of shape (N, D) containing all vectors
+            - ids: List of document IDs corresponding to each embedding
+        """
+        all_embeddings = []
+        all_ids = []
+        
+        try:
+            # Qdrant supports scroll API to get all points
+            offset = None
+            retrieved = 0
+            
+            while True:
+                # Scroll through collection
+                scroll_result = self.client.scroll(
+                    collection_name=self.collection_name,
+                    limit=batch_size,
+                    offset=offset,
+                    with_payload=False,
+                    with_vectors=True,  # Include vectors
+                )
+                
+                points = scroll_result[0]  # Points list
+                next_offset = scroll_result[1]  # Next offset
+                
+                if not points:
+                    break
+                
+                for point in points:
+                    # Qdrant returns PointStruct with vector and id
+                    point_id = point.id
+                    vector = point.vector
+                    
+                    # Handle different vector formats
+                    if isinstance(vector, dict):
+                        # Named vector format: {"vector_name": [values]}
+                        vec_values = list(vector.values())[0] if vector else None
+                    elif isinstance(vector, list):
+                        vec_values = vector
+                    else:
+                        logger.warning(f"Unexpected vector format for ID {point_id}")
+                        continue
+                    
+                    if vec_values is None:
+                        continue
+                    
+                    all_embeddings.append(vec_values)
+                    all_ids.append(point_id)
+                    retrieved += 1
+                    
+                    if limit and retrieved >= limit:
+                        break
+                
+                if limit and retrieved >= limit:
+                    break
+                
+                if next_offset is None:
+                    break
+                
+                offset = next_offset
+        
+        except Exception as e:
+            logger.error(f"Qdrant embedding extraction failed: {e}")
+            raise
+        
+        if not all_embeddings:
+            logger.warning("No embeddings extracted from Qdrant collection")
+            return np.array([], dtype=np.float32).reshape(0, self._dimension), []
+        
+        embeddings_array = np.array(all_embeddings, dtype=np.float32)
+        logger.info(f"Extracted {len(embeddings_array)} embeddings from Qdrant collection")
+        
+        return embeddings_array, all_ids
     
     @property
     def dimension(self) -> int:

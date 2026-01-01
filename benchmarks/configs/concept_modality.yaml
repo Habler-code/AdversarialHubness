@@ -1,0 +1,104 @@
+input:
+  mode: embeddings_only
+  embeddings_path: ""  # Will be set by benchmark script
+  metadata_path: ""    # Will be set by benchmark script
+  metric: cosine
+
+index:
+  type: flat
+  params: {}
+
+scan:
+  k: 20
+  num_queries: 5000
+  query_sampling: mixed
+  query_texts_path: ""  # Will be set by benchmark script if available
+  batch_size: 256
+  mixed_proportions:
+    real_queries: 0.0
+    random_docs_as_queries: 0.5
+    cluster_centroids: 0.5
+  seed: 42
+  ranking:
+    method: vector
+    hybrid_alpha: 0.5
+    rerank_top_n: 100
+    lexical_backend: bm25
+
+detectors:
+  hubness:
+    enabled: true
+    validate_exact: false
+    use_rank_weights: true
+    use_distance_weights: true
+  cluster_spread:
+    enabled: true
+    num_clusters: 100
+    batch_size: 1000
+  stability:
+    enabled: false
+    candidates_top_x: 50
+    perturbations: 3
+    sigma: 0.01
+    normalize: true
+  dedup:
+    enabled: true
+    text_hash_field: text_hash
+    duplicate_threshold: 0.95
+    suppress_boilerplate: true
+  
+  # Concept-aware hub detection
+  # Detects hubs that are localized to specific semantic topics/clusters
+  concept_aware:
+    enabled: true
+    mode: hybrid  # Try metadata first, fallback to clustering
+    metadata_field: concept  # Look for 'concept' field in metadata
+    num_concepts: 10  # Number of concept clusters for auto-clustering
+    clustering_algorithm: minibatch_kmeans
+    clustering_params:
+      batch_size: 1024
+      n_init: 3
+      max_iter: 100
+    min_concept_size: 10  # Min queries per concept
+    concept_hub_z_threshold: 4.0  # Lower threshold for concept-specific hubs
+    seed: 42
+  
+  # Modality-aware hub detection
+  # Detects cross-modal hubs that appear in queries of different modality
+  modality_aware:
+    enabled: true
+    mode: default_text  # Assume text modality unless metadata says otherwise
+    doc_modality_field: modality
+    query_modality_field: modality
+    default_doc_modality: text
+    default_query_modality: text
+    known_modalities:
+      - text
+      - image
+      - audio
+      - video
+      - code
+    cross_modal_penalty: 1.5  # Multiplier for cross-modal hub scores
+    separate_modality_stats: true
+
+scoring:
+  weights:
+    hub_z: 0.6  # Reduced to make room for concept/modality weights
+    cluster_spread: 0.15
+    stability: 0.05
+    boilerplate: 0.2
+    # Concept and modality weights
+    concept_hub_z: 0.15  # Weight for max concept-specific hub z-score
+    cross_modal: 0.1  # Weight for cross-modal hub penalty
+
+thresholds:
+  policy: hybrid
+  hub_z: 3.5  # Balanced threshold for concept-aware detection
+  percentile: 0.02  # Top 2% for broader detection
+
+output:
+  out_dir: ""  # Will be set by benchmark script
+  privacy_mode: false
+  emit_embeddings: false
+  max_example_queries: 10
+

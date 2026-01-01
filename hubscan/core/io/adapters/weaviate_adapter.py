@@ -25,7 +25,7 @@ except ImportError:
     weaviate = None
 
 from ..vector_index import VectorIndex
-from ...utils.logging import get_logger
+from ....utils.logging import get_logger
 
 logger = get_logger()
 
@@ -59,13 +59,66 @@ class WeaviateIndex(VectorIndex):
             )
         
         self.class_name = class_name
+        self.url = url
+        self.api_key = api_key
         
-        # Initialize Weaviate client
-        if api_key:
-            auth_config = weaviate.AuthApiKey(api_key=api_key)
-            self.client = weaviate.Client(url=url, auth_client_secret=auth_config)
-        else:
-            self.client = weaviate.Client(url=url)
+        # Initialize Weaviate client - support both v3 and v4 APIs
+        try:
+            # Try v4 API first
+            if hasattr(weaviate, 'connect_to_local') or hasattr(weaviate, 'WeaviateClient'):
+                # v4 API
+                if 'localhost' in url or '127.0.0.1' in url:
+                    port = int(url.split(':')[-1]) if ':' in url else 8080
+                    if api_key:
+                        self.client = weaviate.connect_to_custom(
+                            http_host=url.replace('http://', '').replace('https://', '').split(':')[0],
+                            http_port=port,
+                            http_secure=False,
+                            grpc_port=50051,
+                            auth_credentials=weaviate.auth.AuthApiKey(api_key=api_key)
+                        )
+                    else:
+                        self.client = weaviate.connect_to_local(port=port, grpc_port=50051)
+                else:
+                    # Custom URL
+                    if api_key:
+                        self.client = weaviate.connect_to_custom(
+                            http_host=url.replace('http://', '').replace('https://', '').split(':')[0],
+                            http_port=int(url.split(':')[-1]) if ':' in url else 8080,
+                            http_secure='https' in url,
+                            grpc_port=50051,
+                            auth_credentials=weaviate.auth.AuthApiKey(api_key=api_key)
+                        )
+                    else:
+                        self.client = weaviate.connect_to_custom(
+                            http_host=url.replace('http://', '').replace('https://', '').split(':')[0],
+                            http_port=int(url.split(':')[-1]) if ':' in url else 8080,
+                            http_secure='https' in url,
+                            grpc_port=50051
+                        )
+                self._is_v4 = True
+            else:
+                # v3 API fallback
+                if api_key:
+                    auth_config = weaviate.AuthApiKey(api_key=api_key)
+                    self.client = weaviate.Client(url=url, auth_client_secret=auth_config)
+                else:
+                    self.client = weaviate.Client(url=url)
+                self._is_v4 = False
+        except Exception as e:
+            # If v4 fails, try v3
+            try:
+                if api_key:
+                    auth_config = weaviate.AuthApiKey(api_key=api_key)
+                    self.client = weaviate.Client(url=url, auth_client_secret=auth_config)
+                else:
+                    self.client = weaviate.Client(url=url)
+                self._is_v4 = False
+            except:
+                raise ImportError(
+                    "Weaviate adapter requires 'weaviate-client' package. "
+                    "Install with: pip install weaviate-client"
+                )
         
         # Get schema info
         try:
@@ -404,6 +457,97 @@ class WeaviateIndex(VectorIndex):
         }
         
         return distances, indices, metadata
+    
+    def extract_embeddings(
+        self,
+        batch_size: int = 1000,
+        limit: Optional[int] = None,
+    ) -> Tuple[np.ndarray, List[Any]]:
+        """
+        Extract all embeddings from the Weaviate class.
+        
+        Args:
+            batch_size: Number of vectors to retrieve per batch
+            limit: Optional maximum number of vectors to extract (None = all)
+            
+        Returns:
+            Tuple of (embeddings, ids) where:
+            - embeddings: Array of shape (N, D) containing all vectors
+            - ids: List of document IDs corresponding to each embedding
+        """
+        all_embeddings = []
+        all_ids = []
+        
+        try:
+            # Weaviate uses cursor-based pagination
+            cursor = None
+            retrieved = 0
+            
+            while True:
+                # Build query
+                query_builder = (
+                    self.client.query
+                    .get(self.class_name)
+                    .with_additional(["id", "vector"])
+                    .with_limit(batch_size)
+                )
+                
+                if cursor:
+                    query_builder = query_builder.with_after(cursor)
+                
+                result = query_builder.do()
+                
+                if not result or "data" not in result or "Get" not in result["data"]:
+                    break
+                
+                get_data = result["data"]["Get"].get(self.class_name, [])
+                
+                if not get_data:
+                    break
+                
+                for item in get_data:
+                    additional = item.get("_additional", {})
+                    point_id = additional.get("id")
+                    vector = additional.get("vector")
+                    
+                    if vector is None:
+                        continue
+                    
+                    all_embeddings.append(vector)
+                    all_ids.append(point_id)
+                    retrieved += 1
+                    
+                    if limit and retrieved >= limit:
+                        break
+                
+                if limit and retrieved >= limit:
+                    break
+                
+                # Get cursor for next batch
+                if get_data:
+                    last_item = get_data[-1]
+                    cursor = last_item.get("_additional", {}).get("id")
+                    if cursor is None:
+                        break
+                else:
+                    break
+        
+        except Exception as e:
+            logger.error(f"Weaviate embedding extraction failed: {e}")
+            raise
+        
+        if not all_embeddings:
+            logger.warning("No embeddings extracted from Weaviate class")
+            return np.array([], dtype=np.float32).reshape(0, self._dimension if self._dimension > 0 else 0), []
+        
+        # Infer dimension from first vector if not set
+        if self._dimension == 0 and all_embeddings:
+            self._dimension = len(all_embeddings[0])
+        
+        embeddings_array = np.array(all_embeddings, dtype=np.float32)
+        logger.info(f"Extracted {len(embeddings_array)} embeddings from Weaviate class")
+        
+        return embeddings_array, all_ids
     
     @property
     def dimension(self) -> int:

@@ -1,0 +1,80 @@
+# Multimodal Benchmark Configuration
+# Uses separate embedding spaces (ResNet50 for images, sentence-transformers for text)
+#
+# Note: This benchmark uses combined embeddings for validation purposes.
+# In production, use multi_index mode with late fusion for the gold standard architecture.
+# See docs/CONCEPTS_AND_MODALITIES.md for production deployment guidance.
+
+input:
+  mode: embeddings_only
+  embeddings_path: ""
+  metadata_path: ""
+  metric: cosine
+
+index:
+  type: flat
+  params: {}
+
+scan:
+  k: 20
+  num_queries: 2000
+  query_sampling: mixed
+  batch_size: 256
+  mixed_proportions:
+    real_queries: 0.0
+    random_docs_as_queries: 0.6
+    cluster_centroids: 0.4
+  seed: 42
+  ranking:
+    method: vector
+
+detectors:
+  hubness:
+    enabled: true
+    validate_exact: false
+    use_rank_weights: true
+    use_distance_weights: true
+    # Contrastive bucket detection
+    use_contrastive_delta: true
+    use_bucket_concentration: true
+  cluster_spread:
+    enabled: true
+    num_clusters: 50
+    batch_size: 512
+  stability:
+    enabled: false
+  dedup:
+    enabled: true
+  
+  concept_aware:
+    enabled: true
+    mode: metadata
+    metadata_field: concept
+    num_concepts: 10
+    concept_hub_z_threshold: 3.5
+    seed: 42
+  
+  modality_aware:
+    enabled: true
+    mode: metadata
+    doc_modality_field: modality
+    cross_modal_penalty: 1.5
+
+scoring:
+  weights:
+    hub_z: 0.6
+    cluster_spread: 0.2
+    stability: 0.0
+    boilerplate: 0.2
+    concept_hub_z: 0.0
+    cross_modal: 0.0
+
+thresholds:
+  policy: percentile
+  hub_z: 60.0  # High because z-scores are inflated in padded multimodal embeddings
+  percentile: 0.02  # Top 2%
+  medium_ratio: 0.6
+
+output:
+  out_dir: ""
+  privacy_mode: false

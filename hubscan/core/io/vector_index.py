@@ -118,11 +118,32 @@ class VectorIndex(ABC):
                 "fallback": True,
             }
             return distances, indices, metadata
-        else:
-            raise NotImplementedError(
-                f"{self.__class__.__name__} does not support pure lexical search. "
-                "Provide query_vectors or implement search_hybrid() in adapter."
-            )
+    
+    def extract_embeddings(
+        self,
+        batch_size: int = 1000,
+        limit: Optional[int] = None,
+    ) -> Tuple[np.ndarray, List[Any]]:
+        """
+        Extract all embeddings from the vector index.
+        
+        Args:
+            batch_size: Number of vectors to retrieve per batch
+            limit: Optional maximum number of vectors to extract (None = all)
+            
+        Returns:
+            Tuple of (embeddings, ids) where:
+            - embeddings: Array of shape (N, D) containing all vectors
+            - ids: List of document IDs corresponding to each embedding
+            
+        Note:
+            Default implementation raises NotImplementedError. Adapters should
+            override this method to provide embedding extraction support.
+        """
+        raise NotImplementedError(
+            f"{self.__class__.__name__} does not support embedding extraction. "
+            "Implement extract_embeddings() in adapter."
+        )
     
     def search_lexical(
         self,

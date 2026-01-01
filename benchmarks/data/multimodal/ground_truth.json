@@ -1,0 +1,141 @@
+{
+  "num_total": 600,
+  "num_adversarial": 12,
+  "hub_rate": 0.02,
+  "hub_positions": [
+    10,
+    55,
+    77,
+    78,
+    110,
+    118,
+    181,
+    284,
+    349,
+    419,
+    469,
+    565
+  ],
+  "hub_ids": [
+    "hub_0000",
+    "hub_0001",
+    "hub_0002",
+    "hub_0003",
+    "hub_0004",
+    "hub_0005",
+    "hub_0006",
+    "hub_0007",
+    "hub_0008",
+    "hub_0009",
+    "hub_0010",
+    "hub_0011"
+  ],
+  "strategies": [
+    "geometric_hub",
+    "geometric_hub",
+    "geometric_hub",
+    "geometric_hub",
+    "multi_centroid_hub",
+    "multi_centroid_hub",
+    "multi_centroid_hub",
+    "multi_centroid_hub",
+    "cross_modal_hub",
+    "cross_modal_hub",
+    "cross_modal_hub",
+    "cross_modal_hub"
+  ],
+  "hub_metadata": [
+    {
+      "hub_id": "hub_0000",
+      "strategy": "geometric_hub",
+      "strategy_description": "Hub as weighted average of diverse documents",
+      "num_samples": 200,
+      "description": "Hub as weighted average of diverse documents"
+    },
+    {
+      "hub_id": "hub_0001",
+      "strategy": "geometric_hub",
+      "strategy_description": "Hub as weighted average of diverse documents",
+      "num_samples": 200,
+      "description": "Hub as weighted average of diverse documents"
+    },
+    {
+      "hub_id": "hub_0002",
+      "strategy": "geometric_hub",
+      "strategy_description": "Hub as weighted average of diverse documents",
+      "num_samples": 200,
+      "description": "Hub as weighted average of diverse documents"
+    },
+    {
+      "hub_id": "hub_0003",
+      "strategy": "geometric_hub",
+      "strategy_description": "Hub as weighted average of diverse documents",
+      "num_samples": 200,
+      "description": "Hub as weighted average of diverse documents"
+    },
+    {
+      "hub_id": "hub_0004",
+      "strategy": "multi_centroid_hub",
+      "strategy_description": "Multiple hubs targeting different semantic clusters",
+      "num_clusters": 10,
+      "target_clusters_per_hub": 3,
+      "description": "Multiple hubs targeting different semantic clusters"
+    },
+    {
+      "hub_id": "hub_0005",
+      "strategy": "multi_centroid_hub",
+      "strategy_description": "Multiple hubs targeting different semantic clusters",
+      "num_clusters": 10,
+      "target_clusters_per_hub": 3,
+      "description": "Multiple hubs targeting different semantic clusters"
+    },
+    {
+      "hub_id": "hub_0006",
+      "strategy": "multi_centroid_hub",
+      "strategy_description": "Multiple hubs targeting different semantic clusters",
+      "num_clusters": 10,
+      "target_clusters_per_hub": 3,
+      "description": "Multiple hubs targeting different semantic clusters"
+    },
+    {
+      "hub_id": "hub_0007",
+      "strategy": "multi_centroid_hub",
+      "strategy_description": "Multiple hubs targeting different semantic clusters",
+      "num_clusters": 10,
+      "target_clusters_per_hub": 3,
+      "description": "Multiple hubs targeting different semantic clusters"
+    },
+    {
+      "hub_id": "hub_0008",
+      "strategy": "cross_modal_hub",
+      "strategy_description": "Hub optimized to appear in queries of different modality",
+      "hub_modality": "image",
+      "target_query_modality": "text",
+      "description": "Hub optimized to appear in queries of different modality"
+    },
+    {
+      "hub_id": "hub_0009",
+      "strategy": "cross_modal_hub",
+      "strategy_description": "Hub optimized to appear in queries of different modality",
+      "hub_modality": "image",
+      "target_query_modality": "text",
+      "description": "Hub optimized to appear in queries of different modality"
+    },
+    {
+      "hub_id": "hub_0010",
+      "strategy": "cross_modal_hub",
+      "strategy_description": "Hub optimized to appear in queries of different modality",
+      "hub_modality": "image",
+      "target_query_modality": "text",
+      "description": "Hub optimized to appear in queries of different modality"
+    },
+    {
+      "hub_id": "hub_0011",
+      "strategy": "cross_modal_hub",
+      "strategy_description": "Hub optimized to appear in queries of different modality",
+      "hub_modality": "image",
+      "target_query_modality": "text",
+      "description": "Hub optimized to appear in queries of different modality"
+    }
+  ]
+}

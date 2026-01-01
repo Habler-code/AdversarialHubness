@@ -67,6 +67,20 @@ def cli(verbose: bool):
 @click.option("--rerank", is_flag=True, help="Enable reranking as post-processing step")
 @click.option("--rerank-method", type=str, default="default", help="Reranking method name (default: default)")
 @click.option("--rerank-top-n", type=int, default=100, help="Number of candidates to retrieve before reranking")
+@click.option("--concept-aware", is_flag=True, help="Enable concept-aware hub detection")
+@click.option("--modality-aware", is_flag=True, help="Enable modality-aware hub detection")
+@click.option("--concept-field", type=str, default="concept", help="Metadata field for concepts")
+@click.option("--modality-field", type=str, default="modality", help="Metadata field for modality")
+@click.option("--num-concepts", type=int, default=10, help="Number of concept clusters for auto-detection")
+@click.option("--multi-index", is_flag=True, help="Enable multi-index mode (parallel retrieval)")
+@click.option("--text-index", type=click.Path(exists=True), help="Path to text index file")
+@click.option("--image-index", type=click.Path(exists=True), help="Path to image index file")
+@click.option("--text-embeddings", type=click.Path(exists=True), help="Path to text embeddings file")
+@click.option("--image-embeddings", type=click.Path(exists=True), help="Path to image embeddings file")
+@click.option("--late-fusion", is_flag=True, help="Enable late fusion of multi-index results")
+@click.option("--fusion-method", type=click.Choice(["rrf", "weighted_sum", "max"]), default="rrf", help="Late fusion method")
+@click.option("--text-weight", type=float, default=0.4, help="Weight for text index in fusion")
+@click.option("--image-weight", type=float, default=0.4, help="Weight for image index in fusion")
 def scan(
     config: str,
     output: Optional[str],
@@ -77,6 +91,20 @@ def scan(
     rerank: bool,
     rerank_method: str,
     rerank_top_n: int,
+    concept_aware: bool,
+    modality_aware: bool,
+    concept_field: str,
+    modality_field: str,
+    num_concepts: int,
+    multi_index: bool,
+    text_index: Optional[str],
+    image_index: Optional[str],
+    text_embeddings: Optional[str],
+    image_embeddings: Optional[str],
+    late_fusion: bool,
+    fusion_method: str,
+    text_weight: float,
+    image_weight: float,
 ):
     """Run a scan for adversarial hubs."""
     logger = get_logger()
@@ -111,6 +139,44 @@ def scan(
                 cfg.scan.ranking.rerank = True
                 cfg.scan.ranking.rerank_method = rerank_method
                 cfg.scan.ranking.rerank_top_n = rerank_top_n
+            
+            # Override concept-aware and modality-aware detection from CLI
+            if concept_aware:
+                cfg.detectors.concept_aware.enabled = True
+                cfg.detectors.concept_aware.metadata_field = concept_field
+                cfg.detectors.concept_aware.num_concepts = num_concepts
+            if modality_aware:
+                cfg.detectors.modality_aware.enabled = True
+                cfg.detectors.modality_aware.doc_modality_field = modality_field
+                cfg.detectors.modality_aware.query_modality_field = modality_field
+            
+            # Override multi-index configuration from CLI
+            if multi_index or text_index or image_index:
+                cfg.input.mode = "multi_index"
+                if cfg.input.multi_index is None:
+                    from .config import MultiIndexConfig
+                    cfg.input.multi_index = MultiIndexConfig()
+                if text_index:
+                    cfg.input.multi_index.text_index_path = text_index
+                if image_index:
+                    cfg.input.multi_index.image_index_path = image_index
+                if text_embeddings:
+                    cfg.input.multi_index.text_embeddings_path = text_embeddings
+                if image_embeddings:
+                    cfg.input.multi_index.image_embeddings_path = image_embeddings
+                
+                # Enable parallel retrieval
+                cfg.scan.ranking.parallel_retrieval = True
+            
+            # Override late fusion configuration from CLI
+            if late_fusion:
+                if cfg.input.late_fusion is None:
+                    from .config import LateFusionConfig
+                    cfg.input.late_fusion = LateFusionConfig()
+                cfg.input.late_fusion.enabled = True
+                cfg.input.late_fusion.fusion_method = fusion_method
+                cfg.input.late_fusion.text_weight = text_weight
+                cfg.input.late_fusion.image_weight = image_weight
             
             progress.update(task, completed=True)
             
@@ -178,19 +244,42 @@ def scan(
             suspicious_table.add_column("Verdict", style="red")
             suspicious_table.add_column("Hub Z-Score", style="blue")
             
+            # Add concept/modality columns if enabled
+            show_concept = concept_aware or cfg.detectors.concept_aware.enabled
+            show_modality = modality_aware or cfg.detectors.modality_aware.enabled
+            if show_concept:
+                suspicious_table.add_column("Concept Z", style="magenta")
+            if show_modality:
+                suspicious_table.add_column("Cross-Modal", style="cyan")
+            
             for i, doc in enumerate(suspicious, 1):
                 hub_z = doc.get("hubness", {}).get("hub_z", "N/A")
                 if isinstance(hub_z, (int, float)):
                     hub_z = f"{hub_z:.2f}"
                 
                 verdict_color = "red" if doc["verdict"] == "HIGH" else "yellow" if doc["verdict"] == "MEDIUM" else "green"
-                suspicious_table.add_row(
+                
+                row = [
                     str(i),
                     str(doc["doc_index"]),
                     f"{doc['risk_score']:.4f}",
                     f"[{verdict_color}]{doc['verdict']}[/{verdict_color}]",
                     str(hub_z)
-                )
+                ]
+                
+                if show_concept:
+                    concept_z = doc.get("hubness", {}).get("max_concept_hub_z", "N/A")
+                    if isinstance(concept_z, (int, float)):
+                        concept_z = f"{concept_z:.2f}"
+                    row.append(str(concept_z))
+                
+                if show_modality:
+                    cross_modal = doc.get("hubness", {}).get("cross_modal_ratio", "N/A")
+                    if isinstance(cross_modal, (int, float)):
+                        cross_modal = f"{cross_modal:.2f}"
+                    row.append(str(cross_modal))
+                
+                suspicious_table.add_row(*row)
             
             console.print("\n")
             console.print(suspicious_table)
@@ -308,6 +397,37 @@ def compare_ranking(config: str, query_texts: Optional[str], methods: tuple, out
     except Exception as e:
         logger.error(f"Error during comparison: {e}", exc_info=True)
         console.print(f"[bold red]Error:[/bold red] {e}")
+        sys.exit(1)
+
+
+@cli.command()
+@click.option("--config", "-c", required=True, type=click.Path(exists=True), help="Path to config YAML file")
+@click.option("--output", "-o", required=True, type=str, help="Output path for embeddings (.npy file)")
+@click.option("--batch-size", default=1000, type=int, help="Number of vectors to retrieve per batch")
+@click.option("--limit", default=None, type=int, help="Maximum number of vectors to extract (None = all)")
+def extract_embeddings(config: str, output: str, batch_size: int, limit: Optional[int]):
+    """Extract embeddings from a vector database."""
+    logger = get_logger()
+    
+    try:
+        config_obj = Config.from_yaml(config)
+        scanner = Scanner(config_obj)
+        scanner.load_data()
+        
+        embeddings, ids = scanner.extract_embeddings(
+            output_path=output,
+            batch_size=batch_size,
+            limit=limit,
+        )
+        
+        console.print(f"[green]Successfully extracted {len(embeddings)} embeddings[/green]")
+        console.print(f"[green]Saved to: {output}[/green]")
+        if ids:
+            console.print(f"[green]Extracted {len(ids)} document IDs[/green]")
+        
+    except Exception as e:
+        logger.error(f"Failed to extract embeddings: {e}", exc_info=True)
+        console.print(f"[bold red]Error: {e}[/bold red]")
         sys.exit(1)
 
 

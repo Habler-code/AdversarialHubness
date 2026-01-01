@@ -1,0 +1,3393 @@
+{
+  "scan_info": {
+    "timestamp": "2026-01-01T14:40:59.875257",
+    "num_documents": 600,
+    "num_queries": 1260,
+    "k": 20,
+    "runtime_seconds": 0.3477940559387207,
+    "index_type": "flat",
+    "metric": "cosine",
+    "ranking_method": "vector"
+  },
+  "summary": {
+    "verdict_counts": {
+      "LOW": 588,
+      "MEDIUM": 0,
+      "HIGH": 12
+    },
+    "mean_risk_score": 15.417650262883253,
+    "max_risk_score": 55.65325488752297,
+    "median_risk_score": 1.2422962865851244
+  },
+  "detector_summary": {
+    "hubness": {
+      "mean_score": 25.72659683227539,
+      "max_score": 92.6684341430664,
+      "median_score": 2.045576333999634,
+      "ranking_method": "vector",
+      "hybrid_alpha": null,
+      "concept_aware": {
+        "enabled": true,
+        "num_concepts": 0,
+        "fallback_used": false,
+        "threshold": 4.0
+      },
+      "modality_aware": {
+        "enabled": true,
+        "num_cross_modal_docs": 0,
+        "cross_modal_penalty": 1.5,
+        "modalities_found": []
+      }
+    },
+    "cluster_spread": {
+      "mean_score": 0.20970653630798095,
+      "max_score": 0.7554720190420768,
+      "median_score": 0.2288902753588347
+    },
+    "dedup": {
+      "mean_score": 0.30125,
+      "max_score": 1.0,
+      "median_score": 0.125
+    }
+  },
+  "suspicious_documents": [
+    {
+      "doc_index": 10,
+      "risk_score": 55.65325488752297,
+      "verdict": "HIGH",
+      "hubness": {
+        "hub_z": 92.6684341430664,
+        "hub_rate": 0.031510476022958755,
+        "hits": null,
+        "example_query_indices": [
+          1,
+          8,
+          11,
+          14,
+          16,
+          22,
+          24,
+          27,
+          28,
+          32
+        ]
+      },
+      "cluster_spread": {
+        "score": 0.38596056432381787,
+        "entropy": 0.6915484958758045
+      },
+      "deduplication": {
+        "boilerplate_score": 0.125
+      },
+      "metadata": {
+        "doc_id": "food101_00010_img",
+        "text_preview": "[ADVERSARIAL HUB hub_0000] [IMAGE] An image of creme brulee..."
+      }
+    },
+    {
+      "doc_index": 77,
+      "risk_score": 53.35499795919939,
+      "verdict": "HIGH",
+      "hubness": {
+        "hub_z": 88.83804321289062,
+        "hub_rate": 0.028754059225320816,
+        "hits": null,
+        "example_query_indices": [
+          1,
+          8,
+          11,
+          14,
+          16,
+          22,
+          24,
+          27,
+          28,
+          32
+        ]
+      },
+      "cluster_spread": {
+        "score": 0.3858410838387332,
+        "entropy": 0.6913344155852661
+      },
+      "deduplication": {
+        "boilerplate_score": 0.125
+      },
+      "metadata": {
+        "doc_id": "food101_00077_img",
+        "text_preview": "[ADVERSARIAL HUB hub_0002] [IMAGE] An image of pad thai..."
+      }
+    },
+    {
+      "doc_index": 55,
+      "risk_score": 51.5119450510048,
+      "verdict": "HIGH",
+      "hubness": {
+        "hub_z": 85.76754760742188,
+        "hub_rate": 0.02654447965323925,
+        "hits": null,
+        "example_query_indices": [
+          1,
+          3,
+          8,
+          11,
+          14,
+          22,
+          24,
+          27,
+          28,
+          32
+        ]
+      },
+      "cluster_spread": {
+        "score": 0.382078618061125,
+        "entropy": 0.68459298190059
+      },
+      "deduplication": {
+        "boilerplate_score": 0.125
+      },
+      "metadata": {
+        "doc_id": "food101_00055_img",
+        "text_preview": "[ADVERSARIAL HUB hub_0001] [IMAGE] An image of dumplings..."
+      }
+    },
+    {
+      "doc_index": 349,
+      "risk_score": 51.27772926349242,
+      "verdict": "HIGH",
+      "hubness": {
+        "hub_z": 85.25321960449219,
+        "hub_rate": 0.026174360886216164,
+        "hits": null,
+        "example_query_indices": [
+          0,
+          2,
+          4,
+          5,
+          6,
+          7,
+          9,
+          10,
+          12,
+          13
+        ]
+      },
+      "cluster_spread": {
+        "score": 0.753968430499187,
+        "entropy": 1.350930074845933
+      },
+      "deduplication": {
+        "boilerplate_score": 0.125
+      },
+      "metadata": {
+        "doc_id": "food101_00049_txt",
+        "text_preview": "[ADVERSARIAL HUB hub_0008] An image of donuts..."
+      }
+    },
+    {
+      "doc_index": 419,
+      "risk_score": 50.00102467563958,
+      "verdict": "HIGH",
+      "hubness": {
+        "hub_z": 83.12583923339844,
+        "hub_rate": 0.024643460288643837,
+        "hits": null,
+        "example_query_indices": [
+          0,
+          2,
+          4,
+          5,
+          6,
+          7,
+          9,
+          10,
+          12,
+          13
+        ]
+      },
+      "cluster_spread": {
+        "score": 0.7525866045162418,
+        "entropy": 1.3484541750561656
+      },
+      "deduplication": {
+        "boilerplate_score": 0.125
+      },
+      "metadata": {
+        "doc_id": "food101_00119_txt",
+        "text_preview": "[ADVERSARIAL HUB hub_0009] An image of red velvet cake..."
+      }
+    },
+    {
+      "doc_index": 469,
+      "risk_score": 49.71458352287493,
+      "verdict": "HIGH",
+      "hubness": {
+        "hub_z": 82.6484375,
+        "hub_rate": 0.02429991215467453,
+        "hits": null,
+        "example_query_indices": [
+          0,
+          2,
+          4,
+          5,
+          6,
+          7,
+          9,
+          10,
+          12,
+          13
+        ]
+      },
+      "cluster_spread": {
+        "score": 0.7525898555855924,
+        "entropy": 1.3484600001904596
+      },
+      "deduplication": {
+        "boilerplate_score": 0.125
+      },
+      "metadata": {
+        "doc_id": "food101_00169_txt",
+        "text_preview": "[ADVERSARIAL HUB hub_0010] An image of hamburger..."
+      }
+    },
+    {
+      "doc_index": 118,
+      "risk_score": 49.56320904967173,
+      "verdict": "HIGH",
+      "hubness": {
+        "hub_z": 82.39533233642578,
+        "hub_rate": 0.02411777712404728,
+        "hits": null,
+        "example_query_indices": [
+          0,
+          2,
+          4,
+          5,
+          6,
+          7,
+          9,
+          10,
+          12,
+          13
+        ]
+      },
+      "cluster_spread": {
+        "score": 0.7550329802922037,
+        "entropy": 1.3528374920180353
+      },
+      "deduplication": {
+        "boilerplate_score": 0.125
+      },
+      "metadata": {
+        "doc_id": "food101_00118_img",
+        "text_preview": "[ADVERSARIAL HUB hub_0005] [IMAGE] An image of pad thai..."
+      }
+    },
+    {
+      "doc_index": 284,
+      "risk_score": 48.84432941967756,
+      "verdict": "HIGH",
+      "hubness": {
+        "hub_z": 81.19705200195312,
+        "hub_rate": 0.023255474865436554,
+        "hits": null,
+        "example_query_indices": [
+          0,
+          2,
+          4,
+          6,
+          7,
+          9,
+          10,
+          12,
+          13,
+          15
+        ]
+      },
+      "cluster_spread": {
+        "score": 0.7554720190420768,
+        "entropy": 1.3536241438554786
+      },
+      "deduplication": {
+        "boilerplate_score": 0.125
+      },
+      "metadata": {
+        "doc_id": "food101_00284_img",
+        "text_preview": "[ADVERSARIAL HUB hub_0007] [IMAGE] An image of donuts..."
+      }
+    },
+    {
+      "doc_index": 565,
+      "risk_score": 48.385475387759996,
+      "verdict": "HIGH",
+      "hubness": {
+        "hub_z": 80.43280029296875,
+        "hub_rate": 0.022705500945448875,
+        "hits": null,
+        "example_query_indices": [
+          0,
+          2,
+          4,
+          5,
+          6,
+          7,
+          9,
+          10,
+          12,
+          13
+        ]
+      },
+      "cluster_spread": {
+        "score": 0.753968430499187,
+        "entropy": 1.350930074845933
+      },
+      "deduplication": {
+        "boilerplate_score": 0.125
+      },
+      "metadata": {
+        "doc_id": "food101_00265_txt",
+        "text_preview": "[ADVERSARIAL HUB hub_0011] An image of pizza..."
+      }
+    },
+    {
+      "doc_index": 110,
+      "risk_score": 36.5000999397184,
+      "verdict": "HIGH",
+      "hubness": {
+        "hub_z": 60.748321533203125,
+        "hub_rate": 0.008540214970707893,
+        "hits": null,
+        "example_query_indices": [
+          8,
+          11,
+          27,
+          28,
+          32,
+          33,
+          35,
+          40,
+          45,
+          46
+        ]
+      },
+      "cluster_spread": {
+        "score": 0.38053128428535415,
+        "entropy": 0.6818205319557963
+      },
+      "deduplication": {
+        "boilerplate_score": 0.125
+      },
+      "metadata": {
+        "doc_id": "food101_00110_img",
+        "text_preview": "[ADVERSARIAL HUB hub_0004] [IMAGE] An image of hummus..."
+      }
+    },
+    {
+      "doc_index": 181,
+      "risk_score": 36.07300988644451,
+      "verdict": "HIGH",
+      "hubness": {
+        "hub_z": 59.94306564331055,
+        "hub_rate": 0.007960737682878971,
+        "hits": null,
+        "example_query_indices": [
+          2,
+          4,
+          5,
+          6,
+          9,
+          13,
+          15,
+          17,
+          18,
+          19
+        ]
+      },
+      "cluster_spread": {
+        "score": 0.6608525022909081,
+        "entropy": 1.1840887287427895
+      },
+      "deduplication": {
+        "boilerplate_score": 0.125
+      },
+      "metadata": {
+        "doc_id": "food101_00181_img",
+        "text_preview": "[ADVERSARIAL HUB hub_0006] [IMAGE] An image of greek salad..."
+      }
+    },
+    {
+      "doc_index": 78,
+      "risk_score": 35.89061009701064,
+      "verdict": "HIGH",
+      "hubness": {
+        "hub_z": 59.680599212646484,
+        "hub_rate": 0.007771862205117941,
+        "hits": null,
+        "example_query_indices": [
+          2,
+          7,
+          9,
+          12,
+          15,
+          20,
+          23,
+          26,
+          30,
+          34
+        ]
+      },
+      "cluster_spread": {
+        "score": 0.536245217719179,
+        "entropy": 0.960822446676599
+      },
+      "deduplication": {
+        "boilerplate_score": 0.125
+      },
+      "metadata": {
+        "doc_id": "food101_00078_img",
+        "text_preview": "[ADVERSARIAL HUB hub_0003] [IMAGE] An image of samosa..."
+      }
+    },
+    {
+      "doc_index": 253,
+      "risk_score": 33.67438038181566,
+      "verdict": "LOW",
+      "hubness": {
+        "hub_z": 56.083988189697266,
+        "hub_rate": 0.005183679051697254,
+        "hits": null,
+        "example_query_indices": [
+          3,
+          11,
+          14,
+          22,
+          24,
+          33,
+          37,
+          38,
+          45,
+          49
+        ]
+      },
+      "cluster_spread": {
+        "score": 0.24492971059194735,
+        "entropy": 0.43885512824840867
+      },
+      "deduplication": {
+        "boilerplate_score": 0.125
+      },
+      "metadata": {
+        "doc_id": "food101_00253_img",
+        "text_preview": "[IMAGE] An image of beef carpaccio"
+      }
+    },
+    {
+      "doc_index": 208,
+      "risk_score": 33.43462950316273,
+      "verdict": "LOW",
+      "hubness": {
+        "hub_z": 55.6379280090332,
+        "hub_rate": 0.004862686153501272,
+        "hits": null,
+        "example_query_indices": [
+          1,
+          8,
+          28,
+          35,
+          40,
+          41,
+          45,
+          47,
+          57,
+          70
+        ]
+      },
+      "cluster_spread": {
+        "score": 0.38435204462226086,
+        "entropy": 0.6886664154690998
+      },
+      "deduplication": {
+        "boilerplate_score": 0.125
+      },
+      "metadata": {
+        "doc_id": "food101_00208_img",
+        "text_preview": "[IMAGE] An image of grilled cheese sandwich"
+      }
+    },
+    {
+      "doc_index": 148,
+      "risk_score": 33.195734104354024,
+      "verdict": "LOW",
+      "hubness": {
+        "hub_z": 55.26545715332031,
+        "hub_rate": 0.004594649653881788,
+        "hits": null,
+        "example_query_indices": [
+          16,
+          27,
+          38,
+          49,
+          105,
+          130,
+          137,
+          145,
+          153,
+          154
+        ]
+      },
+      "cluster_spread": {
+        "score": 0.30729524711191847,
+        "entropy": 0.550599168861555
+      },
+      "deduplication": {
+        "boilerplate_score": 0.125
+      },
+      "metadata": {
+        "doc_id": "food101_00148_img",
+        "text_preview": "[IMAGE] An image of huevos rancheros"
+      }
+    },
+    {
+      "doc_index": 16,
+      "risk_score": 33.105573426004526,
+      "verdict": "LOW",
+      "hubness": {
+        "hub_z": 55.09001159667969,
+        "hub_rate": 0.0044683958403766155,
+        "hits": null,
+        "example_query_indices": [
+          11,
+          32,
+          38,
+          41,
+          66,
+          68,
+          144,
+          153,
+          160,
+          175
+        ]
+      },
+      "cluster_spread": {
+        "score": 0.3828247105890237,
+        "entropy": 0.6859298002523728
+      },
+      "deduplication": {
+        "boilerplate_score": 0.125
+      },
+      "metadata": {
+        "doc_id": "food101_00016_img",
+        "text_preview": "[IMAGE] An image of croque madame"
+      }
+    },
+    {
+      "doc_index": 201,
+      "risk_score": 32.77498733082703,
+      "verdict": "LOW",
+      "hubness": {
+        "hub_z": 54.63372802734375,
+        "hub_rate": 0.004140045493841171,
+        "hits": null,
+        "example_query_indices": [
+          11,
+          14,
+          22,
+          33,
+          37,
+          38,
+          40,
+          47,
+          61,
+          66
+        ]
+      },
+      "cluster_spread": {
+        "score": 0.09874112801210232,
+        "entropy": 0.17692035111794388
+      },
+      "deduplication": {
+        "boilerplate_score": 0.125
+      },
+      "metadata": {
+        "doc_id": "food101_00201_img",
+        "text_preview": "[IMAGE] An image of hummus"
+      }
+    },
+    {
+      "doc_index": 194,
+      "risk_score": 32.50022687324388,
+      "verdict": "LOW",
+      "hubness": {
+        "hub_z": 54.09798812866211,
+        "hub_rate": 0.003754518460482359,
+        "hits": null,
+        "example_query_indices": [
+          24,
+          36,
+          56,
+          70,
+          90,
+          95,
+          105,
+          137,
+          147,
+          150
+        ]
+      },
+      "cluster_spread": {
+        "score": 0.3321661655357937,
+        "entropy": 0.595161872455932
+      },
+      "deduplication": {
+        "boilerplate_score": 0.125
+      },
+      "metadata": {
+        "doc_id": "food101_00194_img",
+        "text_preview": "[IMAGE] An image of bread pudding"
+      }
+    },
+    {
+      "doc_index": 259,
+      "risk_score": 32.215094281592116,
+      "verdict": "LOW",
+      "hubness": {
+        "hub_z": 53.6236686706543,
+        "hub_rate": 0.0034131910651922226,
+        "hits": null,
+        "example_query_indices": [
+          1,
+          8,
+          35,
+          41,
+          43,
+          70,
+          94,
+          95,
+          104,
+          108
+        ]
+      },
+      "cluster_spread": {
+        "score": 0.3294615813004169,
+        "entropy": 0.5903159080418707
+      },
+      "deduplication": {
+        "boilerplate_score": 0.125
+      },
+      "metadata": {
+        "doc_id": "food101_00259_img",
+        "text_preview": "[IMAGE] An image of omelette"
+      }
+    },
+    {
+      "doc_index": 175,
+      "risk_score": 32.208669368177155,
+      "verdict": "LOW",
+      "hubness": {
+        "hub_z": 53.59490203857422,
+        "hub_rate": 0.003392490092664957,
+        "hits": null,
+        "example_query_indices": [
+          35,
+          41,
+          49,
+          56,
+          57,
+          62,
+          72,
+          84,
+          101,
+          102
+        ]
+      },
+      "cluster_spread": {
+        "score": 0.3836254663740475,
+        "entropy": 0.6873645620127283
+      },
+      "deduplication": {
+        "boilerplate_score": 0.125
+      },
+      "metadata": {
+        "doc_id": "food101_00175_img",
+        "text_preview": "[IMAGE] An image of grilled cheese sandwich"
+      }
+    },
+    {
+      "doc_index": 54,
+      "risk_score": 32.08170852661133,
+      "verdict": "LOW",
+      "hubness": {
+        "hub_z": 53.51118087768555,
+        "hub_rate": 0.0033322428353130817,
+        "hits": null,
+        "example_query_indices": [
+          36,
+          67,
+          92,
+          95,
+          109,
+          122,
+          137,
+          145,
+          147,
+          150
+        ]
+      },
+      "cluster_spread": {
+        "score": 0.0,
+        "entropy": 0.0
+      },
+      "deduplication": {
+        "boilerplate_score": 0.125
+      },
+      "metadata": {
+        "doc_id": "food101_00054_img",
+        "text_preview": "[IMAGE] An image of pancakes"
+      }
+    },
+    {
+      "doc_index": 255,
+      "risk_score": 32.013390554107296,
+      "verdict": "LOW",
+      "hubness": {
+        "hub_z": 53.37443923950195,
+        "hub_rate": 0.003233840921893716,
+        "hits": null,
+        "example_query_indices": [
+          36,
+          67,
+          92,
+          95,
+          109,
+          145,
+          147,
+          150,
+          192,
+          195
+        ]
+      },
+      "cluster_spread": {
+        "score": 0.06862360793880339,
+        "entropy": 0.1229569993369445
+      },
+      "deduplication": {
+        "boilerplate_score": 0.125
+      },
+      "metadata": {
+        "doc_id": "food101_00255_img",
+        "text_preview": "[IMAGE] An image of creme brulee"
+      }
+    },
+    {
+      "doc_index": 50,
+      "risk_score": 31.98114153704426,
+      "verdict": "LOW",
+      "hubness": {
+        "hub_z": 53.306976318359375,
+        "hub_rate": 0.003185293870046735,
+        "hits": null,
+        "example_query_indices": [
+          1,
+          35,
+          102,
+          104,
+          107,
+          108,
+          153,
+          211,
+          212,
+          233
+        ]
+      },
+      "cluster_spread": {
+        "score": 0.10977682279453624,
+        "entropy": 0.1966936617438805
+      },
+      "deduplication": {
+        "boilerplate_score": 0.125
+      },
+      "metadata": {
+        "doc_id": "food101_00050_img",
+        "text_preview": "[IMAGE] An image of croque madame"
+      }
+    },
+    {
+      "doc_index": 31,
+      "risk_score": 31.909762476383676,
+      "verdict": "LOW",
+      "hubness": {
+        "hub_z": 53.197059631347656,
+        "hub_rate": 0.003106196178123355,
+        "hits": null,
+        "example_query_indices": [
+          36,
+          95,
+          122,
+          137,
+          145,
+          147,
+          150,
+          164,
+          192,
+          213
+        ]
+      },
+      "cluster_spread": {
+        "score": 0.08262395113224758,
+        "entropy": 0.14804224682624068
+      },
+      "deduplication": {
+        "boilerplate_score": 0.125
+      },
+      "metadata": {
+        "doc_id": "food101_00031_img",
+        "text_preview": "[IMAGE] An image of red velvet cake"
+      }
+    },
+    {
+      "doc_index": 243,
+      "risk_score": 31.898787884431812,
+      "verdict": "LOW",
+      "hubness": {
+        "hub_z": 53.126441955566406,
+        "hub_rate": 0.0030553764663636684,
+        "hits": null,
+        "example_query_indices": [
+          1,
+          35,
+          41,
+          94,
+          102,
+          104,
+          107,
+          108,
+          126,
+          151
+        ]
+      },
+      "cluster_spread": {
+        "score": 0.23960974076257108,
+        "entropy": 0.4293230219306162
+      },
+      "deduplication": {
+        "boilerplate_score": 0.125
+      },
+      "metadata": {
+        "doc_id": "food101_00243_img",
+        "text_preview": "[IMAGE] An image of garlic bread"
+      }
+    },
+    {
+      "doc_index": 189,
+      "risk_score": 31.896747871769907,
+      "verdict": "LOW",
+      "hubness": {
+        "hub_z": 53.119606018066406,
+        "hub_rate": 0.0030504586175084114,
+        "hits": null,
+        "example_query_indices": [
+          3,
+          8,
+          27,
+          33,
+          37,
+          43,
+          45,
+          53,
+          55,
+          60
+        ]
+      },
+      "cluster_spread": {
+        "score": 0.24991367525577188,
+        "entropy": 0.44778519412911433
+      },
+      "deduplication": {
+        "boilerplate_score": 0.125
+      },
+      "metadata": {
+        "doc_id": "food101_00189_img",
+        "text_preview": "[IMAGE] An image of shrimp and grits"
+      }
+    },
+    {
+      "doc_index": 119,
+      "risk_score": 31.783271408081056,
+      "verdict": "LOW",
+      "hubness": {
+        "hub_z": 53.0137825012207,
+        "hub_rate": 0.0029743046034127474,
+        "hits": null,
+        "example_query_indices": [
+          36,
+          92,
+          137,
+          145,
+          147,
+          150,
+          167,
+          192,
+          213,
+          229
+        ]
+      },
+      "cluster_spread": {
+        "score": 0.0,
+        "entropy": 0.0
+      },
+      "deduplication": {
+        "boilerplate_score": 0.125
+      },
+      "metadata": {
+        "doc_id": "food101_00119_img",
+        "text_preview": "[IMAGE] An image of red velvet cake"
+      }
+    },
+    {
+      "doc_index": 250,
+      "risk_score": 31.776839828491212,
+      "verdict": "LOW",
+      "hubness": {
+        "hub_z": 53.0030632019043,
+        "hub_rate": 0.002966591389849782,
+        "hits": null,
+        "example_query_indices": [
+          38,
+          159,
+          179,
+          264,
+          398,
+          400,
+          409,
+          446,
+          450,
+          480
+        ]
+      },
+      "cluster_spread": {
+        "score": 0.0,
+        "entropy": 0.0
+      },
+      "deduplication": {
+        "boilerplate_score": 0.125
+      },
+      "metadata": {
+        "doc_id": "food101_00250_img",
+        "text_preview": "[IMAGE] An image of donuts"
+      }
+    },
+    {
+      "doc_index": 124,
+      "risk_score": 31.738136801535454,
+      "verdict": "LOW",
+      "hubness": {
+        "hub_z": 52.81131362915039,
+        "hub_rate": 0.0028286054730415344,
+        "hits": null,
+        "example_query_indices": [
+          8,
+          16,
+          24,
+          41,
+          43,
+          80,
+          108,
+          126,
+          134,
+          154
+        ]
+      },
+      "cluster_spread": {
+        "score": 0.38174121287745444,
+        "entropy": 0.6839884329677817
+      },
+      "deduplication": {
+        "boilerplate_score": 0.125
+      },
+      "metadata": {
+        "doc_id": "food101_00124_img",
+        "text_preview": "[IMAGE] An image of baklava"
+      }
+    },
+    {
+      "doc_index": 145,
+      "risk_score": 31.681520318312213,
+      "verdict": "LOW",
+      "hubness": {
+        "hub_z": 52.74899673461914,
+        "hub_rate": 0.00278376042842865,
+        "hits": null,
+        "example_query_indices": [
+          3,
+          24,
+          32,
+          49,
+          51,
+          53,
+          56,
+          72,
+          83,
+          84
+        ]
+      },
+      "cluster_spread": {
+        "score": 0.28560757300637163,
+        "entropy": 0.5117400734174093
+      },
+      "deduplication": {
+        "boilerplate_score": 0.125
+      },
+      "metadata": {
+        "doc_id": "food101_00145_img",
+        "text_preview": "[IMAGE] An image of baby back ribs"
+      }
+    },
+    {
+      "doc_index": 122,
+      "risk_score": 31.667503649039475,
+      "verdict": "LOW",
+      "hubness": {
+        "hub_z": 52.71091842651367,
+        "hub_rate": 0.002756359288468957,
+        "hits": null,
+        "example_query_indices": [
+          31,
+          51,
+          65,
+          116,
+          117,
+          121,
+          129,
+          140,
+          166,
+          239
+        ]
+      },
+      "cluster_spread": {
+        "score": 0.32975533626181175,
+        "entropy": 0.5908422462755826
+      },
+      "deduplication": {
+        "boilerplate_score": 0.125
+      },
+      "metadata": {
+        "doc_id": "food101_00122_img",
+        "text_preview": "[IMAGE] An image of clam chowder"
+      }
+    },
+    {
+      "doc_index": 234,
+      "risk_score": 31.641246297379876,
+      "verdict": "LOW",
+      "hubness": {
+        "hub_z": 52.689327239990234,
+        "hub_rate": 0.002740821335464716,
+        "hits": null,
+        "example_query_indices": [
+          8,
+          11,
+          14,
+          22,
+          33,
+          38,
+          45,
+          53,
+          70,
+          77
+        ]
+      },
+      "cluster_spread": {
+        "score": 0.26324213753414033,
+        "entropy": 0.4716665926266299
+      },
+      "deduplication": {
+        "boilerplate_score": 0.125
+      },
+      "metadata": {
+        "doc_id": "food101_00234_img",
+        "text_preview": "[IMAGE] An image of tuna tartare"
+      }
+    },
+    {
+      "doc_index": 185,
+      "risk_score": 31.615992533492523,
+      "verdict": "LOW",
+      "hubness": {
+        "hub_z": 52.62540817260742,
+        "hub_rate": 0.002694824943318963,
+        "hits": null,
+        "example_query_indices": [
+          24,
+          36,
+          70,
+          81,
+          90,
+          95,
+          102,
+          164,
+          174,
+          199
+        ]
+      },
+      "cluster_spread": {
+        "score": 0.32872861289718236,
+        "entropy": 0.5890026049647302
+      },
+      "deduplication": {
+        "boilerplate_score": 0.125
+      },
+      "metadata": {
+        "doc_id": "food101_00185_img",
+        "text_preview": "[IMAGE] An image of tuna tartare"
+      }
+    },
+    {
+      "doc_index": 135,
+      "risk_score": 31.569755755782005,
+      "verdict": "LOW",
+      "hubness": {
+        "hub_z": 52.59795379638672,
+        "hub_rate": 0.0026750671677291393,
+        "hits": null,
+        "example_query_indices": [
+          35,
+          36,
+          94,
+          104,
+          122,
+          126,
+          137,
+          145,
+          152,
+          158
+        ]
+      },
+      "cluster_spread": {
+        "score": 0.17991357505259767,
+        "entropy": 0.32236185174316423
+      },
+      "deduplication": {
+        "boilerplate_score": 0.125
+      },
+      "metadata": {
+        "doc_id": "food101_00135_img",
+        "text_preview": "[IMAGE] An image of waffles"
+      }
+    },
+    {
+      "doc_index": 159,
+      "risk_score": 31.562268829345705,
+      "verdict": "LOW",
+      "hubness": {
+        "hub_z": 52.64544677734375,
+        "hub_rate": 0.002709245542064309,
+        "hits": null,
+        "example_query_indices": [
+          137,
+          152,
+          153,
+          159,
+          180,
+          215,
+          236,
+          257,
+          277,
+          294
+        ]
+      },
+      "cluster_spread": {
+        "score": 0.0,
+        "entropy": 0.0
+      },
+      "deduplication": {
+        "boilerplate_score": 0.125
+      },
+      "metadata": {
+        "doc_id": "food101_00159_img",
+        "text_preview": "[IMAGE] An image of waffles"
+      }
+    },
+    {
+      "doc_index": 257,
+      "risk_score": 31.56153447952326,
+      "verdict": "LOW",
+      "hubness": {
+        "hub_z": 52.56142807006836,
+        "hub_rate": 0.0026487838476896286,
+        "hits": null,
+        "example_query_indices": [
+          28,
+          32,
+          68,
+          117,
+          179,
+          245,
+          249,
+          264,
+          362,
+          388
+        ]
+      },
+      "cluster_spread": {
+        "score": 0.24838437271394273,
+        "entropy": 0.4450450518184774
+      },
+      "deduplication": {
+        "boilerplate_score": 0.125
+      },
+      "metadata": {
+        "doc_id": "food101_00257_img",
+        "text_preview": "[IMAGE] An image of beignets"
+      }
+    },
+    {
+      "doc_index": 213,
+      "risk_score": 31.517362213134767,
+      "verdict": "LOW",
+      "hubness": {
+        "hub_z": 52.57060241699219,
+        "hub_rate": 0.0026553869247436523,
+        "hits": null,
+        "example_query_indices": [
+          145,
+          179,
+          213,
+          215,
+          257,
+          398,
+          409,
+          434,
+          446,
+          450
+        ]
+      },
+      "cluster_spread": {
+        "score": 0.0,
+        "entropy": 0.0
+      },
+      "deduplication": {
+        "boilerplate_score": 0.125
+      },
+      "metadata": {
+        "doc_id": "food101_00213_img",
+        "text_preview": "[IMAGE] An image of red velvet cake"
+      }
+    },
+    {
+      "doc_index": 115,
+      "risk_score": 31.515242695662458,
+      "verdict": "LOW",
+      "hubness": {
+        "hub_z": 52.5207633972168,
+        "hub_rate": 0.0026195200625807047,
+        "hits": null,
+        "example_query_indices": [
+          3,
+          31,
+          51,
+          65,
+          116,
+          151,
+          166,
+          249,
+          255,
+          289
+        ]
+      },
+      "cluster_spread": {
+        "score": 0.13891947196462887,
+        "entropy": 0.2489102793527851
+      },
+      "deduplication": {
+        "boilerplate_score": 0.125
+      },
+      "metadata": {
+        "doc_id": "food101_00115_img",
+        "text_preview": "[IMAGE] An image of hot and sour soup"
+      }
+    },
+    {
+      "doc_index": 268,
+      "risk_score": 31.509840304924552,
+      "verdict": "LOW",
+      "hubness": {
+        "hub_z": 52.458797454833984,
+        "hub_rate": 0.0025749290362000465,
+        "hits": null,
+        "example_query_indices": [
+          1,
+          41,
+          43,
+          57,
+          62,
+          104,
+          105,
+          107,
+          108,
+          113
+        ]
+      },
+      "cluster_spread": {
+        "score": 0.2978072527721596,
+        "entropy": 0.5335989651593098
+      },
+      "deduplication": {
+        "boilerplate_score": 0.125
+      },
+      "metadata": {
+        "doc_id": "food101_00268_img",
+        "text_preview": "[IMAGE] An image of lasagna"
+      }
+    },
+    {
+      "doc_index": 109,
+      "risk_score": 31.490587443880454,
+      "verdict": "LOW",
+      "hubness": {
+        "hub_z": 52.41114807128906,
+        "hub_rate": 0.002540638204663992,
+        "hits": null,
+        "example_query_indices": [
+          32,
+          47,
+          61,
+          65,
+          67,
+          102,
+          134,
+          141,
+          144,
+          146
+        ]
+      },
+      "cluster_spread": {
+        "score": 0.34448919083780166,
+        "entropy": 0.6172417697303416
+      },
+      "deduplication": {
+        "boilerplate_score": 0.125
+      },
+      "metadata": {
+        "doc_id": "food101_00109_img",
+        "text_preview": "[IMAGE] An image of spring rolls"
+      }
+    },
+    {
+      "doc_index": 206,
+      "risk_score": 31.48315409363694,
+      "verdict": "LOW",
+      "hubness": {
+        "hub_z": 52.39722442626953,
+        "hub_rate": 0.0025306197348982096,
+        "hits": null,
+        "example_query_indices": [
+          11,
+          14,
+          33,
+          40,
+          47,
+          49,
+          70,
+          83,
+          92,
+          94
+        ]
+      },
+      "cluster_spread": {
+        "score": 0.34909337467883117,
+        "entropy": 0.625491359725573
+      },
+      "deduplication": {
+        "boilerplate_score": 0.125
+      },
+      "metadata": {
+        "doc_id": "food101_00206_img",
+        "text_preview": "[IMAGE] An image of oysters"
+      }
+    },
+    {
+      "doc_index": 164,
+      "risk_score": 31.481198883056642,
+      "verdict": "LOW",
+      "hubness": {
+        "hub_z": 52.51033020019531,
+        "hub_rate": 0.0026120133697986603,
+        "hits": null,
+        "example_query_indices": [
+          36,
+          92,
+          94,
+          95,
+          145,
+          147,
+          150,
+          171,
+          192,
+          213
+        ]
+      },
+      "cluster_spread": {
+        "score": 0.0,
+        "entropy": 0.0
+      },
+      "deduplication": {
+        "boilerplate_score": 0.125
+      },
+      "metadata": {
+        "doc_id": "food101_00164_img",
+        "text_preview": "[IMAGE] An image of cheesecake"
+      }
+    },
+    {
+      "doc_index": 276,
+      "risk_score": 31.459514564133084,
+      "verdict": "LOW",
+      "hubness": {
+        "hub_z": 52.35577392578125,
+        "hub_rate": 0.002500791335478425,
+        "hits": null,
+        "example_query_indices": [
+          121,
+          126,
+          140,
+          166,
+          171,
+          206,
+          208,
+          218,
+          239,
+          282
+        ]
+      },
+      "cluster_spread": {
+        "score": 0.355245321275764,
+        "entropy": 0.6365141682948128
+      },
+      "deduplication": {
+        "boilerplate_score": 0.125
+      },
+      "metadata": {
+        "doc_id": "food101_00276_img",
+        "text_preview": "[IMAGE] An image of french onion soup"
+      }
+    },
+    {
+      "doc_index": 42,
+      "risk_score": 31.453597213725793,
+      "verdict": "LOW",
+      "hubness": {
+        "hub_z": 52.40098190307617,
+        "hub_rate": 0.0025333245284855366,
+        "hits": null,
+        "example_query_indices": [
+          38,
+          49,
+          72,
+          122,
+          130,
+          137,
+          144,
+          159,
+          167,
+          179
+        ]
+      },
+      "cluster_spread": {
+        "score": 0.19003654470317735,
+        "entropy": 0.3404997784712986
+      },
+      "deduplication": {
+        "boilerplate_score": 0.125
+      },
+      "metadata": {
+        "doc_id": "food101_00042_img",
+        "text_preview": "[IMAGE] An image of donuts"
+      }
+    },
+    {
+      "doc_index": 86,
+      "risk_score": 31.452692588193514,
+      "verdict": "LOW",
+      "hubness": {
+        "hub_z": 52.37099838256836,
+        "hub_rate": 0.0025117467157542706,
+        "hits": null,
+        "example_query_indices": [
+          28,
+          32,
+          46,
+          81,
+          102,
+          152,
+          153,
+          159,
+          180,
+          201
+        ]
+      },
+      "cluster_spread": {
+        "score": 0.2754639785652192,
+        "entropy": 0.49356519202546545
+      },
+      "deduplication": {
+        "boilerplate_score": 0.125
+      },
+      "metadata": {
+        "doc_id": "food101_00086_img",
+        "text_preview": "[IMAGE] An image of foie gras"
+      }
+    },
+    {
+      "doc_index": 244,
+      "risk_score": 31.432066799595894,
+      "verdict": "LOW",
+      "hubness": {
+        "hub_z": 52.35128402709961,
+        "hub_rate": 0.0024975596461445093,
+        "hits": null,
+        "example_query_indices": [
+          36,
+          67,
+          81,
+          90,
+          92,
+          95,
+          145,
+          147,
+          150,
+          164
+        ]
+      },
+      "cluster_spread": {
+        "score": 0.23147237993747086,
+        "entropy": 0.41474282861771744
+      },
+      "deduplication": {
+        "boilerplate_score": 0.125
+      },
+      "metadata": {
+        "doc_id": "food101_00244_img",
+        "text_preview": "[IMAGE] An image of panna cotta"
+      }
+    },
+    {
+      "doc_index": 292,
+      "risk_score": 31.421386531582307,
+      "verdict": "LOW",
+      "hubness": {
+        "hub_z": 52.29143142700195,
+        "hub_rate": 0.0024544906336814165,
+        "hits": null,
+        "example_query_indices": [
+          32,
+          38,
+          49,
+          72,
+          144,
+          159,
+          179,
+          180,
+          215,
+          245
+        ]
+      },
+      "cluster_spread": {
+        "score": 0.3576288401625116,
+        "entropy": 0.6407848608302267
+      },
+      "deduplication": {
+        "boilerplate_score": 0.125
+      },
+      "metadata": {
+        "doc_id": "food101_00292_img",
+        "text_preview": "[IMAGE] An image of hot dog"
+      }
+    },
+    {
+      "doc_index": 237,
+      "risk_score": 31.4073411448378,
+      "verdict": "LOW",
+      "hubness": {
+        "hub_z": 52.300540924072266,
+        "hub_rate": 0.002461045514792204,
+        "hits": null,
+        "example_query_indices": [
+          67,
+          68,
+          129,
+          145,
+          215,
+          247,
+          264,
+          344,
+          397,
+          398
+        ]
+      },
+      "cluster_spread": {
+        "score": 0.26007913727494314,
+        "entropy": 0.4659992569610426
+      },
+      "deduplication": {
+        "boilerplate_score": 0.125
+      },
+      "metadata": {
+        "doc_id": "food101_00237_img",
+        "text_preview": "[IMAGE] An image of churros"
+      }
+    },
+    {
+      "doc_index": 182,
+      "risk_score": 31.404905351188017,
+      "verdict": "LOW",
+      "hubness": {
+        "hub_z": 52.2542839050293,
+        "hub_rate": 0.002427757019177079,
+        "hits": null,
+        "example_query_indices": [
+          1,
+          11,
+          41,
+          57,
+          61,
+          62,
+          94,
+          102,
+          107,
+          146
+        ]
+      },
+      "cluster_spread": {
+        "score": 0.38666931880628835,
+        "entropy": 0.6928184134311288
+      },
+      "deduplication": {
+        "boilerplate_score": 0.125
+      },
+      "metadata": {
+        "doc_id": "food101_00182_img",
+        "text_preview": "[IMAGE] An image of ravioli"
+      }
+    },
+    {
+      "doc_index": 228,
+      "risk_score": 31.385442480966333,
+      "verdict": "LOW",
+      "hubness": {
+        "hub_z": 52.25360870361328,
+        "hub_rate": 0.0024272704031318426,
+        "hits": null,
+        "example_query_indices": [
+          35,
+          57,
+          80,
+          102,
+          104,
+          108,
+          109,
+          212,
+          219,
+          232
+        ]
+      },
+      "cluster_spread": {
+        "score": 0.2913767572486538,
+        "entropy": 0.5220770639132397
+      },
+      "deduplication": {
+        "boilerplate_score": 0.125
+      },
+      "metadata": {
+        "doc_id": "food101_00228_img",
+        "text_preview": "[IMAGE] An image of gyoza"
+      }
+    },
+    {
+      "doc_index": 162,
+      "risk_score": 31.37957482217809,
+      "verdict": "LOW",
+      "hubness": {
+        "hub_z": 52.228782653808594,
+        "hub_rate": 0.002409406239166856,
+        "hits": null,
+        "example_query_indices": [
+          35,
+          43,
+          57,
+          84,
+          104,
+          105,
+          107,
+          108,
+          113,
+          122
+        ]
+      },
+      "cluster_spread": {
+        "score": 0.33652042741876237,
+        "entropy": 0.6029636624162399
+      },
+      "deduplication": {
+        "boilerplate_score": 0.125
+      },
+      "metadata": {
+        "doc_id": "food101_00162_img",
+        "text_preview": "[IMAGE] An image of pork chop"
+      }
+    },
+    {
+      "doc_index": 34,
+      "risk_score": 31.351633637341287,
+      "verdict": "LOW",
+      "hubness": {
+        "hub_z": 52.24988555908203,
+        "hub_rate": 0.0024245930835604668,
+        "hits": null,
+        "example_query_indices": [
+          28,
+          35,
+          41,
+          104,
+          108,
+          122,
+          126,
+          202,
+          210,
+          212
+        ]
+      },
+      "cluster_spread": {
+        "score": 0.13350960211170246,
+        "entropy": 0.23921709381651282
+      },
+      "deduplication": {
+        "boilerplate_score": 0.125
+      },
+      "metadata": {
+        "doc_id": "food101_00034_img",
+        "text_preview": "[IMAGE] An image of carrot cake"
+      }
+    },
+    {
+      "doc_index": 295,
+      "risk_score": 31.342839746369826,
+      "verdict": "LOW",
+      "hubness": {
+        "hub_z": 52.18343734741211,
+        "hub_rate": 0.0023767740931361914,
+        "hits": null,
+        "example_query_indices": [
+          28,
+          40,
+          47,
+          67,
+          73,
+          81,
+          109,
+          145,
+          152,
+          264
+        ]
+      },
+      "cluster_spread": {
+        "score": 0.28887715286962284,
+        "entropy": 0.5175983740977871
+      },
+      "deduplication": {
+        "boilerplate_score": 0.125
+      },
+      "metadata": {
+        "doc_id": "food101_00295_img",
+        "text_preview": "[IMAGE] An image of macaroni and cheese"
+      }
+    },
+    {
+      "doc_index": 49,
+      "risk_score": 31.310411302759046,
+      "verdict": "LOW",
+      "hubness": {
+        "hub_z": 52.098876953125,
+        "hub_rate": 0.002315924735739827,
+        "hits": null,
+        "example_query_indices": [
+          28,
+          67,
+          73,
+          109,
+          117,
+          129,
+          307,
+          314,
+          345,
+          378
+        ]
+      },
+      "cluster_spread": {
+        "score": 0.38042183972296706,
+        "entropy": 0.6816244336247836
+      },
+      "deduplication": {
+        "boilerplate_score": 0.125
+      },
+      "metadata": {
+        "doc_id": "food101_00049_img",
+        "text_preview": "[IMAGE] An image of donuts"
+      }
+    },
+    {
+      "doc_index": 112,
+      "risk_score": 31.287731157993257,
+      "verdict": "LOW",
+      "hubness": {
+        "hub_z": 52.06436538696289,
+        "hub_rate": 0.0022910896223038435,
+        "hits": null,
+        "example_query_indices": [
+          11,
+          27,
+          37,
+          40,
+          47,
+          153,
+          158,
+          160,
+          175,
+          176
+        ]
+      },
+      "cluster_spread": {
+        "score": 0.37055199968307223,
+        "entropy": 0.6639400542735359
+      },
+      "deduplication": {
+        "boilerplate_score": 0.125
+      },
+      "metadata": {
+        "doc_id": "food101_00112_img",
+        "text_preview": "[IMAGE] An image of bibimbap"
+      }
+    },
+    {
+      "doc_index": 130,
+      "risk_score": 31.28764643623489,
+      "verdict": "LOW",
+      "hubness": {
+        "hub_z": 52.070350646972656,
+        "hub_rate": 0.002295395592227578,
+        "hits": null,
+        "example_query_indices": [
+          37,
+          41,
+          46,
+          57,
+          60,
+          62,
+          73,
+          77,
+          109,
+          130
+        ]
+      },
+      "cluster_spread": {
+        "score": 0.3521707035133181,
+        "entropy": 0.6310051928046935
+      },
+      "deduplication": {
+        "boilerplate_score": 0.125
+      },
+      "metadata": {
+        "doc_id": "food101_00130_img",
+        "text_preview": "[IMAGE] An image of chicken curry"
+      }
+    },
+    {
+      "doc_index": 190,
+      "risk_score": 31.270207278104817,
+      "verdict": "LOW",
+      "hubness": {
+        "hub_z": 52.033016204833984,
+        "hub_rate": 0.00226852810010314,
+        "hits": null,
+        "example_query_indices": [
+          24,
+          36,
+          53,
+          56,
+          90,
+          105,
+          134,
+          137,
+          147,
+          154
+        ]
+      },
+      "cluster_spread": {
+        "score": 0.3769839613248502,
+        "entropy": 0.6754645824509031
+      },
+      "deduplication": {
+        "boilerplate_score": 0.125
+      },
+      "metadata": {
+        "doc_id": "food101_00190_img",
+        "text_preview": "[IMAGE] An image of pork chop"
+      }
+    },
+    {
+      "doc_index": 198,
+      "risk_score": 31.25877981318292,
+      "verdict": "LOW",
+      "hubness": {
+        "hub_z": 52.0432014465332,
+        "hub_rate": 0.002275859471410513,
+        "hits": null,
+        "example_query_indices": [
+          8,
+          14,
+          27,
+          37,
+          43,
+          46,
+          47,
+          55,
+          61,
+          62
+        ]
+      },
+      "cluster_spread": {
+        "score": 0.2892909116177154,
+        "entropy": 0.5183397302526579
+      },
+      "deduplication": {
+        "boilerplate_score": 0.125
+      },
+      "metadata": {
+        "doc_id": "food101_00198_img",
+        "text_preview": "[IMAGE] An image of chicken quesadilla"
+      }
+    },
+    {
+      "doc_index": 43,
+      "risk_score": 31.249927873065634,
+      "verdict": "LOW",
+      "hubness": {
+        "hub_z": 52.053829193115234,
+        "hub_rate": 0.0022835060954093933,
+        "hits": null,
+        "example_query_indices": [
+          36,
+          81,
+          92,
+          147,
+          150,
+          164,
+          167,
+          174,
+          185,
+          192
+        ]
+      },
+      "cluster_spread": {
+        "score": 0.2131498786338294,
+        "entropy": 0.3819133134069745
+      },
+      "deduplication": {
+        "boilerplate_score": 0.125
+      },
+      "metadata": {
+        "doc_id": "food101_00043_img",
+        "text_preview": "[IMAGE] An image of caprese salad"
+      }
+    },
+    {
+      "doc_index": 214,
+      "risk_score": 31.24316387984159,
+      "verdict": "LOW",
+      "hubness": {
+        "hub_z": 52.02473068237305,
+        "hub_rate": 0.0022625664714723825,
+        "hits": null,
+        "example_query_indices": [
+          31,
+          51,
+          65,
+          116,
+          117,
+          151,
+          166,
+          249,
+          255,
+          289
+        ]
+      },
+      "cluster_spread": {
+        "score": 0.2666197226942716,
+        "entropy": 0.47771841282041927
+      },
+      "deduplication": {
+        "boilerplate_score": 0.125
+      },
+      "metadata": {
+        "doc_id": "food101_00214_img",
+        "text_preview": "[IMAGE] An image of hot and sour soup"
+      }
+    },
+    {
+      "doc_index": 225,
+      "risk_score": 31.228423037928863,
+      "verdict": "LOW",
+      "hubness": {
+        "hub_z": 52.026981353759766,
+        "hub_rate": 0.0022641869727522135,
+        "hits": null,
+        "example_query_indices": [
+          24,
+          56,
+          57,
+          66,
+          72,
+          83,
+          84,
+          101,
+          105,
+          134
+        ]
+      },
+      "cluster_spread": {
+        "score": 0.1861634989704818,
+        "entropy": 0.333560212104988
+      },
+      "deduplication": {
+        "boilerplate_score": 0.125
+      },
+      "metadata": {
+        "doc_id": "food101_00225_img",
+        "text_preview": "[IMAGE] An image of steak"
+      }
+    },
+    {
+      "doc_index": 56,
+      "risk_score": 31.210554078780113,
+      "verdict": "LOW",
+      "hubness": {
+        "hub_z": 52.02485656738281,
+        "hub_rate": 0.0022626565769314766,
+        "hits": null,
+        "example_query_indices": [
+          28,
+          72,
+          73,
+          109,
+          117,
+          137,
+          147,
+          190,
+          210,
+          257
+        ]
+      },
+      "cluster_spread": {
+        "score": 0.10319878440348887,
+        "entropy": 0.18490739916777568
+      },
+      "deduplication": {
+        "boilerplate_score": 0.125
+      },
+      "metadata": {
+        "doc_id": "food101_00056_img",
+        "text_preview": "[IMAGE] An image of tiramisu"
+      }
+    },
+    {
+      "doc_index": 41,
+      "risk_score": 31.17066535949707,
+      "verdict": "LOW",
+      "hubness": {
+        "hub_z": 51.992774963378906,
+        "hub_rate": 0.0022395707201212645,
+        "hits": null,
+        "example_query_indices": [
+          36,
+          92,
+          94,
+          107,
+          147,
+          150,
+          171,
+          185,
+          192,
+          206
+        ]
+      },
+      "cluster_spread": {
+        "score": 0.0,
+        "entropy": 0.0
+      },
+      "deduplication": {
+        "boilerplate_score": 0.125
+      },
+      "metadata": {
+        "doc_id": "food101_00041_img",
+        "text_preview": "[IMAGE] An image of pancakes"
+      }
+    },
+    {
+      "doc_index": 217,
+      "risk_score": 31.166946721070197,
+      "verdict": "LOW",
+      "hubness": {
+        "hub_z": 51.885074615478516,
+        "hub_rate": 0.0021620681509375572,
+        "hits": null,
+        "example_query_indices": [
+          46,
+          61,
+          66,
+          134,
+          141,
+          144,
+          153,
+          158,
+          160,
+          175
+        ]
+      },
+      "cluster_spread": {
+        "score": 0.3045021295209023,
+        "entropy": 0.5455945739691843
+      },
+      "deduplication": {
+        "boilerplate_score": 0.125
+      },
+      "metadata": {
+        "doc_id": "food101_00217_img",
+        "text_preview": "[IMAGE] An image of spring rolls"
+      }
+    },
+    {
+      "doc_index": 248,
+      "risk_score": 31.159752393710672,
+      "verdict": "LOW",
+      "hubness": {
+        "hub_z": 51.918495178222656,
+        "hub_rate": 0.002186118857935071,
+        "hits": null,
+        "example_query_indices": [
+          3,
+          24,
+          45,
+          53,
+          56,
+          90,
+          176,
+          190,
+          199,
+          201
+        ]
+      },
+      "cluster_spread": {
+        "score": 0.16827071183949213,
+        "entropy": 0.30150064133215543
+      },
+      "deduplication": {
+        "boilerplate_score": 0.125
+      },
+      "metadata": {
+        "doc_id": "food101_00248_img",
+        "text_preview": "[IMAGE] An image of grilled salmon"
+      }
+    },
+    {
+      "doc_index": 83,
+      "risk_score": 31.13868204905349,
+      "verdict": "LOW",
+      "hubness": {
+        "hub_z": 51.84806442260742,
+        "hub_rate": 0.0021354344207793474,
+        "hits": null,
+        "example_query_indices": [
+          77,
+          92,
+          145,
+          147,
+          158,
+          175,
+          185,
+          195,
+          215,
+          229
+        ]
+      },
+      "cluster_spread": {
+        "score": 0.27421507009654655,
+        "entropy": 0.4913274484505221
+      },
+      "deduplication": {
+        "boilerplate_score": 0.125
+      },
+      "metadata": {
+        "doc_id": "food101_00083_img",
+        "text_preview": "[IMAGE] An image of breakfast burrito"
+      }
+    },
+    {
+      "doc_index": 97,
+      "risk_score": 31.133571937293695,
+      "verdict": "LOW",
+      "hubness": {
+        "hub_z": 51.8022575378418,
+        "hub_rate": 0.0021024723537266254,
+        "hits": null,
+        "example_query_indices": [
+          1,
+          8,
+          41,
+          45,
+          56,
+          94,
+          95,
+          151,
+          160,
+          176
+        ]
+      },
+      "cluster_spread": {
+        "score": 0.3860794435485528,
+        "entropy": 0.6917614988524178
+      },
+      "deduplication": {
+        "boilerplate_score": 0.125
+      },
+      "metadata": {
+        "doc_id": "food101_00097_img",
+        "text_preview": "[IMAGE] An image of hamburger"
+      }
+    },
+    {
+      "doc_index": 223,
+      "risk_score": 31.129528185580682,
+      "verdict": "LOW",
+      "hubness": {
+        "hub_z": 51.86663818359375,
+        "hub_rate": 0.0021488021593540907,
+        "hits": null,
+        "example_query_indices": [
+          3,
+          31,
+          51,
+          65,
+          116,
+          166,
+          249,
+          255,
+          281,
+          289
+        ]
+      },
+      "cluster_spread": {
+        "score": 0.17272256242488743,
+        "entropy": 0.3094772867741259
+      },
+      "deduplication": {
+        "boilerplate_score": 0.125
+      },
+      "metadata": {
+        "doc_id": "food101_00223_img",
+        "text_preview": "[IMAGE] An image of chicken curry"
+      }
+    },
+    {
+      "doc_index": 65,
+      "risk_score": 31.12098385368732,
+      "verdict": "LOW",
+      "hubness": {
+        "hub_z": 51.859519958496094,
+        "hub_rate": 0.0021436773240566254,
+        "hits": null,
+        "example_query_indices": [
+          16,
+          22,
+          37,
+          66,
+          68,
+          120,
+          134,
+          154,
+          181,
+          190
+        ]
+      },
+      "cluster_spread": {
+        "score": 0.15135367090242352,
+        "entropy": 0.2711893730418441
+      },
+      "deduplication": {
+        "boilerplate_score": 0.125
+      },
+      "metadata": {
+        "doc_id": "food101_00065_img",
+        "text_preview": "[IMAGE] An image of pulled pork sandwich"
+      }
+    },
+    {
+      "doc_index": 283,
+      "risk_score": 31.107230758666994,
+      "verdict": "LOW",
+      "hubness": {
+        "hub_z": 51.88705062866211,
+        "hub_rate": 0.0021634893491864204,
+        "hits": null,
+        "example_query_indices": [
+          3,
+          11,
+          22,
+          45,
+          53,
+          61,
+          66,
+          120,
+          141,
+          146
+        ]
+      },
+      "cluster_spread": {
+        "score": 0.0,
+        "entropy": 0.0
+      },
+      "deduplication": {
+        "boilerplate_score": 0.125
+      },
+      "metadata": {
+        "doc_id": "food101_00283_img",
+        "text_preview": "[IMAGE] An image of spaghetti bolognese"
+      }
+    },
+    {
+      "doc_index": 296,
+      "risk_score": 31.106755923059573,
+      "verdict": "LOW",
+      "hubness": {
+        "hub_z": 51.776981353759766,
+        "hub_rate": 0.002084281062707305,
+        "hits": null,
+        "example_query_indices": [
+          37,
+          60,
+          74,
+          80,
+          107,
+          140,
+          166,
+          171,
+          206,
+          232
+        ]
+      },
+      "cluster_spread": {
+        "score": 0.3278260172753955,
+        "entropy": 0.5873853707125098
+      },
+      "deduplication": {
+        "boilerplate_score": 0.125
+      },
+      "metadata": {
+        "doc_id": "food101_00296_img",
+        "text_preview": "[IMAGE] An image of risotto"
+      }
+    },
+    {
+      "doc_index": 149,
+      "risk_score": 31.10109868009887,
+      "verdict": "LOW",
+      "hubness": {
+        "hub_z": 51.7480354309082,
+        "hub_rate": 0.0020634515676647425,
+        "hits": null,
+        "example_query_indices": [
+          11,
+          27,
+          40,
+          47,
+          49,
+          62,
+          80,
+          101,
+          107,
+          117
+        ]
+      },
+      "cluster_spread": {
+        "score": 0.3863813857238218,
+        "entropy": 0.6923025066041153
+      },
+      "deduplication": {
+        "boilerplate_score": 0.125
+      },
+      "metadata": {
+        "doc_id": "food101_00149_img",
+        "text_preview": "[IMAGE] An image of nachos"
+      }
+    },
+    {
+      "doc_index": 57,
+      "risk_score": 31.090607760323724,
+      "verdict": "LOW",
+      "hubness": {
+        "hub_z": 51.74223327636719,
+        "hub_rate": 0.0020592769142240286,
+        "hits": null,
+        "example_query_indices": [
+          1,
+          35,
+          49,
+          57,
+          62,
+          84,
+          104,
+          108,
+          122,
+          130
+        ]
+      },
+      "cluster_spread": {
+        "score": 0.3513313431225174,
+        "entropy": 0.6295012608763815
+      },
+      "deduplication": {
+        "boilerplate_score": 0.125
+      },
+      "metadata": {
+        "doc_id": "food101_00057_img",
+        "text_preview": "[IMAGE] An image of grilled cheese sandwich"
+      }
+    },
+    {
+      "doc_index": 271,
+      "risk_score": 31.06416199749479,
+      "verdict": "LOW",
+      "hubness": {
+        "hub_z": 51.69757080078125,
+        "hub_rate": 0.0020271381363272667,
+        "hits": null,
+        "example_query_indices": [
+          14,
+          16,
+          27,
+          37,
+          60,
+          77,
+          121,
+          146,
+          158,
+          195
+        ]
+      },
+      "cluster_spread": {
+        "score": 0.35309377043291673,
+        "entropy": 0.6326591066986156
+      },
+      "deduplication": {
+        "boilerplate_score": 0.125
+      },
+      "metadata": {
+        "doc_id": "food101_00271_img",
+        "text_preview": "[IMAGE] An image of nachos"
+      }
+    },
+    {
+      "doc_index": 180,
+      "risk_score": 31.053584581715693,
+      "verdict": "LOW",
+      "hubness": {
+        "hub_z": 51.772377014160156,
+        "hub_rate": 0.0020809685811400414,
+        "hits": null,
+        "example_query_indices": [
+          14,
+          22,
+          33,
+          53,
+          61,
+          77,
+          130,
+          141,
+          146,
+          185
+        ]
+      },
+      "cluster_spread": {
+        "score": 0.07578805140072628,
+        "entropy": 0.13579395875159386
+      },
+      "deduplication": {
+        "boilerplate_score": 0.125
+      },
+      "metadata": {
+        "doc_id": "food101_00180_img",
+        "text_preview": "[IMAGE] An image of beef carpaccio"
+      }
+    },
+    {
+      "doc_index": 96,
+      "risk_score": 31.048991775512697,
+      "verdict": "LOW",
+      "hubness": {
+        "hub_z": 51.78998565673828,
+        "hub_rate": 0.002093640388920903,
+        "hits": null,
+        "example_query_indices": [
+          36,
+          67,
+          147,
+          150,
+          152,
+          215,
+          236,
+          306,
+          375,
+          391
+        ]
+      },
+      "cluster_spread": {
+        "score": 0.0,
+        "entropy": 0.0
+      },
+      "deduplication": {
+        "boilerplate_score": 0.125
+      },
+      "metadata": {
+        "doc_id": "food101_00096_img",
+        "text_preview": "[IMAGE] An image of panna cotta"
+      }
+    },
+    {
+      "doc_index": 87,
+      "risk_score": 31.018539823301797,
+      "verdict": "LOW",
+      "hubness": {
+        "hub_z": 51.6305046081543,
+        "hub_rate": 0.001978873973712325,
+        "hits": null,
+        "example_query_indices": [
+          28,
+          33,
+          46,
+          49,
+          122,
+          126,
+          152,
+          175,
+          190,
+          210
+        ]
+      },
+      "cluster_spread": {
+        "score": 0.3261795700001881,
+        "entropy": 0.5844353332165723
+      },
+      "deduplication": {
+        "boilerplate_score": 0.125
+      },
+      "metadata": {
+        "doc_id": "food101_00087_img",
+        "text_preview": "[IMAGE] An image of hummus"
+      }
+    },
+    {
+      "doc_index": 173,
+      "risk_score": 31.012504079048043,
+      "verdict": "LOW",
+      "hubness": {
+        "hub_z": 51.60032272338867,
+        "hub_rate": 0.001957155065611005,
+        "hits": null,
+        "example_query_indices": [
+          14,
+          16,
+          37,
+          40,
+          113,
+          121,
+          158,
+          195,
+          244,
+          265
+        ]
+      },
+      "cluster_spread": {
+        "score": 0.386542688331023,
+        "entropy": 0.6925915220779792
+      },
+      "deduplication": {
+        "boilerplate_score": 0.125
+      },
+      "metadata": {
+        "doc_id": "food101_00173_img",
+        "text_preview": "[IMAGE] An image of apple pie"
+      }
+    },
+    {
+      "doc_index": 222,
+      "risk_score": 31.009112669827065,
+      "verdict": "LOW",
+      "hubness": {
+        "hub_z": 51.694854736328125,
+        "hub_rate": 0.0020251828245818615,
+        "hits": null,
+        "example_query_indices": [
+          11,
+          14,
+          22,
+          47,
+          61,
+          120,
+          140,
+          146,
+          148,
+          185
+        ]
+      },
+      "cluster_spread": {
+        "score": 0.08599151075641316,
+        "entropy": 0.15407610367102942
+      },
+      "deduplication": {
+        "boilerplate_score": 0.125
+      },
+      "metadata": {
+        "doc_id": "food101_00222_img",
+        "text_preview": "[IMAGE] An image of beet salad"
+      }
+    },
+    {
+      "doc_index": 26,
+      "risk_score": 30.976809839885497,
+      "verdict": "LOW",
+      "hubness": {
+        "hub_z": 51.56179428100586,
+        "hub_rate": 0.0019294306403025985,
+        "hits": null,
+        "example_query_indices": [
+          3,
+          16,
+          40,
+          51,
+          67,
+          116,
+          146,
+          166,
+          190,
+          218
+        ]
+      },
+      "cluster_spread": {
+        "score": 0.32365681966673027,
+        "entropy": 0.5799151714181009
+      },
+      "deduplication": {
+        "boilerplate_score": 0.125
+      },
+      "metadata": {
+        "doc_id": "food101_00026_img",
+        "text_preview": "[IMAGE] An image of ramen"
+      }
+    },
+    {
+      "doc_index": 104,
+      "risk_score": 30.96262130737305,
+      "verdict": "LOW",
+      "hubness": {
+        "hub_z": 51.646034240722656,
+        "hub_rate": 0.001990050310268998,
+        "hits": null,
+        "example_query_indices": [
+          137,
+          145,
+          179,
+          208,
+          213,
+          238,
+          257,
+          277,
+          282,
+          373
+        ]
+      },
+      "cluster_spread": {
+        "score": 0.0,
+        "entropy": 0.0
+      },
+      "deduplication": {
+        "boilerplate_score": 0.125
+      },
+      "metadata": {
+        "doc_id": "food101_00104_img",
+        "text_preview": "[IMAGE] An image of carrot cake"
+      }
+    },
+    {
+      "doc_index": 25,
+      "risk_score": 30.952339754738595,
+      "verdict": "LOW",
+      "hubness": {
+        "hub_z": 51.50437927246094,
+        "hub_rate": 0.0018881121650338173,
+        "hits": null,
+        "example_query_indices": [
+          31,
+          65,
+          117,
+          129,
+          166,
+          249,
+          345,
+          421,
+          500,
+          529
+        ]
+      },
+      "cluster_spread": {
+        "score": 0.3735590489615286,
+        "entropy": 0.6693279632926454
+      },
+      "deduplication": {
+        "boilerplate_score": 0.125
+      },
+      "metadata": {
+        "doc_id": "food101_00025_img",
+        "text_preview": "[IMAGE] An image of lobster bisque"
+      }
+    },
+    {
+      "doc_index": 85,
+      "risk_score": 30.947429428812143,
+      "verdict": "LOW",
+      "hubness": {
+        "hub_z": 51.493106842041016,
+        "hub_rate": 0.0018800016259774566,
+        "hits": null,
+        "example_query_indices": [
+          46,
+          70,
+          73,
+          81,
+          90,
+          102,
+          152,
+          174,
+          199,
+          201
+        ]
+      },
+      "cluster_spread": {
+        "score": 0.3828247105890237,
+        "entropy": 0.6859298002523728
+      },
+      "deduplication": {
+        "boilerplate_score": 0.125
+      },
+      "metadata": {
+        "doc_id": "food101_00085_img",
+        "text_preview": "[IMAGE] An image of beef tartare"
+      }
+    },
+    {
+      "doc_index": 152,
+      "risk_score": 30.940404797503028,
+      "verdict": "LOW",
+      "hubness": {
+        "hub_z": 51.535953521728516,
+        "hub_rate": 0.001910835737362504,
+        "hits": null,
+        "example_query_indices": [
+          66,
+          181,
+          254,
+          274,
+          296,
+          343,
+          344,
+          365,
+          382,
+          390
+        ]
+      },
+      "cluster_spread": {
+        "score": 0.21915579293504636,
+        "entropy": 0.39267446722755217
+      },
+      "deduplication": {
+        "boilerplate_score": 0.125
+      },
+      "metadata": {
+        "doc_id": "food101_00152_img",
+        "text_preview": "[IMAGE] An image of fish and chips"
+      }
+    },
+    {
+      "doc_index": 224,
+      "risk_score": 30.920941050931347,
+      "verdict": "LOW",
+      "hubness": {
+        "hub_z": 51.48260498046875,
+        "hub_rate": 0.0018724434776231647,
+        "hits": null,
+        "example_query_indices": [
+          1,
+          8,
+          33,
+          43,
+          46,
+          55,
+          60,
+          108,
+          113,
+          148
+        ]
+      },
+      "cluster_spread": {
+        "score": 0.2818826838559501,
+        "entropy": 0.5050659680103168
+      },
+      "deduplication": {
+        "boilerplate_score": 0.125
+      },
+      "metadata": {
+        "doc_id": "food101_00224_img",
+        "text_preview": "[IMAGE] An image of tuna tartare"
+      }
+    },
+    {
+      "doc_index": 266,
+      "risk_score": 30.91264977983563,
+      "verdict": "LOW",
+      "hubness": {
+        "hub_z": 51.436058044433594,
+        "hub_rate": 0.0018389471806585789,
+        "hits": null,
+        "example_query_indices": [
+          65,
+          74,
+          109,
+          121,
+          129,
+          232,
+          239,
+          265,
+          307,
+          308
+        ]
+      },
+      "cluster_spread": {
+        "score": 0.380072858528721,
+        "entropy": 0.6809991432654108
+      },
+      "deduplication": {
+        "boilerplate_score": 0.125
+      },
+      "metadata": {
+        "doc_id": "food101_00266_img",
+        "text_preview": "[IMAGE] An image of hummus"
+      }
+    },
+    {
+      "doc_index": 92,
+      "risk_score": 30.90014094931018,
+      "verdict": "LOW",
+      "hubness": {
+        "hub_z": 51.471092224121094,
+        "hub_rate": 0.0018641577335074544,
+        "hits": null,
+        "example_query_indices": [
+          14,
+          22,
+          37,
+          40,
+          46,
+          47,
+          61,
+          77,
+          141,
+          146
+        ]
+      },
+      "cluster_spread": {
+        "score": 0.21242425949034704,
+        "entropy": 0.38061317843558684
+      },
+      "deduplication": {
+        "boilerplate_score": 0.125
+      },
+      "metadata": {
+        "doc_id": "food101_00092_img",
+        "text_preview": "[IMAGE] An image of nachos"
+      }
+    },
+    {
+      "doc_index": 290,
+      "risk_score": 30.891687912431596,
+      "verdict": "LOW",
+      "hubness": {
+        "hub_z": 51.43803405761719,
+        "hub_rate": 0.0018403710564598441,
+        "hits": null,
+        "example_query_indices": [
+          73,
+          81,
+          109,
+          147,
+          174,
+          192,
+          201,
+          268,
+          286,
+          308
+        ]
+      },
+      "cluster_spread": {
+        "score": 0.26933166726051755,
+        "entropy": 0.48257756517701206
+      },
+      "deduplication": {
+        "boilerplate_score": 0.125
+      },
+      "metadata": {
+        "doc_id": "food101_00290_img",
+        "text_preview": "[IMAGE] An image of tiramisu"
+      }
+    },
+    {
+      "doc_index": 251,
+      "risk_score": 30.890980264847947,
+      "verdict": "LOW",
+      "hubness": {
+        "hub_z": 51.486717224121094,
+        "hub_rate": 0.0018754035700112581,
+        "hits": null,
+        "example_query_indices": [
+          33,
+          36,
+          92,
+          122,
+          145,
+          164,
+          167,
+          171,
+          185,
+          192
+        ]
+      },
+      "cluster_spread": {
+        "score": 0.11974774452780973,
+        "entropy": 0.2145591551764051
+      },
+      "deduplication": {
+        "boilerplate_score": 0.125
+      },
+      "metadata": {
+        "doc_id": "food101_00251_img",
+        "text_preview": "[IMAGE] An image of waffles"
+      }
+    },
+    {
+      "doc_index": 11,
+      "risk_score": 30.890881387909523,
+      "verdict": "LOW",
+      "hubness": {
+        "hub_z": 51.433372497558594,
+        "hub_rate": 0.0018370161997154355,
+        "hits": null,
+        "example_query_indices": [
+          32,
+          49,
+          72,
+          101,
+          144,
+          152,
+          159,
+          180,
+          215,
+          326
+        ]
+      },
+      "cluster_spread": {
+        "score": 0.27927991012866066,
+        "entropy": 0.5004024235381879
+      },
+      "deduplication": {
+        "boilerplate_score": 0.125
+      },
+      "metadata": {
+        "doc_id": "food101_00011_img",
+        "text_preview": "[IMAGE] An image of filet mignon"
+      }
+    },
+    {
+      "doc_index": 226,
+      "risk_score": 30.84780197053739,
+      "verdict": "LOW",
+      "hubness": {
+        "hub_z": 51.33447265625,
+        "hub_rate": 0.0017658444121479988,
+        "hits": null,
+        "example_query_indices": [
+          27,
+          47,
+          62,
+          80,
+          141,
+          154,
+          202,
+          239,
+          243,
+          244
+        ]
+      },
+      "cluster_spread": {
+        "score": 0.36058997658829983,
+        "entropy": 0.6460905050608089
+      },
+      "deduplication": {
+        "boilerplate_score": 0.125
+      },
+      "metadata": {
+        "doc_id": "food101_00226_img",
+        "text_preview": "[IMAGE] An image of gyoza"
+      }
+    },
+    {
+      "doc_index": 12,
+      "risk_score": 30.834815643394496,
+      "verdict": "LOW",
+      "hubness": {
+        "hub_z": 51.405120849609375,
+        "hub_rate": 0.0018166849622502923,
+        "hits": null,
+        "example_query_indices": [
+          11,
+          14,
+          22,
+          68,
+          120,
+          140,
+          141,
+          146,
+          185,
+          226
+        ]
+      },
+      "cluster_spread": {
+        "score": 0.0837137607957152,
+        "entropy": 0.14999492361041503
+      },
+      "deduplication": {
+        "boilerplate_score": 0.125
+      },
+      "metadata": {
+        "doc_id": "food101_00012_img",
+        "text_preview": "[IMAGE] An image of beef carpaccio"
+      }
+    },
+    {
+      "doc_index": 30,
+      "risk_score": 30.834295571460615,
+      "verdict": "LOW",
+      "hubness": {
+        "hub_z": 51.30413818359375,
+        "hub_rate": 0.0017440159572288394,
+        "hits": null,
+        "example_query_indices": [
+          74,
+          80,
+          107,
+          109,
+          121,
+          129,
+          140,
+          232,
+          286,
+          308
+        ]
+      },
+      "cluster_spread": {
+        "score": 0.38405758447592286,
+        "entropy": 0.6881388137135884
+      },
+      "deduplication": {
+        "boilerplate_score": 0.125
+      },
+      "metadata": {
+        "doc_id": "food101_00030_img",
+        "text_preview": "[IMAGE] An image of macaroni and cheese"
+      }
+    },
+    {
+      "doc_index": 187,
+      "risk_score": 30.815776443481447,
+      "verdict": "LOW",
+      "hubness": {
+        "hub_z": 51.40129089355469,
+        "hub_rate": 0.0018139287130907178,
+        "hits": null,
+        "example_query_indices": [
+          24,
+          53,
+          56,
+          120,
+          134,
+          141,
+          176,
+          181,
+          190,
+          201
+        ]
+      },
+      "cluster_spread": {
+        "score": 0.0,
+        "entropy": 0.0
+      },
+      "deduplication": {
+        "boilerplate_score": 0.125
+      },
+      "metadata": {
+        "doc_id": "food101_00187_img",
+        "text_preview": "[IMAGE] An image of crab cakes"
+      }
+    },
+    {
+      "doc_index": 158,
+      "risk_score": 30.806711130065636,
+      "verdict": "LOW",
+      "hubness": {
+        "hub_z": 51.317474365234375,
+        "hub_rate": 0.0017536135856062174,
+        "hits": null,
+        "example_query_indices": [
+          31,
+          51,
+          65,
+          116,
+          166,
+          249,
+          255,
+          345,
+          378,
+          394
+        ]
+      },
+      "cluster_spread": {
+        "score": 0.20612873992778324,
+        "entropy": 0.3693331216456527
+      },
+      "deduplication": {
+        "boilerplate_score": 0.125
+      },
+      "metadata": {
+        "doc_id": "food101_00158_img",
+        "text_preview": "[IMAGE] An image of hot and sour soup"
+      }
+    },
+    {
+      "doc_index": 23,
+      "risk_score": 30.789850791558546,
+      "verdict": "LOW",
+      "hubness": {
+        "hub_z": 51.327754974365234,
+        "hub_rate": 0.0017610122449696064,
+        "hits": null,
+        "example_query_indices": [
+          3,
+          22,
+          45,
+          53,
+          55,
+          74,
+          193,
+          226,
+          239,
+          248
+        ]
+      },
+      "cluster_spread": {
+        "score": 0.09098521999975896,
+        "entropy": 0.16302362949436594
+      },
+      "deduplication": {
+        "boilerplate_score": 0.125
+      },
+      "metadata": {
+        "doc_id": "food101_00023_img",
+        "text_preview": "[IMAGE] An image of spaghetti bolognese"
+      }
+    },
+    {
+      "doc_index": 231,
+      "risk_score": 30.786821107514065,
+      "verdict": "LOW",
+      "hubness": {
+        "hub_z": 51.274993896484375,
+        "hub_rate": 0.0017230430385097861,
+        "hits": null,
+        "example_query_indices": [
+          14,
+          16,
+          22,
+          37,
+          47,
+          61,
+          77,
+          146,
+          148,
+          160
+        ]
+      },
+      "cluster_spread": {
+        "score": 0.23411812607130075,
+        "entropy": 0.4194833693061807
+      },
+      "deduplication": {
+        "boilerplate_score": 0.125
+      },
+      "metadata": {
+        "doc_id": "food101_00231_img",
+        "text_preview": "[IMAGE] An image of bibimbap"
+      }
+    },
+    {
+      "doc_index": 168,
+      "risk_score": 30.78628908304278,
+      "verdict": "LOW",
+      "hubness": {
+        "hub_z": 51.232303619384766,
+        "hub_rate": 0.0016923235962167382,
+        "hits": null,
+        "example_query_indices": [
+          8,
+          33,
+          43,
+          46,
+          80,
+          104,
+          210,
+          212,
+          219,
+          233
+        ]
+      },
+      "cluster_spread": {
+        "score": 0.35952692766507977,
+        "entropy": 0.6441857770863766
+      },
+      "deduplication": {
+        "boilerplate_score": 0.125
+      },
+      "metadata": {
+        "doc_id": "food101_00168_img",
+        "text_preview": "[IMAGE] An image of gyoza"
+      }
+    },
+    {
+      "doc_index": 136,
+      "risk_score": 30.785418046798473,
+      "verdict": "LOW",
+      "hubness": {
+        "hub_z": 51.221744537353516,
+        "hub_rate": 0.0016847248189151287,
+        "hits": null,
+        "example_query_indices": [
+          32,
+          35,
+          57,
+          62,
+          84,
+          101,
+          109,
+          113,
+          141,
+          144
+        ]
+      },
+      "cluster_spread": {
+        "score": 0.3868528072345416,
+        "entropy": 0.6931471805599453
+      },
+      "deduplication": {
+        "boilerplate_score": 0.125
+      },
+      "metadata": {
+        "doc_id": "food101_00136_img",
+        "text_preview": "[IMAGE] An image of lasagna"
+      }
+    },
+    {
+      "doc_index": 256,
+      "risk_score": 30.78458911239781,
+      "verdict": "LOW",
+      "hubness": {
+        "hub_z": 51.272029876708984,
+        "hub_rate": 0.0017209091456606984,
+        "hits": null,
+        "example_query_indices": [
+          31,
+          40,
+          51,
+          65,
+          67,
+          77,
+          116,
+          129,
+          148,
+          166
+        ]
+      },
+      "cluster_spread": {
+        "score": 0.2318463951189279,
+        "entropy": 0.4154129738607282
+      },
+      "deduplication": {
+        "boilerplate_score": 0.125
+      },
+      "metadata": {
+        "doc_id": "food101_00256_img",
+        "text_preview": "[IMAGE] An image of frozen yogurt"
+      }
+    }
+  ],
+  "detection_metrics": {
+    "threshold": 1.2422962865851244,
+    "confusion_matrix": [
+      [
+        300,
+        288
+      ],
+      [
+        0,
+        12
+      ]
+    ],
+    "tp": 12,
+    "fp": 288,
+    "tn": 300,
+    "fn": 0,
+    "precision": 0.04,
+    "recall": 1.0,
+    "f1": 0.07692307692307693,
+    "accuracy": 0.52,
+    "fpr": 0.4897959183673469,
+    "auc_roc": 1.0,
+    "auc_pr": 1.0,
+    "per_class": {
+      "positive": {
+        "precision": 0.04,
+        "recall": 1.0,
+        "f1": 0.07692307692307693,
+        "support": 12
+      },
+      "negative": {
+        "precision": 1.0,
+        "recall": 0.5102040816326531,
+        "f1": 0.6756756756756758,
+        "support": 588
+      }
+    }
+  }
+}

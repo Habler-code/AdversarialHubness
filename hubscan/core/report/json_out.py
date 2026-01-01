@@ -80,6 +80,40 @@ def generate_json_report(
             example_queries = hub_result.metadata.get("example_queries", {})
             if str(idx) in example_queries:
                 doc_data["hubness"]["example_query_indices"] = example_queries[str(idx)][:config.output.max_example_queries]
+            
+            # Concept-aware features
+            concept_aware = hub_result.metadata.get("concept_aware", {})
+            if concept_aware.get("enabled", False):
+                max_concept_hub_z = concept_aware.get("max_concept_hub_z", [])
+                top_concept_ids = concept_aware.get("top_concept_ids", [])
+                concept_names = concept_aware.get("concept_names", {})
+                
+                doc_concept_data = {}
+                if max_concept_hub_z and idx < len(max_concept_hub_z):
+                    doc_concept_data["max_concept_hub_z"] = float(max_concept_hub_z[idx])
+                if top_concept_ids and idx < len(top_concept_ids):
+                    cid = top_concept_ids[idx]
+                    if cid >= 0:
+                        doc_concept_data["top_concept_id"] = int(cid)
+                        doc_concept_data["top_concept_name"] = concept_names.get(cid, f"concept_{cid}")
+                
+                if doc_concept_data:
+                    doc_data["hubness"]["concept_specific"] = doc_concept_data
+            
+            # Modality-aware features
+            modality_aware = hub_result.metadata.get("modality_aware", {})
+            if modality_aware.get("enabled", False):
+                cross_modal_flags = modality_aware.get("cross_modal_flags", [])
+                cross_modal_ratios = modality_aware.get("cross_modal_ratios", {})
+                
+                doc_modality_data = {}
+                if cross_modal_flags and idx < len(cross_modal_flags):
+                    doc_modality_data["is_cross_modal"] = bool(cross_modal_flags[idx])
+                if str(idx) in cross_modal_ratios:
+                    doc_modality_data["cross_modal_ratio"] = float(cross_modal_ratios[str(idx)])
+                
+                if doc_modality_data:
+                    doc_data["hubness"]["modality_specific"] = doc_modality_data
         
         if "cluster_spread" in detector_results:
             cluster_result = detector_results["cluster_spread"]
@@ -157,6 +191,40 @@ def generate_json_report(
             report["detector_summary"][name]["ranking_method"] = result.metadata["ranking_method"]
             if "hybrid_alpha" in result.metadata:
                 report["detector_summary"][name]["hybrid_alpha"] = result.metadata["hybrid_alpha"]
+            
+            # Add concept-aware summary
+            concept_aware = result.metadata.get("concept_aware", {})
+            if concept_aware.get("enabled", False):
+                concept_summary = concept_aware.get("concept_summary", {})
+                report["detector_summary"][name]["concept_aware"] = {
+                    "enabled": True,
+                    "num_concepts": len(concept_summary),
+                    "fallback_used": concept_aware.get("fallback_used", False),
+                    "threshold": concept_aware.get("concept_hub_z_threshold", 4.0),
+                }
+                # Add concept breakdown
+                if concept_summary:
+                    report["concept_summary"] = {
+                        str(cid): {
+                            "name": concept_aware.get("concept_names", {}).get(cid, f"concept_{cid}"),
+                            **stats
+                        }
+                        for cid, stats in concept_summary.items()
+                    }
+            
+            # Add modality-aware summary
+            modality_aware = result.metadata.get("modality_aware", {})
+            if modality_aware.get("enabled", False):
+                modality_summary = modality_aware.get("modality_summary", {})
+                report["detector_summary"][name]["modality_aware"] = {
+                    "enabled": True,
+                    "num_cross_modal_docs": modality_aware.get("num_cross_modal_docs", 0),
+                    "cross_modal_penalty": modality_aware.get("cross_modal_penalty", 1.5),
+                    "modalities_found": modality_aware.get("modalities_found", []),
+                }
+                # Add modality breakdown
+                if modality_summary:
+                    report["modality_summary"] = modality_summary
     
     # Add metrics if available
     if detection_metrics:

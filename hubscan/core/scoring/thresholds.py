@@ -83,9 +83,12 @@ def apply_thresholds(
             high_by_percentile = combined_scores[doc_idx] >= percentile_val
             high_by_zscore = hub_z >= hub_z_threshold
             
+            # Get MEDIUM ratio (default 0.5 if not set)
+            medium_ratio = getattr(config, 'medium_ratio', 0.5)
+            
             if high_by_percentile or high_by_zscore:
                 verdict = Verdict.HIGH
-            elif combined_scores[doc_idx] >= percentile_val * 0.5 or hub_z >= hub_z_threshold * 0.5:
+            elif combined_scores[doc_idx] >= percentile_val * medium_ratio or hub_z >= hub_z_threshold * medium_ratio:
                 verdict = Verdict.MEDIUM
             else:
                 verdict = Verdict.LOW

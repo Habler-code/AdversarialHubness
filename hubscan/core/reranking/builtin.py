@@ -51,9 +51,9 @@ class DefaultReranking:
         Returns:
             Tuple of (reranked_distances, reranked_indices, metadata)
         """
-        # For similarity metrics (cosine, IP), higher is better
-        # For distance metrics (L2), lower is better
-        # We'll assume similarity metric (higher = better) by default
+        # For similarity metrics (cosine, IP), higher values indicate better matches
+        # For distance metrics (L2), lower values indicate better matches
+        # Default assumes similarity metric
         # Users can override this behavior in custom reranking methods
         
         # Sort by descending scores (assuming similarity metric)

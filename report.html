@@ -1,0 +1,2425 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>HubScan Report - Adversarial Hubness Detection</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            border-bottom: 3px solid #0066cc;
+            padding-bottom: 10px;
+        }
+        h2 {
+            color: #555;
+            margin-top: 30px;
+        }
+        h3 {
+            color: #666;
+            margin-top: 20px;
+        }
+        .summary {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+        .summary-card {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 6px;
+            border-left: 4px solid #0066cc;
+        }
+        .summary-card h3 {
+            margin: 0 0 10px 0;
+            font-size: 14px;
+            color: #666;
+            text-transform: uppercase;
+        }
+        .summary-card .value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #333;
+        }
+        .summary-card.concept {
+            border-left-color: #6366f1;
+        }
+        .summary-card.modality {
+            border-left-color: #f59e0b;
+        }
+        .verdict-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+        .verdict-high {
+            background-color: #fee;
+            color: #c33;
+        }
+        .verdict-medium {
+            background-color: #ffe;
+            color: #c93;
+        }
+        .verdict-low {
+            background-color: #efe;
+            color: #3c3;
+        }
+        .concept-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 8px;
+            font-size: 11px;
+            background-color: #e0e7ff;
+            color: #3730a3;
+        }
+        .modality-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 8px;
+            font-size: 11px;
+        }
+        .modality-cross {
+            background-color: #fef3c7;
+            color: #92400e;
+        }
+        .modality-same {
+            background-color: #d1fae5;
+            color: #065f46;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        th {
+            background-color: #0066cc;
+            color: white;
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+        }
+        td {
+            padding: 10px 12px;
+            border-bottom: 1px solid #eee;
+        }
+        tr:hover {
+            background-color: #f8f9fa;
+        }
+        .score {
+            font-family: monospace;
+            font-weight: bold;
+        }
+        .text-preview {
+            max-width: 300px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .footer {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+            color: #666;
+            font-size: 12px;
+            text-align: center;
+        }
+        .feature-section {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 6px;
+            margin: 20px 0;
+        }
+        .feature-section.disabled {
+            opacity: 0.6;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>HubScan Report - Adversarial Hubness Detection</h1>
+        
+        <div class="summary">
+            <div class="summary-card">
+                <h3>Total Documents</h3>
+                <div class="value">665</div>
+            </div>
+            <div class="summary-card">
+                <h3>Queries Processed</h3>
+                <div class="value">1396</div>
+            </div>
+            <div class="summary-card">
+                <h3>High Risk</h3>
+                <div class="value">11</div>
+            </div>
+            <div class="summary-card">
+                <h3>Medium Risk</h3>
+                <div class="value">26</div>
+            </div>
+            <div class="summary-card">
+                <h3>Low Risk</h3>
+                <div class="value">628</div>
+            </div>
+            <div class="summary-card">
+                <h3>Runtime</h3>
+                <div class="value">0.17s</div>
+            </div>
+        </div>
+        
+        <h2>Scan Information</h2>
+        <table>
+            <tr>
+                <th>Property</th>
+                <th>Value</th>
+            </tr>
+            <tr>
+                <td>Timestamp</td>
+                <td>2026-01-01T11:53:58.642198</td>
+            </tr>
+            <tr>
+                <td>Index Type</td>
+                <td>flat</td>
+            </tr>
+            <tr>
+                <td>Metric</td>
+                <td>cosine</td>
+            </tr>
+            <tr>
+                <td>k (nearest neighbors)</td>
+                <td>20</td>
+            </tr>
+        </table>
+        
+        
+        <div class="feature-section">
+            <h3>Concept-Aware Detection</h3>
+            <p>Detected hubs localized to specific semantic concepts. Threshold: 4.0</p>
+            <div class="summary">
+                <div class="summary-card concept">
+                    <h3>Concepts</h3>
+                    <div class="value">0</div>
+                </div>
+                <div class="summary-card concept">
+                    <h3>Concept-Specific Hubs</h3>
+                    <div class="value">0</div>
+                </div>
+            </div>
+        </div>
+        
+        
+        
+        <div class="feature-section">
+            <h3>Modality-Aware Detection</h3>
+            <p>Detected cross-modal hubs that appear in queries of different modalities.</p>
+            <div class="summary">
+                <div class="summary-card modality">
+                    <h3>Modalities Found</h3>
+                    <div class="value"></div>
+                </div>
+                <div class="summary-card modality">
+                    <h3>Cross-Modal Docs</h3>
+                    <div class="value">0</div>
+                </div>
+            </div>
+        </div>
+        
+        
+        <h2>Top Suspicious Documents</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Rank</th>
+                    <th>Doc Index</th>
+                    <th>Risk Score</th>
+                    <th>Verdict</th>
+                    <th>Hub Z-Score</th>
+                    <th>Hub Rate</th>
+                    
+                    <th>Concept</th>
+                    
+                    
+                    <th>Cross-Modal</th>
+                    
+                    
+                    <th>Doc ID</th>
+                    <th>Source</th>
+                    
+                </tr>
+            </thead>
+            <tbody>
+                
+                <tr>
+                    <td>1</td>
+                    <td>174</td>
+                    <td class="score">8.7490</td>
+                    <td>
+                        <span class="verdict-badge verdict-high">
+                            HIGH
+                        </span>
+                    </td>
+                    <td class="score">
+                        
+                            14.82
+                        
+                    </td>
+                    <td>
+                        
+                            0.0143
+                        
+                    </td>
+                    
+                    <td>
+                        
+                            <span class="concept-badge">
+                                N/A
+                            </span>
+                            <br>
+                            <small>z=0.0</small>
+                        
+                    </td>
+                    
+                    
+                    <td>
+                        
+                            -
+                        
+                    </td>
+                    
+                    
+                    <td>-</td>
+                    <td>-</td>
+                    
+                </tr>
+                
+                <tr>
+                    <td>2</td>
+                    <td>465</td>
+                    <td class="score">6.0448</td>
+                    <td>
+                        <span class="verdict-badge verdict-high">
+                            HIGH
+                        </span>
+                    </td>
+                    <td class="score">
+                        
+                            10.39
+                        
+                    </td>
+                    <td>
+                        
+                            0.0104
+                        
+                    </td>
+                    
+                    <td>
+                        
+                            <span class="concept-badge">
+                                N/A
+                            </span>
+                            <br>
+                            <small>z=0.0</small>
+                        
+                    </td>
+                    
+                    
+                    <td>
+                        
+                            -
+                        
+                    </td>
+                    
+                    
+                    <td>-</td>
+                    <td>-</td>
+                    
+                </tr>
+                
+                <tr>
+                    <td>3</td>
+                    <td>430</td>
+                    <td class="score">5.8208</td>
+                    <td>
+                        <span class="verdict-badge verdict-high">
+                            HIGH
+                        </span>
+                    </td>
+                    <td class="score">
+                        
+                            10.03
+                        
+                    </td>
+                    <td>
+                        
+                            0.0101
+                        
+                    </td>
+                    
+                    <td>
+                        
+                            <span class="concept-badge">
+                                N/A
+                            </span>
+                            <br>
+                            <small>z=0.0</small>
+                        
+                    </td>
+                    
+                    
+                    <td>
+                        
+                            -
+                        
+                    </td>
+                    
+                    
+                    <td>-</td>
+                    <td>-</td>
+                    
+                </tr>
+                
+                <tr>
+                    <td>4</td>
+                    <td>436</td>
+                    <td class="score">5.0953</td>
+                    <td>
+                        <span class="verdict-badge verdict-high">
+                            HIGH
+                        </span>
+                    </td>
+                    <td class="score">
+                        
+                            8.71
+                        
+                    </td>
+                    <td>
+                        
+                            0.0090
+                        
+                    </td>
+                    
+                    <td>
+                        
+                            <span class="concept-badge">
+                                N/A
+                            </span>
+                            <br>
+                            <small>z=0.0</small>
+                        
+                    </td>
+                    
+                    
+                    <td>
+                        
+                            -
+                        
+                    </td>
+                    
+                    
+                    <td>-</td>
+                    <td>-</td>
+                    
+                </tr>
+                
+                <tr>
+                    <td>5</td>
+                    <td>422</td>
+                    <td class="score">4.2187</td>
+                    <td>
+                        <span class="verdict-badge verdict-high">
+                            HIGH
+                        </span>
+                    </td>
+                    <td class="score">
+                        
+                            7.36
+                        
+                    </td>
+                    <td>
+                        
+                            0.0078
+                        
+                    </td>
+                    
+                    <td>
+                        
+                            <span class="concept-badge">
+                                N/A
+                            </span>
+                            <br>
+                            <small>z=0.0</small>
+                        
+                    </td>
+                    
+                    
+                    <td>
+                        
+                            -
+                        
+                    </td>
+                    
+                    
+                    <td>-</td>
+                    <td>-</td>
+                    
+                </tr>
+                
+                <tr>
+                    <td>6</td>
+                    <td>399</td>
+                    <td class="score">4.1061</td>
+                    <td>
+                        <span class="verdict-badge verdict-high">
+                            HIGH
+                        </span>
+                    </td>
+                    <td class="score">
+                        
+                            7.16
+                        
+                    </td>
+                    <td>
+                        
+                            0.0076
+                        
+                    </td>
+                    
+                    <td>
+                        
+                            <span class="concept-badge">
+                                N/A
+                            </span>
+                            <br>
+                            <small>z=0.0</small>
+                        
+                    </td>
+                    
+                    
+                    <td>
+                        
+                            -
+                        
+                    </td>
+                    
+                    
+                    <td>-</td>
+                    <td>-</td>
+                    
+                </tr>
+                
+                <tr>
+                    <td>7</td>
+                    <td>514</td>
+                    <td class="score">3.5631</td>
+                    <td>
+                        <span class="verdict-badge verdict-high">
+                            HIGH
+                        </span>
+                    </td>
+                    <td class="score">
+                        
+                            6.24
+                        
+                    </td>
+                    <td>
+                        
+                            0.0068
+                        
+                    </td>
+                    
+                    <td>
+                        
+                            <span class="concept-badge">
+                                N/A
+                            </span>
+                            <br>
+                            <small>z=0.0</small>
+                        
+                    </td>
+                    
+                    
+                    <td>
+                        
+                            -
+                        
+                    </td>
+                    
+                    
+                    <td>-</td>
+                    <td>-</td>
+                    
+                </tr>
+                
+                <tr>
+                    <td>8</td>
+                    <td>617</td>
+                    <td class="score">3.0091</td>
+                    <td>
+                        <span class="verdict-badge verdict-high">
+                            HIGH
+                        </span>
+                    </td>
+                    <td class="score">
+                        
+                            5.32
+                        
+                    </td>
+                    <td>
+                        
+                            0.0060
+                        
+                    </td>
+                    
+                    <td>
+                        
+                            <span class="concept-badge">
+                                N/A
+                            </span>
+                            <br>
+                            <small>z=0.0</small>
+                        
+                    </td>
+                    
+                    
+                    <td>
+                        
+                            -
+                        
+                    </td>
+                    
+                    
+                    <td>-</td>
+                    <td>-</td>
+                    
+                </tr>
+                
+                <tr>
+                    <td>9</td>
+                    <td>63</td>
+                    <td class="score">2.9602</td>
+                    <td>
+                        <span class="verdict-badge verdict-high">
+                            HIGH
+                        </span>
+                    </td>
+                    <td class="score">
+                        
+                            5.25
+                        
+                    </td>
+                    <td>
+                        
+                            0.0059
+                        
+                    </td>
+                    
+                    <td>
+                        
+                            <span class="concept-badge">
+                                N/A
+                            </span>
+                            <br>
+                            <small>z=0.0</small>
+                        
+                    </td>
+                    
+                    
+                    <td>
+                        
+                            -
+                        
+                    </td>
+                    
+                    
+                    <td>-</td>
+                    <td>-</td>
+                    
+                </tr>
+                
+                <tr>
+                    <td>10</td>
+                    <td>209</td>
+                    <td class="score">2.9194</td>
+                    <td>
+                        <span class="verdict-badge verdict-high">
+                            HIGH
+                        </span>
+                    </td>
+                    <td class="score">
+                        
+                            5.11
+                        
+                    </td>
+                    <td>
+                        
+                            0.0058
+                        
+                    </td>
+                    
+                    <td>
+                        
+                            <span class="concept-badge">
+                                N/A
+                            </span>
+                            <br>
+                            <small>z=0.0</small>
+                        
+                    </td>
+                    
+                    
+                    <td>
+                        
+                            -
+                        
+                    </td>
+                    
+                    
+                    <td>-</td>
+                    <td>-</td>
+                    
+                </tr>
+                
+                <tr>
+                    <td>11</td>
+                    <td>155</td>
+                    <td class="score">2.8638</td>
+                    <td>
+                        <span class="verdict-badge verdict-high">
+                            HIGH
+                        </span>
+                    </td>
+                    <td class="score">
+                        
+                            5.00
+                        
+                    </td>
+                    <td>
+                        
+                            0.0057
+                        
+                    </td>
+                    
+                    <td>
+                        
+                            <span class="concept-badge">
+                                N/A
+                            </span>
+                            <br>
+                            <small>z=0.0</small>
+                        
+                    </td>
+                    
+                    
+                    <td>
+                        
+                            -
+                        
+                    </td>
+                    
+                    
+                    <td>-</td>
+                    <td>-</td>
+                    
+                </tr>
+                
+                <tr>
+                    <td>12</td>
+                    <td>109</td>
+                    <td class="score">2.7834</td>
+                    <td>
+                        <span class="verdict-badge verdict-medium">
+                            MEDIUM
+                        </span>
+                    </td>
+                    <td class="score">
+                        
+                            4.87
+                        
+                    </td>
+                    <td>
+                        
+                            0.0056
+                        
+                    </td>
+                    
+                    <td>
+                        
+                            <span class="concept-badge">
+                                N/A
+                            </span>
+                            <br>
+                            <small>z=0.0</small>
+                        
+                    </td>
+                    
+                    
+                    <td>
+                        
+                            -
+                        
+                    </td>
+                    
+                    
+                    <td>-</td>
+                    <td>-</td>
+                    
+                </tr>
+                
+                <tr>
+                    <td>13</td>
+                    <td>76</td>
+                    <td class="score">2.7123</td>
+                    <td>
+                        <span class="verdict-badge verdict-medium">
+                            MEDIUM
+                        </span>
+                    </td>
+                    <td class="score">
+                        
+                            4.82
+                        
+                    </td>
+                    <td>
+                        
+                            0.0056
+                        
+                    </td>
+                    
+                    <td>
+                        
+                            <span class="concept-badge">
+                                N/A
+                            </span>
+                            <br>
+                            <small>z=0.0</small>
+                        
+                    </td>
+                    
+                    
+                    <td>
+                        
+                            -
+                        
+                    </td>
+                    
+                    
+                    <td>-</td>
+                    <td>-</td>
+                    
+                </tr>
+                
+                <tr>
+                    <td>14</td>
+                    <td>473</td>
+                    <td class="score">2.6630</td>
+                    <td>
+                        <span class="verdict-badge verdict-medium">
+                            MEDIUM
+                        </span>
+                    </td>
+                    <td class="score">
+                        
+                            4.69
+                        
+                    </td>
+                    <td>
+                        
+                            0.0054
+                        
+                    </td>
+                    
+                    <td>
+                        
+                            <span class="concept-badge">
+                                N/A
+                            </span>
+                            <br>
+                            <small>z=0.0</small>
+                        
+                    </td>
+                    
+                    
+                    <td>
+                        
+                            -
+                        
+                    </td>
+                    
+                    
+                    <td>-</td>
+                    <td>-</td>
+                    
+                </tr>
+                
+                <tr>
+                    <td>15</td>
+                    <td>648</td>
+                    <td class="score">2.6461</td>
+                    <td>
+                        <span class="verdict-badge verdict-medium">
+                            MEDIUM
+                        </span>
+                    </td>
+                    <td class="score">
+                        
+                            4.70
+                        
+                    </td>
+                    <td>
+                        
+                            0.0054
+                        
+                    </td>
+                    
+                    <td>
+                        
+                            <span class="concept-badge">
+                                N/A
+                            </span>
+                            <br>
+                            <small>z=0.0</small>
+                        
+                    </td>
+                    
+                    
+                    <td>
+                        
+                            -
+                        
+                    </td>
+                    
+                    
+                    <td>-</td>
+                    <td>-</td>
+                    
+                </tr>
+                
+                <tr>
+                    <td>16</td>
+                    <td>199</td>
+                    <td class="score">2.5491</td>
+                    <td>
+                        <span class="verdict-badge verdict-medium">
+                            MEDIUM
+                        </span>
+                    </td>
+                    <td class="score">
+                        
+                            4.46
+                        
+                    </td>
+                    <td>
+                        
+                            0.0052
+                        
+                    </td>
+                    
+                    <td>
+                        
+                            <span class="concept-badge">
+                                N/A
+                            </span>
+                            <br>
+                            <small>z=0.0</small>
+                        
+                    </td>
+                    
+                    
+                    <td>
+                        
+                            -
+                        
+                    </td>
+                    
+                    
+                    <td>-</td>
+                    <td>-</td>
+                    
+                </tr>
+                
+                <tr>
+                    <td>17</td>
+                    <td>281</td>
+                    <td class="score">2.4900</td>
+                    <td>
+                        <span class="verdict-badge verdict-medium">
+                            MEDIUM
+                        </span>
+                    </td>
+                    <td class="score">
+                        
+                            4.43
+                        
+                    </td>
+                    <td>
+                        
+                            0.0052
+                        
+                    </td>
+                    
+                    <td>
+                        
+                            <span class="concept-badge">
+                                N/A
+                            </span>
+                            <br>
+                            <small>z=0.0</small>
+                        
+                    </td>
+                    
+                    
+                    <td>
+                        
+                            -
+                        
+                    </td>
+                    
+                    
+                    <td>-</td>
+                    <td>-</td>
+                    
+                </tr>
+                
+                <tr>
+                    <td>18</td>
+                    <td>244</td>
+                    <td class="score">2.4472</td>
+                    <td>
+                        <span class="verdict-badge verdict-medium">
+                            MEDIUM
+                        </span>
+                    </td>
+                    <td class="score">
+                        
+                            4.36
+                        
+                    </td>
+                    <td>
+                        
+                            0.0052
+                        
+                    </td>
+                    
+                    <td>
+                        
+                            <span class="concept-badge">
+                                N/A
+                            </span>
+                            <br>
+                            <small>z=0.0</small>
+                        
+                    </td>
+                    
+                    
+                    <td>
+                        
+                            -
+                        
+                    </td>
+                    
+                    
+                    <td>-</td>
+                    <td>-</td>
+                    
+                </tr>
+                
+                <tr>
+                    <td>19</td>
+                    <td>227</td>
+                    <td class="score">2.4281</td>
+                    <td>
+                        <span class="verdict-badge verdict-medium">
+                            MEDIUM
+                        </span>
+                    </td>
+                    <td class="score">
+                        
+                            4.32
+                        
+                    </td>
+                    <td>
+                        
+                            0.0051
+                        
+                    </td>
+                    
+                    <td>
+                        
+                            <span class="concept-badge">
+                                N/A
+                            </span>
+                            <br>
+                            <small>z=0.0</small>
+                        
+                    </td>
+                    
+                    
+                    <td>
+                        
+                            -
+                        
+                    </td>
+                    
+                    
+                    <td>-</td>
+                    <td>-</td>
+                    
+                </tr>
+                
+                <tr>
+                    <td>20</td>
+                    <td>54</td>
+                    <td class="score">2.3747</td>
+                    <td>
+                        <span class="verdict-badge verdict-medium">
+                            MEDIUM
+                        </span>
+                    </td>
+                    <td class="score">
+                        
+                            4.21
+                        
+                    </td>
+                    <td>
+                        
+                            0.0050
+                        
+                    </td>
+                    
+                    <td>
+                        
+                            <span class="concept-badge">
+                                N/A
+                            </span>
+                            <br>
+                            <small>z=0.0</small>
+                        
+                    </td>
+                    
+                    
+                    <td>
+                        
+                            -
+                        
+                    </td>
+                    
+                    
+                    <td>-</td>
+                    <td>-</td>
+                    
+                </tr>
+                
+                <tr>
+                    <td>21</td>
+                    <td>90</td>
+                    <td class="score">2.3268</td>
+                    <td>
+                        <span class="verdict-badge verdict-medium">
+                            MEDIUM
+                        </span>
+                    </td>
+                    <td class="score">
+                        
+                            4.17
+                        
+                    </td>
+                    <td>
+                        
+                            0.0050
+                        
+                    </td>
+                    
+                    <td>
+                        
+                            <span class="concept-badge">
+                                N/A
+                            </span>
+                            <br>
+                            <small>z=0.0</small>
+                        
+                    </td>
+                    
+                    
+                    <td>
+                        
+                            -
+                        
+                    </td>
+                    
+                    
+                    <td>-</td>
+                    <td>-</td>
+                    
+                </tr>
+                
+                <tr>
+                    <td>22</td>
+                    <td>619</td>
+                    <td class="score">2.2760</td>
+                    <td>
+                        <span class="verdict-badge verdict-medium">
+                            MEDIUM
+                        </span>
+                    </td>
+                    <td class="score">
+                        
+                            4.08
+                        
+                    </td>
+                    <td>
+                        
+                            0.0049
+                        
+                    </td>
+                    
+                    <td>
+                        
+                            <span class="concept-badge">
+                                N/A
+                            </span>
+                            <br>
+                            <small>z=0.0</small>
+                        
+                    </td>
+                    
+                    
+                    <td>
+                        
+                            -
+                        
+                    </td>
+                    
+                    
+                    <td>-</td>
+                    <td>-</td>
+                    
+                </tr>
+                
+                <tr>
+                    <td>23</td>
+                    <td>81</td>
+                    <td class="score">2.2014</td>
+                    <td>
+                        <span class="verdict-badge verdict-medium">
+                            MEDIUM
+                        </span>
+                    </td>
+                    <td class="score">
+                        
+                            3.95
+                        
+                    </td>
+                    <td>
+                        
+                            0.0048
+                        
+                    </td>
+                    
+                    <td>
+                        
+                            <span class="concept-badge">
+                                N/A
+                            </span>
+                            <br>
+                            <small>z=0.0</small>
+                        
+                    </td>
+                    
+                    
+                    <td>
+                        
+                            -
+                        
+                    </td>
+                    
+                    
+                    <td>-</td>
+                    <td>-</td>
+                    
+                </tr>
+                
+                <tr>
+                    <td>24</td>
+                    <td>212</td>
+                    <td class="score">2.1406</td>
+                    <td>
+                        <span class="verdict-badge verdict-medium">
+                            MEDIUM
+                        </span>
+                    </td>
+                    <td class="score">
+                        
+                            3.86
+                        
+                    </td>
+                    <td>
+                        
+                            0.0047
+                        
+                    </td>
+                    
+                    <td>
+                        
+                            <span class="concept-badge">
+                                N/A
+                            </span>
+                            <br>
+                            <small>z=0.0</small>
+                        
+                    </td>
+                    
+                    
+                    <td>
+                        
+                            -
+                        
+                    </td>
+                    
+                    
+                    <td>-</td>
+                    <td>-</td>
+                    
+                </tr>
+                
+                <tr>
+                    <td>25</td>
+                    <td>566</td>
+                    <td class="score">2.1341</td>
+                    <td>
+                        <span class="verdict-badge verdict-medium">
+                            MEDIUM
+                        </span>
+                    </td>
+                    <td class="score">
+                        
+                            3.87
+                        
+                    </td>
+                    <td>
+                        
+                            0.0047
+                        
+                    </td>
+                    
+                    <td>
+                        
+                            <span class="concept-badge">
+                                N/A
+                            </span>
+                            <br>
+                            <small>z=0.0</small>
+                        
+                    </td>
+                    
+                    
+                    <td>
+                        
+                            -
+                        
+                    </td>
+                    
+                    
+                    <td>-</td>
+                    <td>-</td>
+                    
+                </tr>
+                
+                <tr>
+                    <td>26</td>
+                    <td>286</td>
+                    <td class="score">2.0491</td>
+                    <td>
+                        <span class="verdict-badge verdict-medium">
+                            MEDIUM
+                        </span>
+                    </td>
+                    <td class="score">
+                        
+                            3.71
+                        
+                    </td>
+                    <td>
+                        
+                            0.0046
+                        
+                    </td>
+                    
+                    <td>
+                        
+                            <span class="concept-badge">
+                                N/A
+                            </span>
+                            <br>
+                            <small>z=0.0</small>
+                        
+                    </td>
+                    
+                    
+                    <td>
+                        
+                            -
+                        
+                    </td>
+                    
+                    
+                    <td>-</td>
+                    <td>-</td>
+                    
+                </tr>
+                
+                <tr>
+                    <td>27</td>
+                    <td>332</td>
+                    <td class="score">1.9029</td>
+                    <td>
+                        <span class="verdict-badge verdict-medium">
+                            MEDIUM
+                        </span>
+                    </td>
+                    <td class="score">
+                        
+                            3.49
+                        
+                    </td>
+                    <td>
+                        
+                            0.0044
+                        
+                    </td>
+                    
+                    <td>
+                        
+                            <span class="concept-badge">
+                                N/A
+                            </span>
+                            <br>
+                            <small>z=0.0</small>
+                        
+                    </td>
+                    
+                    
+                    <td>
+                        
+                            -
+                        
+                    </td>
+                    
+                    
+                    <td>-</td>
+                    <td>-</td>
+                    
+                </tr>
+                
+                <tr>
+                    <td>28</td>
+                    <td>469</td>
+                    <td class="score">1.8465</td>
+                    <td>
+                        <span class="verdict-badge verdict-medium">
+                            MEDIUM
+                        </span>
+                    </td>
+                    <td class="score">
+                        
+                            3.27
+                        
+                    </td>
+                    <td>
+                        
+                            0.0042
+                        
+                    </td>
+                    
+                    <td>
+                        
+                            <span class="concept-badge">
+                                N/A
+                            </span>
+                            <br>
+                            <small>z=0.0</small>
+                        
+                    </td>
+                    
+                    
+                    <td>
+                        
+                            -
+                        
+                    </td>
+                    
+                    
+                    <td>-</td>
+                    <td>-</td>
+                    
+                </tr>
+                
+                <tr>
+                    <td>29</td>
+                    <td>83</td>
+                    <td class="score">1.7121</td>
+                    <td>
+                        <span class="verdict-badge verdict-medium">
+                            MEDIUM
+                        </span>
+                    </td>
+                    <td class="score">
+                        
+                            3.16
+                        
+                    </td>
+                    <td>
+                        
+                            0.0041
+                        
+                    </td>
+                    
+                    <td>
+                        
+                            <span class="concept-badge">
+                                N/A
+                            </span>
+                            <br>
+                            <small>z=0.0</small>
+                        
+                    </td>
+                    
+                    
+                    <td>
+                        
+                            -
+                        
+                    </td>
+                    
+                    
+                    <td>-</td>
+                    <td>-</td>
+                    
+                </tr>
+                
+                <tr>
+                    <td>30</td>
+                    <td>517</td>
+                    <td class="score">1.6754</td>
+                    <td>
+                        <span class="verdict-badge verdict-medium">
+                            MEDIUM
+                        </span>
+                    </td>
+                    <td class="score">
+                        
+                            3.03
+                        
+                    </td>
+                    <td>
+                        
+                            0.0040
+                        
+                    </td>
+                    
+                    <td>
+                        
+                            <span class="concept-badge">
+                                N/A
+                            </span>
+                            <br>
+                            <small>z=0.0</small>
+                        
+                    </td>
+                    
+                    
+                    <td>
+                        
+                            -
+                        
+                    </td>
+                    
+                    
+                    <td>-</td>
+                    <td>-</td>
+                    
+                </tr>
+                
+                <tr>
+                    <td>31</td>
+                    <td>223</td>
+                    <td class="score">1.5461</td>
+                    <td>
+                        <span class="verdict-badge verdict-medium">
+                            MEDIUM
+                        </span>
+                    </td>
+                    <td class="score">
+                        
+                            2.89
+                        
+                    </td>
+                    <td>
+                        
+                            0.0039
+                        
+                    </td>
+                    
+                    <td>
+                        
+                            <span class="concept-badge">
+                                N/A
+                            </span>
+                            <br>
+                            <small>z=0.0</small>
+                        
+                    </td>
+                    
+                    
+                    <td>
+                        
+                            -
+                        
+                    </td>
+                    
+                    
+                    <td>-</td>
+                    <td>-</td>
+                    
+                </tr>
+                
+                <tr>
+                    <td>32</td>
+                    <td>133</td>
+                    <td class="score">1.5339</td>
+                    <td>
+                        <span class="verdict-badge verdict-medium">
+                            MEDIUM
+                        </span>
+                    </td>
+                    <td class="score">
+                        
+                            2.88
+                        
+                    </td>
+                    <td>
+                        
+                            0.0039
+                        
+                    </td>
+                    
+                    <td>
+                        
+                            <span class="concept-badge">
+                                N/A
+                            </span>
+                            <br>
+                            <small>z=0.0</small>
+                        
+                    </td>
+                    
+                    
+                    <td>
+                        
+                            -
+                        
+                    </td>
+                    
+                    
+                    <td>-</td>
+                    <td>-</td>
+                    
+                </tr>
+                
+                <tr>
+                    <td>33</td>
+                    <td>319</td>
+                    <td class="score">1.5311</td>
+                    <td>
+                        <span class="verdict-badge verdict-medium">
+                            MEDIUM
+                        </span>
+                    </td>
+                    <td class="score">
+                        
+                            2.87
+                        
+                    </td>
+                    <td>
+                        
+                            0.0038
+                        
+                    </td>
+                    
+                    <td>
+                        
+                            <span class="concept-badge">
+                                N/A
+                            </span>
+                            <br>
+                            <small>z=0.0</small>
+                        
+                    </td>
+                    
+                    
+                    <td>
+                        
+                            -
+                        
+                    </td>
+                    
+                    
+                    <td>-</td>
+                    <td>-</td>
+                    
+                </tr>
+                
+                <tr>
+                    <td>34</td>
+                    <td>477</td>
+                    <td class="score">1.4927</td>
+                    <td>
+                        <span class="verdict-badge verdict-medium">
+                            MEDIUM
+                        </span>
+                    </td>
+                    <td class="score">
+                        
+                            2.71
+                        
+                    </td>
+                    <td>
+                        
+                            0.0037
+                        
+                    </td>
+                    
+                    <td>
+                        
+                            <span class="concept-badge">
+                                N/A
+                            </span>
+                            <br>
+                            <small>z=0.0</small>
+                        
+                    </td>
+                    
+                    
+                    <td>
+                        
+                            -
+                        
+                    </td>
+                    
+                    
+                    <td>-</td>
+                    <td>-</td>
+                    
+                </tr>
+                
+                <tr>
+                    <td>35</td>
+                    <td>317</td>
+                    <td class="score">1.3869</td>
+                    <td>
+                        <span class="verdict-badge verdict-medium">
+                            MEDIUM
+                        </span>
+                    </td>
+                    <td class="score">
+                        
+                            2.64
+                        
+                    </td>
+                    <td>
+                        
+                            0.0037
+                        
+                    </td>
+                    
+                    <td>
+                        
+                            <span class="concept-badge">
+                                N/A
+                            </span>
+                            <br>
+                            <small>z=0.0</small>
+                        
+                    </td>
+                    
+                    
+                    <td>
+                        
+                            -
+                        
+                    </td>
+                    
+                    
+                    <td>-</td>
+                    <td>-</td>
+                    
+                </tr>
+                
+                <tr>
+                    <td>36</td>
+                    <td>0</td>
+                    <td class="score">1.3823</td>
+                    <td>
+                        <span class="verdict-badge verdict-medium">
+                            MEDIUM
+                        </span>
+                    </td>
+                    <td class="score">
+                        
+                            2.64
+                        
+                    </td>
+                    <td>
+                        
+                            0.0036
+                        
+                    </td>
+                    
+                    <td>
+                        
+                            <span class="concept-badge">
+                                N/A
+                            </span>
+                            <br>
+                            <small>z=0.0</small>
+                        
+                    </td>
+                    
+                    
+                    <td>
+                        
+                            -
+                        
+                    </td>
+                    
+                    
+                    <td>-</td>
+                    <td>-</td>
+                    
+                </tr>
+                
+                <tr>
+                    <td>37</td>
+                    <td>66</td>
+                    <td class="score">1.3097</td>
+                    <td>
+                        <span class="verdict-badge verdict-low">
+                            LOW
+                        </span>
+                    </td>
+                    <td class="score">
+                        
+                            2.38
+                        
+                    </td>
+                    <td>
+                        
+                            0.0034
+                        
+                    </td>
+                    
+                    <td>
+                        
+                            <span class="concept-badge">
+                                N/A
+                            </span>
+                            <br>
+                            <small>z=0.0</small>
+                        
+                    </td>
+                    
+                    
+                    <td>
+                        
+                            -
+                        
+                    </td>
+                    
+                    
+                    <td>-</td>
+                    <td>-</td>
+                    
+                </tr>
+                
+                <tr>
+                    <td>38</td>
+                    <td>276</td>
+                    <td class="score">1.3011</td>
+                    <td>
+                        <span class="verdict-badge verdict-medium">
+                            MEDIUM
+                        </span>
+                    </td>
+                    <td class="score">
+                        
+                            2.50
+                        
+                    </td>
+                    <td>
+                        
+                            0.0035
+                        
+                    </td>
+                    
+                    <td>
+                        
+                            <span class="concept-badge">
+                                N/A
+                            </span>
+                            <br>
+                            <small>z=0.0</small>
+                        
+                    </td>
+                    
+                    
+                    <td>
+                        
+                            -
+                        
+                    </td>
+                    
+                    
+                    <td>-</td>
+                    <td>-</td>
+                    
+                </tr>
+                
+                <tr>
+                    <td>39</td>
+                    <td>326</td>
+                    <td class="score">1.1429</td>
+                    <td>
+                        <span class="verdict-badge verdict-low">
+                            LOW
+                        </span>
+                    </td>
+                    <td class="score">
+                        
+                            2.22
+                        
+                    </td>
+                    <td>
+                        
+                            0.0033
+                        
+                    </td>
+                    
+                    <td>
+                        
+                            <span class="concept-badge">
+                                N/A
+                            </span>
+                            <br>
+                            <small>z=0.0</small>
+                        
+                    </td>
+                    
+                    
+                    <td>
+                        
+                            -
+                        
+                    </td>
+                    
+                    
+                    <td>-</td>
+                    <td>-</td>
+                    
+                </tr>
+                
+                <tr>
+                    <td>40</td>
+                    <td>424</td>
+                    <td class="score">1.1285</td>
+                    <td>
+                        <span class="verdict-badge verdict-low">
+                            LOW
+                        </span>
+                    </td>
+                    <td class="score">
+                        
+                            2.21
+                        
+                    </td>
+                    <td>
+                        
+                            0.0033
+                        
+                    </td>
+                    
+                    <td>
+                        
+                            <span class="concept-badge">
+                                N/A
+                            </span>
+                            <br>
+                            <small>z=0.0</small>
+                        
+                    </td>
+                    
+                    
+                    <td>
+                        
+                            -
+                        
+                    </td>
+                    
+                    
+                    <td>-</td>
+                    <td>-</td>
+                    
+                </tr>
+                
+                <tr>
+                    <td>41</td>
+                    <td>112</td>
+                    <td class="score">1.1250</td>
+                    <td>
+                        <span class="verdict-badge verdict-low">
+                            LOW
+                        </span>
+                    </td>
+                    <td class="score">
+                        
+                            2.12
+                        
+                    </td>
+                    <td>
+                        
+                            0.0032
+                        
+                    </td>
+                    
+                    <td>
+                        
+                            <span class="concept-badge">
+                                N/A
+                            </span>
+                            <br>
+                            <small>z=0.0</small>
+                        
+                    </td>
+                    
+                    
+                    <td>
+                        
+                            -
+                        
+                    </td>
+                    
+                    
+                    <td>-</td>
+                    <td>-</td>
+                    
+                </tr>
+                
+                <tr>
+                    <td>42</td>
+                    <td>98</td>
+                    <td class="score">1.1204</td>
+                    <td>
+                        <span class="verdict-badge verdict-low">
+                            LOW
+                        </span>
+                    </td>
+                    <td class="score">
+                        
+                            2.11
+                        
+                    </td>
+                    <td>
+                        
+                            0.0032
+                        
+                    </td>
+                    
+                    <td>
+                        
+                            <span class="concept-badge">
+                                N/A
+                            </span>
+                            <br>
+                            <small>z=0.0</small>
+                        
+                    </td>
+                    
+                    
+                    <td>
+                        
+                            -
+                        
+                    </td>
+                    
+                    
+                    <td>-</td>
+                    <td>-</td>
+                    
+                </tr>
+                
+                <tr>
+                    <td>43</td>
+                    <td>118</td>
+                    <td class="score">1.1189</td>
+                    <td>
+                        <span class="verdict-badge verdict-low">
+                            LOW
+                        </span>
+                    </td>
+                    <td class="score">
+                        
+                            2.10
+                        
+                    </td>
+                    <td>
+                        
+                            0.0032
+                        
+                    </td>
+                    
+                    <td>
+                        
+                            <span class="concept-badge">
+                                N/A
+                            </span>
+                            <br>
+                            <small>z=0.0</small>
+                        
+                    </td>
+                    
+                    
+                    <td>
+                        
+                            -
+                        
+                    </td>
+                    
+                    
+                    <td>-</td>
+                    <td>-</td>
+                    
+                </tr>
+                
+                <tr>
+                    <td>44</td>
+                    <td>626</td>
+                    <td class="score">1.1161</td>
+                    <td>
+                        <span class="verdict-badge verdict-low">
+                            LOW
+                        </span>
+                    </td>
+                    <td class="score">
+                        
+                            2.19
+                        
+                    </td>
+                    <td>
+                        
+                            0.0033
+                        
+                    </td>
+                    
+                    <td>
+                        
+                            <span class="concept-badge">
+                                N/A
+                            </span>
+                            <br>
+                            <small>z=0.0</small>
+                        
+                    </td>
+                    
+                    
+                    <td>
+                        
+                            -
+                        
+                    </td>
+                    
+                    
+                    <td>-</td>
+                    <td>-</td>
+                    
+                </tr>
+                
+                <tr>
+                    <td>45</td>
+                    <td>548</td>
+                    <td class="score">1.0964</td>
+                    <td>
+                        <span class="verdict-badge verdict-low">
+                            LOW
+                        </span>
+                    </td>
+                    <td class="score">
+                        
+                            2.08
+                        
+                    </td>
+                    <td>
+                        
+                            0.0032
+                        
+                    </td>
+                    
+                    <td>
+                        
+                            <span class="concept-badge">
+                                N/A
+                            </span>
+                            <br>
+                            <small>z=0.0</small>
+                        
+                    </td>
+                    
+                    
+                    <td>
+                        
+                            -
+                        
+                    </td>
+                    
+                    
+                    <td>-</td>
+                    <td>-</td>
+                    
+                </tr>
+                
+                <tr>
+                    <td>46</td>
+                    <td>588</td>
+                    <td class="score">1.0936</td>
+                    <td>
+                        <span class="verdict-badge verdict-low">
+                            LOW
+                        </span>
+                    </td>
+                    <td class="score">
+                        
+                            2.01
+                        
+                    </td>
+                    <td>
+                        
+                            0.0031
+                        
+                    </td>
+                    
+                    <td>
+                        
+                            <span class="concept-badge">
+                                N/A
+                            </span>
+                            <br>
+                            <small>z=0.0</small>
+                        
+                    </td>
+                    
+                    
+                    <td>
+                        
+                            -
+                        
+                    </td>
+                    
+                    
+                    <td>-</td>
+                    <td>-</td>
+                    
+                </tr>
+                
+                <tr>
+                    <td>47</td>
+                    <td>88</td>
+                    <td class="score">1.0829</td>
+                    <td>
+                        <span class="verdict-badge verdict-low">
+                            LOW
+                        </span>
+                    </td>
+                    <td class="score">
+                        
+                            2.12
+                        
+                    </td>
+                    <td>
+                        
+                            0.0032
+                        
+                    </td>
+                    
+                    <td>
+                        
+                            <span class="concept-badge">
+                                N/A
+                            </span>
+                            <br>
+                            <small>z=0.0</small>
+                        
+                    </td>
+                    
+                    
+                    <td>
+                        
+                            -
+                        
+                    </td>
+                    
+                    
+                    <td>-</td>
+                    <td>-</td>
+                    
+                </tr>
+                
+                <tr>
+                    <td>48</td>
+                    <td>114</td>
+                    <td class="score">1.0728</td>
+                    <td>
+                        <span class="verdict-badge verdict-low">
+                            LOW
+                        </span>
+                    </td>
+                    <td class="score">
+                        
+                            2.05
+                        
+                    </td>
+                    <td>
+                        
+                            0.0031
+                        
+                    </td>
+                    
+                    <td>
+                        
+                            <span class="concept-badge">
+                                N/A
+                            </span>
+                            <br>
+                            <small>z=0.0</small>
+                        
+                    </td>
+                    
+                    
+                    <td>
+                        
+                            -
+                        
+                    </td>
+                    
+                    
+                    <td>-</td>
+                    <td>-</td>
+                    
+                </tr>
+                
+                <tr>
+                    <td>49</td>
+                    <td>519</td>
+                    <td class="score">1.0560</td>
+                    <td>
+                        <span class="verdict-badge verdict-low">
+                            LOW
+                        </span>
+                    </td>
+                    <td class="score">
+                        
+                            2.00
+                        
+                    </td>
+                    <td>
+                        
+                            0.0031
+                        
+                    </td>
+                    
+                    <td>
+                        
+                            <span class="concept-badge">
+                                N/A
+                            </span>
+                            <br>
+                            <small>z=0.0</small>
+                        
+                    </td>
+                    
+                    
+                    <td>
+                        
+                            -
+                        
+                    </td>
+                    
+                    
+                    <td>-</td>
+                    <td>-</td>
+                    
+                </tr>
+                
+                <tr>
+                    <td>50</td>
+                    <td>241</td>
+                    <td class="score">1.0551</td>
+                    <td>
+                        <span class="verdict-badge verdict-low">
+                            LOW
+                        </span>
+                    </td>
+                    <td class="score">
+                        
+                            2.08
+                        
+                    </td>
+                    <td>
+                        
+                            0.0032
+                        
+                    </td>
+                    
+                    <td>
+                        
+                            <span class="concept-badge">
+                                N/A
+                            </span>
+                            <br>
+                            <small>z=0.0</small>
+                        
+                    </td>
+                    
+                    
+                    <td>
+                        
+                            -
+                        
+                    </td>
+                    
+                    
+                    <td>-</td>
+                    <td>-</td>
+                    
+                </tr>
+                
+            </tbody>
+        </table>
+        
+        <div class="footer">
+            <p>Generated by HubScan on 2026-01-01T11:53:58.642198</p>
+            <p>For more details, see the JSON report.</p>
+        </div>
+    </div>
+</body>
+</html>

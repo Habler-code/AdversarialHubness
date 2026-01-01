@@ -18,6 +18,7 @@
 
 from typing import Tuple, Optional, List, Dict, Any
 import numpy as np
+import random
 
 try:
     from pinecone import Pinecone, ServerlessSpec
@@ -26,7 +27,7 @@ except ImportError:
     ServerlessSpec = None
 
 from ..vector_index import VectorIndex
-from ...utils.logging import get_logger
+from ....utils.logging import get_logger
 
 logger = get_logger()
 
@@ -55,11 +56,16 @@ class PineconeIndex(VectorIndex):
             dimension: Vector dimension (will be inferred from index if 0)
             environment: Pinecone environment (deprecated in v3+, optional)
         """
+        # Check import at runtime in case package was installed after module load
         if Pinecone is None:
-            raise ImportError(
-                "Pinecone adapter requires 'pinecone-client' package. "
-                "Install with: pip install pinecone-client"
-            )
+            try:
+                from pinecone import Pinecone as PC
+                globals()['Pinecone'] = PC
+            except ImportError:
+                raise ImportError(
+                    "Pinecone adapter requires 'pinecone' package. "
+                    "Install with: pip install pinecone"
+                )
         
         self.index_name = index_name
         self.pc = Pinecone(api_key=api_key)
@@ -291,6 +297,115 @@ class PineconeIndex(VectorIndex):
         }
         
         return distances, indices, metadata
+    
+    def extract_embeddings(
+        self,
+        batch_size: int = 1000,
+        limit: Optional[int] = None,
+    ) -> Tuple[np.ndarray, List[Any]]:
+        """
+        Extract all embeddings from the Pinecone index.
+        
+        Args:
+            batch_size: Number of vectors to retrieve per batch
+            limit: Optional maximum number of vectors to extract (None = all)
+            
+        Returns:
+            Tuple of (embeddings, ids) where:
+            - embeddings: Array of shape (N, D) containing all vectors
+            - ids: List of document IDs corresponding to each embedding
+            
+        Note:
+            Uses query-based discovery to find IDs, then fetches vectors.
+            For better performance with known IDs, pass them directly.
+        """
+        import random
+        
+        all_embeddings = []
+        all_ids = []
+        discovered_ids = set()
+        
+        stats = self.index.describe_index_stats()
+        total_count = stats.get("total_vector_count", 0)
+        
+        if total_count == 0:
+            logger.warning("Pinecone index is empty")
+            return np.array([], dtype=np.float32).reshape(0, self._dimension), []
+        
+        if limit is not None:
+            total_count = min(total_count, limit)
+        
+        # Discover IDs by querying with random vectors
+        # Use enough queries to cover the space
+        num_queries = max(10, min(100, total_count // 10 + 1))
+        random_queries = [
+            [random.random() for _ in range(self._dimension)]
+            for _ in range(num_queries)
+        ]
+        
+        # Query to discover IDs
+        for query_vec in random_queries:
+            try:
+                results = self.index.query(
+                    vector=query_vec,
+                    top_k=min(batch_size, total_count),
+                    include_metadata=False,
+                    include_values=False,
+                )
+                for match in results.matches:
+                    discovered_ids.add(match.id)
+                    if len(discovered_ids) >= total_count:
+                        break
+                if len(discovered_ids) >= total_count:
+                    break
+            except Exception as e:
+                logger.warning(f"Query failed during ID discovery: {e}")
+                continue
+        
+        id_list = list(discovered_ids)[:total_count]
+        
+        if not id_list:
+            logger.warning("No IDs discovered from Pinecone index")
+            return np.array([], dtype=np.float32).reshape(0, self._dimension), []
+        
+        # Fetch vectors in batches
+        for i in range(0, len(id_list), batch_size):
+            batch_ids = id_list[i:i + batch_size]
+            try:
+                fetch_result = self.index.fetch(ids=batch_ids)
+                
+                for vec_id, vector_data in fetch_result.vectors.items():
+                    # Handle different Pinecone response formats
+                    if hasattr(vector_data, 'values'):
+                        vec_values = vector_data.values
+                    elif isinstance(vector_data, dict):
+                        vec_values = vector_data.get('values', vector_data)
+                    elif isinstance(vector_data, list):
+                        vec_values = vector_data
+                    else:
+                        logger.warning(f"Unexpected vector format for ID {vec_id}")
+                        continue
+                    
+                    all_embeddings.append(vec_values)
+                    all_ids.append(vec_id)
+                    
+                    if limit and len(all_embeddings) >= limit:
+                        break
+            except Exception as e:
+                logger.warning(f"Failed to fetch batch starting at {i}: {e}")
+                continue
+            
+            if limit and len(all_embeddings) >= limit:
+                break
+        
+        if not all_embeddings:
+            logger.warning("No embeddings extracted from Pinecone index")
+            return np.array([], dtype=np.float32).reshape(0, self._dimension), []
+        
+        embeddings_array = np.array(all_embeddings, dtype=np.float32)
+        logger.info(f"Extracted {len(embeddings_array)} embeddings from Pinecone index")
+        
+        return embeddings_array, all_ids
     
     @property
     def dimension(self) -> int:

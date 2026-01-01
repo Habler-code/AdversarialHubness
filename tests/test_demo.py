@@ -23,10 +23,10 @@ import tempfile
 from pathlib import Path
 import sys
 
-# Add examples to path
-examples_dir = Path(__file__).parent.parent / "examples"
-if str(examples_dir) not in sys.path:
-    sys.path.insert(0, str(examples_dir))
+# Add examples/demos to path
+examples_demos_dir = Path(__file__).parent.parent / "examples" / "demos"
+if str(examples_demos_dir) not in sys.path:
+    sys.path.insert(0, str(examples_demos_dir))
 
 from adversarial_hub_demo import (
     generate_documents,
@@ -256,7 +256,8 @@ def test_multi_backend_faiss():
         tmpdir_path = Path(tmpdir)
         
         # Import multi-backend demo functions
-        sys.path.insert(0, str(examples_dir))
+        examples_demos_dir = Path(__file__).parent.parent / "examples" / "demos"
+        sys.path.insert(0, str(examples_demos_dir))
         from adversarial_hub_demo_multi_backend import create_faiss_backend, run_backend_test
         
         hub_info = {"chunk_index": 5}

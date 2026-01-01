@@ -59,6 +59,10 @@ HTML_TEMPLATE = """
             color: #555;
             margin-top: 30px;
         }
+        h3 {
+            color: #666;
+            margin-top: 20px;
+        }
         .summary {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -82,6 +86,12 @@ HTML_TEMPLATE = """
             font-weight: bold;
             color: #333;
         }
+        .summary-card.concept {
+            border-left-color: #6366f1;
+        }
+        .summary-card.modality {
+            border-left-color: #f59e0b;
+        }
         .verdict-badge {
             display: inline-block;
             padding: 4px 12px;
@@ -101,6 +111,28 @@ HTML_TEMPLATE = """
         .verdict-low {
             background-color: #efe;
             color: #3c3;
+        }
+        .concept-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 8px;
+            font-size: 11px;
+            background-color: #e0e7ff;
+            color: #3730a3;
+        }
+        .modality-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 8px;
+            font-size: 11px;
+        }
+        .modality-cross {
+            background-color: #fef3c7;
+            color: #92400e;
+        }
+        .modality-same {
+            background-color: #d1fae5;
+            color: #065f46;
         }
         table {
             width: 100%;
@@ -138,6 +170,15 @@ HTML_TEMPLATE = """
             color: #666;
             font-size: 12px;
             text-align: center;
+        }
+        .feature-section {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 6px;
+            margin: 20px 0;
+        }
+        .feature-section.disabled {
+            opacity: 0.6;
         }
     </style>
 </head>
@@ -196,6 +237,40 @@ HTML_TEMPLATE = """
             </tr>
         </table>
         
+        {% if concept_aware_enabled %}
+        <div class="feature-section">
+            <h3>Concept-Aware Detection</h3>
+            <p>Detected hubs localized to specific semantic concepts. Threshold: {{ concept_threshold }}</p>
+            <div class="summary">
+                <div class="summary-card concept">
+                    <h3>Concepts</h3>
+                    <div class="value">{{ num_concepts }}</div>
+                </div>
+                <div class="summary-card concept">
+                    <h3>Concept-Specific Hubs</h3>
+                    <div class="value">{{ concept_hub_count }}</div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+        
+        {% if modality_aware_enabled %}
+        <div class="feature-section">
+            <h3>Modality-Aware Detection</h3>
+            <p>Detected cross-modal hubs that appear in queries of different modalities.</p>
+            <div class="summary">
+                <div class="summary-card modality">
+                    <h3>Modalities Found</h3>
+                    <div class="value">{{ modalities_found | join(', ') }}</div>
+                </div>
+                <div class="summary-card modality">
+                    <h3>Cross-Modal Docs</h3>
+                    <div class="value">{{ cross_modal_count }}</div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+        
         <h2>Top Suspicious Documents</h2>
         <table>
             <thead>
@@ -206,6 +281,12 @@ HTML_TEMPLATE = """
                     <th>Verdict</th>
                     <th>Hub Z-Score</th>
                     <th>Hub Rate</th>
+                    {% if concept_aware_enabled %}
+                    <th>Concept</th>
+                    {% endif %}
+                    {% if modality_aware_enabled %}
+                    <th>Cross-Modal</th>
+                    {% endif %}
                     {% if show_metadata %}
                     <th>Doc ID</th>
                     <th>Source</th>
@@ -237,6 +318,32 @@ HTML_TEMPLATE = """
                             -
                         {% endif %}
                     </td>
+                    {% if concept_aware_enabled %}
+                    <td>
+                        {% if doc.hubness and doc.hubness.concept_specific %}
+                            <span class="concept-badge">
+                                {{ doc.hubness.concept_specific.top_concept_name | default('N/A') }}
+                            </span>
+                            <br>
+                            <small>z={{ "%.1f" | format(doc.hubness.concept_specific.max_concept_hub_z | default(0)) }}</small>
+                        {% else %}
+                            -
+                        {% endif %}
+                    </td>
+                    {% endif %}
+                    {% if modality_aware_enabled %}
+                    <td>
+                        {% if doc.hubness and doc.hubness.modality_specific %}
+                            {% if doc.hubness.modality_specific.is_cross_modal %}
+                                <span class="modality-badge modality-cross">Cross-Modal</span>
+                            {% else %}
+                                <span class="modality-badge modality-same">Same</span>
+                            {% endif %}
+                        {% else %}
+                            -
+                        {% endif %}
+                    </td>
+                    {% endif %}
                     {% if show_metadata %}
                     <td>{{ doc.metadata.doc_id if doc.metadata and doc.metadata.doc_id else "-" }}</td>
                     <td>{{ doc.metadata.source if doc.metadata and doc.metadata.source else "-" }}</td>
@@ -291,6 +398,33 @@ def generate_html_report(
         detection_metrics=detection_metrics,
     )
     
+    # Extract concept/modality info from detector summary
+    concept_aware_enabled = False
+    modality_aware_enabled = False
+    concept_threshold = 4.0
+    num_concepts = 0
+    concept_hub_count = 0
+    cross_modal_count = 0
+    modalities_found = []
+    
+    hubness_summary = json_report.get("detector_summary", {}).get("hubness", {})
+    if hubness_summary:
+        concept_info = hubness_summary.get("concept_aware", {})
+        if concept_info.get("enabled", False):
+            concept_aware_enabled = True
+            concept_threshold = concept_info.get("threshold", 4.0)
+            num_concepts = concept_info.get("num_concepts", 0)
+            # Count concept hubs from concept_summary
+            concept_summary = json_report.get("concept_summary", {})
+            for cid, stats in concept_summary.items():
+                concept_hub_count += stats.get("num_hub_docs", 0)
+        
+        modality_info = hubness_summary.get("modality_aware", {})
+        if modality_info.get("enabled", False):
+            modality_aware_enabled = True
+            cross_modal_count = modality_info.get("num_cross_modal_docs", 0)
+            modalities_found = modality_info.get("modalities_found", [])
+    
     # Render HTML template
     template = Template(HTML_TEMPLATE)
     html = template.render(
@@ -298,6 +432,13 @@ def generate_html_report(
         summary=json_report["summary"],
         suspicious_documents=json_report["suspicious_documents"],
         show_metadata=not config.output.privacy_mode,
+        concept_aware_enabled=concept_aware_enabled,
+        modality_aware_enabled=modality_aware_enabled,
+        concept_threshold=concept_threshold,
+        num_concepts=num_concepts,
+        concept_hub_count=concept_hub_count,
+        cross_modal_count=cross_modal_count,
+        modalities_found=modalities_found,
     )
     
     return html
