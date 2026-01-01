@@ -268,30 +268,4 @@ scanner.load_data()
 results = scanner.scan()
 ```
 
-## Backward Compatibility
-
-**Note**: Reranking has been refactored from a ranking method to a post-processing step. This is a breaking change for configs using `method: reranked`.
-
-### Migration Guide
-
-**Old configuration:**
-```yaml
-ranking:
-  method: reranked
-  rerank_top_n: 100
-```
-
-**New configuration:**
-```yaml
-ranking:
-  method: vector  # or hybrid, lexical
-  rerank: true
-  rerank_method: default
-  rerank_top_n: 100
-```
-
-All other configurations continue to work without modification:
-- Existing configs using `vector`, `hybrid`, `lexical` work as before
-- Built-in detectors work exactly as before
-- Reranking can now be applied to any ranking method
 

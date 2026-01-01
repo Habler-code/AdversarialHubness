@@ -3,7 +3,7 @@
 [![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](LICENSE)
 [![Python](https://img.shields.io/badge/python-3.11%2B-blue.svg)](https://www.python.org/downloads/)
 
-HubScan is an open-source security scanner that audits vector indices and embeddings to detect **adversarial hubs** in Retrieval-Augmented Generation (RAG) and vector search systems. It supports multiple vector databases (FAISS, Pinecone, Qdrant, Weaviate) and identifies malicious document embeddings that manipulate retrieval results by appearing in top-k results for an unusually large fraction of diverse queries.
+HubScan is an open-source security scanner that audits vector indices and embeddings to detect **adversarial hubs** in Retrieval-Augmented Generation (RAG) and vector search systems. It supports multiple vector databases (FAISS, Pinecone, Qdrant, Weaviate) and provides comprehensive detection capabilities including **multimodal hub detection** (for image-text and cross-modal systems), **concept-aware detection** (for category-specific hubs), and **flexible retrieval methods** (vector similarity, hybrid search, lexical matching) with support for **custom retrieval and reranking algorithms** via a plugin system. HubScan identifies malicious document embeddings that manipulate retrieval results by appearing in top-k results for an unusually large fraction of diverse queries.
 
 ## Table of Contents
 
@@ -40,7 +40,7 @@ In vector search systems, **hubness** is a natural phenomenon where some documen
 
 HubScan uses robust statistical methods (median/MAD-based z-scores) to identify these anomalies while being resistant to false positives from legitimate popular content.
 
-<img src="docs/images/normal-vs-adversarial.png" alt="Normal vs Adversarial Hub" width="600"/>
+<img src="docs/images/adversarial-hubness-concept.png" alt="Adversarial Hubness Concept" width="600"/>
 
 ### Three Detection Modes
 

@@ -13,7 +13,7 @@ Tests for the ranking method plugin system:
 
 **Coverage:**
 - Registry operations (register, get, list)
-- Built-in methods (vector, hybrid, lexical, reranked)
+- Built-in methods (vector, hybrid, lexical)
 - Custom method registration and execution
 - Integration with detectors
 - Error handling (missing methods, invalid inputs)

@@ -74,9 +74,10 @@ pytest tests/ --tb=short
 - `test_config.py`: Configuration management and validation
 
 ### Ranking Methods Tests
-- `test_hubness.py`: Tests for hybrid, lexical, and reranked search
+- `test_hubness.py`: Tests for hybrid and lexical search
 - `test_adapters.py`: Adapter implementations for ranking methods
 - `test_vector_index.py`: VectorIndex interface methods (search_hybrid, search_lexical, search_reranked)
+- Note: Reranking is a post-processing step that can be applied to any ranking method, not a ranking method itself
 
 ### Metrics Tests
 - `test_metrics.py`: Ranking quality metrics (NDCG, MRR, MAP, Precision@k, Recall@k)
