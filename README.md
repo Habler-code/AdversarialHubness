@@ -5,13 +5,13 @@
 
 HubScan is an open-source security scanner that detects adversarial hubs in vector indices and RAG systems. It identifies malicious embeddings that manipulate retrieval by appearing in top-k results for an unusually large fraction of queries.
 
-![Adversarial Hub Detection](docs/images/hubscan-hero.png)
+<img src="docs/images/hubscan-hero.png" alt="Adversarial Hub Detection" width="600">
 
 ## Key Features
 
 **Three Detection Modes** for comprehensive coverage:
 
-![Detection Modes](docs/images/detection-modes.png)
+<img src="docs/images/detection-modes.png" alt="Detection Modes" width="600">
 
 | Detection Mode | What It Catches | When to Use |
 |----------------|-----------------|-------------|
@@ -21,7 +21,7 @@ HubScan is an open-source security scanner that detects adversarial hubs in vect
 
 **Production-Ready Architecture** for multimodal systems:
 
-![Gold Standard Architecture](docs/images/gold-standard-architecture.png)
+<img src="docs/images/gold-standard-architecture.png" alt="Gold Standard Architecture" width="600">
 
 ## Benchmark Results
 
@@ -57,6 +57,8 @@ In vector search, hubness is when some documents naturally appear in many neares
 - Degrade system quality
 
 ### Detection Metrics
+
+<img src="docs/images/detection-metrics.png" alt="Detection Metrics" width="600">
 
 | Metric | Description | Threshold |
 |--------|-------------|-----------|
@@ -677,6 +679,8 @@ Supported databases: FAISS, Pinecone, Qdrant, Weaviate. See [Usage Guide](docs/U
 ## Benchmarks
 
 HubScan includes benchmarks with real datasets:
+
+<img src="docs/images/benchmark-workflow.png" alt="Benchmark Workflow" width="600">
 
 | Dataset | Type | Precision | Recall | F1 |
 |---------|------|-----------|--------|-----|

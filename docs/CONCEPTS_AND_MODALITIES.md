@@ -2,7 +2,7 @@
 
 This document explains HubScan's advanced detection capabilities for concept-targeted and cross-modal adversarial hubs.
 
-![Detection Modes](images/detection-modes.png)
+<img src="images/detection-modes.png" alt="Detection Modes" width="600">
 
 ## Why This Matters
 
@@ -28,7 +28,7 @@ Choose embedding models that maintain clear separation between unrelated concept
 
 HubScan supports the gold standard architecture with separate embedding spaces:
 
-![Gold Standard Architecture](images/gold-standard-architecture.png)
+<img src="images/gold-standard-architecture.png" alt="Gold Standard Architecture" width="600">
 
 - **Images**: Vision models (ResNet, DINOv2, ViT)
 - **Text**: Text encoders (sentence-transformers, domain-specific models)

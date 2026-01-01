@@ -2,11 +2,7 @@
 
 Benchmarking suite for evaluating HubScan's adversarial hub detection capabilities.
 
-![Benchmark Workflow](../docs/images/benchmark-workflow.png)
-
-*Figure: Complete benchmark workflow from dataset generation to evaluation*
-
-![Benchmark Dataset Structure](../docs/images/benchmark-dataset-structure.png)
+<img src="../docs/images/benchmark-dataset-structure.png" alt="Benchmark Dataset Structure" width="600">
 
 *Figure: Dataset structure comparison: Wikipedia (text-only) vs Multimodal (gold standard architecture)*
 
@@ -287,7 +283,7 @@ print(f"Detected {len(get_suspicious_documents(results, verdict=Verdict.HIGH))} 
 
 ## Benchmark Results
 
-![Detection Metrics](../docs/images/detection-metrics.png)
+<img src="../docs/images/detection-metrics.png" alt="Detection Metrics" width="600">
 
 *Figure: Detection metrics and thresholds used in benchmarks*
 
@@ -349,11 +345,11 @@ See [docs/CONCEPTS_AND_MODALITIES.md](../docs/CONCEPTS_AND_MODALITIES.md) for em
 
 The benchmark includes multiple adversarial hub strategies to test detection capabilities:
 
-![Concept-Specific Hub](../docs/images/concept-specific-hub.png)
+<img src="../docs/images/concept-specific-hub.png" alt="Concept-Specific Hub" width="500">
 
 *Figure: Concept-specific hub targeting a single semantic category*
 
-![Cross-Modal Hub](../docs/images/cross-modal-hub.png)
+<img src="../docs/images/cross-modal-hub.png" alt="Cross-Modal Hub" width="500">
 
 *Figure: Cross-modal hub exploiting different embedding spaces*
 
