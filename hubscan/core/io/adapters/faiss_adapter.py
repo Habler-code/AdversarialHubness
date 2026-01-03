@@ -16,11 +16,19 @@
 
 """FAISS adapter for VectorIndex interface."""
 
-from typing import Tuple, Optional, List, Dict, Any
+from pathlib import Path
+from typing import Tuple, Optional, List, Dict, Any, Union
 import numpy as np
 import faiss
 
 from ..vector_index import VectorIndex
+
+
+def _normalize_vectors(vectors: np.ndarray) -> np.ndarray:
+    """Normalize vectors to unit length."""
+    norms = np.linalg.norm(vectors, axis=1, keepdims=True)
+    norms = np.where(norms == 0, 1, norms)  # Avoid division by zero
+    return vectors / norms
 
 
 class FAISSIndex(VectorIndex):
@@ -375,4 +383,173 @@ class FAISSIndex(VectorIndex):
             The wrapped FAISS index object
         """
         return self._index
+    
+    # =========================================================================
+    # Static/Class Methods for Index Management
+    # =========================================================================
+    
+    @staticmethod
+    def build(
+        embeddings: np.ndarray,
+        index_type: str = "flat",
+        metric: str = "cosine",
+        params: Optional[Dict[str, Any]] = None,
+        document_texts: Optional[List[str]] = None,
+    ) -> "FAISSIndex":
+        """
+        Build a new FAISS index from embeddings.
+        
+        Args:
+            embeddings: Embeddings array of shape (N, D)
+            index_type: Type of index ("flat", "hnsw", "ivf_pq")
+            metric: Distance metric ("cosine", "ip", "l2")
+            params: Index-specific parameters
+            document_texts: Optional document texts for lexical search
+            
+        Returns:
+            FAISSIndex adapter wrapping the built index
+            
+        Example:
+            >>> embeddings = np.random.randn(1000, 128).astype(np.float32)
+            >>> index = FAISSIndex.build(embeddings, index_type="flat", metric="cosine")
+        """
+        if params is None:
+            params = {}
+        
+        d = embeddings.shape[1]
+        
+        # Normalize for cosine similarity
+        if metric == "cosine":
+            embeddings = _normalize_vectors(embeddings)
+            metric_type = faiss.METRIC_INNER_PRODUCT
+        elif metric == "ip":
+            metric_type = faiss.METRIC_INNER_PRODUCT
+        elif metric == "l2":
+            metric_type = faiss.METRIC_L2
+        else:
+            raise ValueError(f"Unsupported metric: {metric}")
+        
+        if index_type == "flat":
+            if metric == "l2":
+                index = faiss.IndexFlatL2(d)
+            else:
+                index = faiss.IndexFlatIP(d)
+        
+        elif index_type == "hnsw":
+            M = params.get("M", 32)
+            efConstruction = params.get("efConstruction", 200)
+            
+            index = faiss.IndexHNSWFlat(d, M, metric_type)
+            index.hnsw.efConstruction = efConstruction
+            index.hnsw.efSearch = params.get("efSearch", 128)
+        
+        elif index_type == "ivf_pq":
+            nlist = params.get("nlist", 4096)
+            m = params.get("m", 64)  # Number of subquantizers
+            nbits = params.get("nbits", 8)  # Bits per subquantizer
+            
+            quantizer = faiss.IndexFlatL2(d) if metric == "l2" else faiss.IndexFlatIP(d)
+            index = faiss.IndexIVFPQ(quantizer, d, nlist, m, nbits)
+            index.nprobe = params.get("nprobe", 16)
+        
+        else:
+            raise ValueError(f"Unsupported index type: {index_type}")
+        
+        # Train if needed
+        if index_type == "ivf_pq":
+            index.train(embeddings)
+        
+        # Add vectors
+        index.add(embeddings)
+        
+        return FAISSIndex(index, document_texts=document_texts)
+    
+    @staticmethod
+    def load(
+        path: Union[str, Path],
+        document_texts: Optional[List[str]] = None,
+    ) -> "FAISSIndex":
+        """
+        Load a FAISS index from file.
+        
+        Args:
+            path: Path to the saved FAISS index file
+            document_texts: Optional document texts for lexical search
+            
+        Returns:
+            FAISSIndex adapter wrapping the loaded index
+            
+        Example:
+            >>> index = FAISSIndex.load("my_index.index")
+        """
+        index = faiss.read_index(str(path))
+        return FAISSIndex(index, document_texts=document_texts)
+    
+    def save(self, path: Union[str, Path]) -> None:
+        """
+        Save the FAISS index to file.
+        
+        Args:
+            path: Path where the index will be saved
+            
+        Example:
+            >>> index.save("my_index.index")
+        """
+        path_obj = Path(path)
+        path_obj.parent.mkdir(parents=True, exist_ok=True)
+        faiss.write_index(self._index, str(path_obj))
+    
+    @staticmethod
+    def load_raw(path: Union[str, Path]) -> faiss.Index:
+        """
+        Load a raw FAISS index (without wrapping).
+        
+        This is useful when you need the raw faiss.Index object
+        for compatibility with existing code.
+        
+        Args:
+            path: Path to the saved FAISS index file
+            
+        Returns:
+            Raw FAISS index object
+        """
+        return faiss.read_index(str(path))
+    
+    @staticmethod
+    def build_raw(
+        embeddings: np.ndarray,
+        index_type: str = "flat",
+        metric: str = "cosine",
+        params: Optional[Dict[str, Any]] = None,
+    ) -> faiss.Index:
+        """
+        Build a raw FAISS index (without wrapping).
+        
+        This is useful when you need the raw faiss.Index object
+        for compatibility with existing code.
+        
+        Args:
+            embeddings: Embeddings array of shape (N, D)
+            index_type: Type of index ("flat", "hnsw", "ivf_pq")
+            metric: Distance metric ("cosine", "ip", "l2")
+            params: Index-specific parameters
+            
+        Returns:
+            Raw FAISS index object
+        """
+        wrapped = FAISSIndex.build(embeddings, index_type, metric, params)
+        return wrapped.faiss_index
+    
+    @staticmethod
+    def save_raw(index: faiss.Index, path: Union[str, Path]) -> None:
+        """
+        Save a raw FAISS index to file.
+        
+        Args:
+            index: FAISS index object
+            path: Path where the index will be saved
+        """
+        path_obj = Path(path)
+        path_obj.parent.mkdir(parents=True, exist_ok=True)
+        faiss.write_index(index, str(path_obj))
 

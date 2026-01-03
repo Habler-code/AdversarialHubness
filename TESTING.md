@@ -10,6 +10,9 @@ pip install -e .
 
 # Or install dependencies directly
 pip install -r requirements.txt
+
+# Install development/testing dependencies
+pip install -r requirements-dev.txt
 ```
 
 ## Running Tests

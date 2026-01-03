@@ -38,6 +38,9 @@ ENV/
 *.npy
 *.npz
 reports/
+report.html
+report.json
+benchmarks/results/
 *.log
 .pytest_cache/
 .coverage

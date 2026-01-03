@@ -94,6 +94,9 @@ pip install -e .
 
 # Or install dependencies directly
 pip install -r requirements.txt
+
+# For development/test tooling
+pip install -r requirements-dev.txt
 ```
 
 ### Install with Optional Dependencies

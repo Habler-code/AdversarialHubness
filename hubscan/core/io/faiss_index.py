@@ -14,14 +14,33 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-"""FAISS index operations."""
+"""
+FAISS index operations.
+
+This module provides backward-compatible functions for FAISS index management.
+The actual implementation has been consolidated into the FAISSIndex class
+in adapters/faiss_adapter.py.
+
+For new code, prefer using FAISSIndex directly:
+
+    from hubscan.core.io.adapters.faiss_adapter import FAISSIndex
+    
+    # Build a new index
+    index = FAISSIndex.build(embeddings, index_type="flat", metric="cosine")
+    
+    # Load an existing index
+    index = FAISSIndex.load("path/to/index.index")
+    
+    # Save an index
+    index.save("path/to/index.index")
+
+The functions below are kept for backward compatibility.
+"""
 
 import faiss
 import numpy as np
-from pathlib import Path
 from typing import Optional, Dict, Any
 
-from ...utils.metrics import normalize_vectors
 from .adapters.faiss_adapter import FAISSIndex
 
 
@@ -34,6 +53,9 @@ def build_faiss_index(
     """
     Build FAISS index from embeddings.
     
+    Note: For new code, prefer FAISSIndex.build() which returns
+    a wrapped index with the full VectorIndex interface.
+    
     Args:
         embeddings: Embeddings array of shape (N, D)
         index_type: Type of index ("hnsw", "ivf_pq", "flat")
@@ -41,70 +63,39 @@ def build_faiss_index(
         params: Index-specific parameters
         
     Returns:
-        FAISS index
+        Raw FAISS index object
     """
-    if params is None:
-        params = {}
-    
-    d = embeddings.shape[1]
-    
-    # Normalize for cosine similarity
-    if metric == "cosine":
-        embeddings = normalize_vectors(embeddings)
-        metric_type = faiss.METRIC_INNER_PRODUCT
-    elif metric == "ip":
-        metric_type = faiss.METRIC_INNER_PRODUCT
-    elif metric == "l2":
-        metric_type = faiss.METRIC_L2
-    else:
-        raise ValueError(f"Unsupported metric: {metric}")
-    
-    if index_type == "flat":
-        if metric == "l2":
-            index = faiss.IndexFlatL2(d)
-        else:
-            index = faiss.IndexFlatIP(d)
-    
-    elif index_type == "hnsw":
-        M = params.get("M", 32)
-        efConstruction = params.get("efConstruction", 200)
-        
-        index = faiss.IndexHNSWFlat(d, M, metric_type)
-        index.hnsw.efConstruction = efConstruction
-        index.hnsw.efSearch = params.get("efSearch", 128)
-    
-    elif index_type == "ivf_pq":
-        nlist = params.get("nlist", 4096)
-        m = params.get("m", 64)  # Number of subquantizers
-        nbits = params.get("nbits", 8)  # Bits per subquantizer
-        
-        quantizer = faiss.IndexFlatL2(d) if metric == "l2" else faiss.IndexFlatIP(d)
-        index = faiss.IndexIVFPQ(quantizer, d, nlist, m, nbits)
-        index.nprobe = params.get("nprobe", 16)
-    
-    else:
-        raise ValueError(f"Unsupported index type: {index_type}")
-    
-    # Train if needed
-    if index_type == "ivf_pq":
-        index.train(embeddings)
-    
-    # Add vectors
-    index.add(embeddings)
-    
-    return index
+    return FAISSIndex.build_raw(embeddings, index_type, metric, params)
 
 
 def load_faiss_index(path: str) -> faiss.Index:
-    """Load FAISS index from file."""
-    return faiss.read_index(path)
+    """
+    Load FAISS index from file.
+    
+    Note: For new code, prefer FAISSIndex.load() which returns
+    a wrapped index with the full VectorIndex interface.
+    
+    Args:
+        path: Path to the saved index file
+        
+    Returns:
+        Raw FAISS index object
+    """
+    return FAISSIndex.load_raw(path)
 
 
-def save_faiss_index(index: faiss.Index, path: str):
-    """Save FAISS index to file."""
-    path_obj = Path(path)
-    path_obj.parent.mkdir(parents=True, exist_ok=True)
-    faiss.write_index(index, path)
+def save_faiss_index(index: faiss.Index, path: str) -> None:
+    """
+    Save FAISS index to file.
+    
+    Note: If you have a FAISSIndex instance, prefer using
+    the instance method: index.save(path)
+    
+    Args:
+        index: FAISS index object
+        path: Path where the index will be saved
+    """
+    FAISSIndex.save_raw(index, path)
 
 
 def wrap_faiss_index(index: faiss.Index) -> FAISSIndex:
@@ -121,4 +112,3 @@ def wrap_faiss_index(index: faiss.Index) -> FAISSIndex:
         FAISSIndex adapter wrapping the FAISS index
     """
     return FAISSIndex(index)
-
