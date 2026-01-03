@@ -256,15 +256,24 @@ results = quick_scan(embeddings, k=10, num_queries=100)
 ### Retrieval and Reranking Methods
 
 ```python
-from hubscan import scan_with_ranking, compare_ranking_methods
+from hubscan import scan, compare_ranking_methods
 
 # Hybrid retrieval (combines vector + lexical)
-results = scan_with_ranking(
+results = scan(
     embeddings_path="data/embeddings.npy",
     query_texts_path="data/queries.json",
     ranking_method="hybrid",
     hybrid_alpha=0.6,  # 60% vector, 40% lexical
     k=20
+)
+
+# Scan with reranking for improved accuracy
+results = scan(
+    embeddings_path="data/embeddings.npy",
+    query_texts_path="data/queries.json",
+    rerank=True,
+    rerank_method="cross_encoder",
+    rerank_top_n=100,
 )
 
 # Compare multiple retrieval methods

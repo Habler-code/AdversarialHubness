@@ -142,15 +142,15 @@ if explanation:
     print(f"Hub Z-Score: {explanation['hubness']['hub_z']}")
 ```
 
-### `scan_with_ranking()`
+### Ranking and Reranking Examples
 
-Run a scan with a specific ranking method.
+The `scan()` function supports various ranking methods and reranking options:
 
 ```python
-from hubscan import scan_with_ranking
+from hubscan import scan
 
-# Hybrid search
-results = scan_with_ranking(
+# Hybrid search (combines vector + lexical)
+results = scan(
     embeddings_path="data/embeddings.npy",
     query_texts_path="data/queries.json",
     ranking_method="hybrid",
@@ -159,26 +159,26 @@ results = scan_with_ranking(
     num_queries=10000
 )
 
-# Lexical search
-results = scan_with_ranking(
+# Lexical search only
+results = scan(
     embeddings_path="data/embeddings.npy",
     query_texts_path="data/queries.json",
     ranking_method="lexical",
     k=20
 )
 
-# Vector search with reranking
-results = scan_with_ranking(
+# Vector search with reranking (cross-encoder for better accuracy)
+results = scan(
     embeddings_path="data/embeddings.npy",
-    ranking_method="vector",
+    query_texts_path="data/queries.json",
     rerank=True,
-    rerank_method="default",
+    rerank_method="cross_encoder",
     rerank_top_n=100,
     k=20
 )
 
 # Multi-index scan with late fusion (gold standard architecture)
-results = scan_with_ranking(
+results = scan(
     text_index_path="data/text_index.index",
     text_embeddings_path="data/text_embeddings.npy",
     image_index_path="data/image_index.index",
@@ -193,23 +193,27 @@ results = scan_with_ranking(
 )
 ```
 
-**Parameters:**
-- `ranking_method`: One of `"vector"`, `"hybrid"`, `"lexical"`
+**Ranking Parameters (all in `scan()`):**
+- `ranking_method`: One of `"vector"`, `"hybrid"`, `"lexical"` (default: "vector")
 - `hybrid_alpha`: Weight for vector search in hybrid mode (0.0-1.0, default: 0.5)
 - `query_texts_path`: Path to query texts file (required for lexical/hybrid)
-- `rerank`: Whether to enable reranking as post-processing (default: False)
-- `rerank_method`: Reranking method name (default: "default")
+- `hybrid_backend`: Hybrid search backend - `"client_fusion"`, `"native_sparse"`, or `"auto"` (default: "auto")
+- `lexical_backend`: Lexical scoring algorithm - `"bm25"` or `"tfidf"` (default: "bm25")
+- `text_field`: Metadata field containing document text (default: "text")
+
+**Reranking Parameters:**
+- `rerank`: Enable reranking as post-processing (default: False)
+- `rerank_method`: Reranking method - `"default"` or `"cross_encoder"` (default: "default")
 - `rerank_top_n`: Number of candidates to retrieve before reranking (default: 100)
-- `rerank_params`: Optional dictionary of custom parameters for reranking method
-- `concept_aware`: Enable concept-aware hub detection (default: False)
-- `modality_aware`: Enable modality-aware hub detection (default: False)
-- `num_concepts`: Number of concept clusters for auto-detection (default: 10)
+- `rerank_params`: Optional dictionary of custom parameters (e.g., model name)
+
+**Multi-Index Parameters:**
 - `text_index_path`: Path to text index file (for multi-index mode)
 - `text_embeddings_path`: Path to text embeddings file (for multi-index mode)
 - `image_index_path`: Path to image index file (for multi-index mode)
 - `image_embeddings_path`: Path to image embeddings file (for multi-index mode)
 - `late_fusion`: Enable late fusion of multi-index results (default: False)
-- `fusion_method`: Late fusion method - "rrf", "weighted_sum", or "max" (default: "rrf")
+- `fusion_method`: Late fusion method - `"rrf"`, `"weighted_sum"`, or `"max"` (default: "rrf")
 - `text_weight`: Weight for text index in fusion (default: 0.4)
 - `image_weight`: Weight for image index in fusion (default: 0.4)
 

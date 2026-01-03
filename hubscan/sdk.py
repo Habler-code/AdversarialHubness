@@ -42,6 +42,11 @@ def scan(
     hybrid_backend: str = "auto",
     lexical_backend: str = "bm25",
     text_field: str = "text",
+    # Reranking options (optional)
+    rerank: bool = False,
+    rerank_method: str = "default",
+    rerank_top_n: int = 100,
+    rerank_params: Optional[Dict[str, Any]] = None,
     # Detection options
     concept_aware: bool = False,
     modality_aware: bool = False,
@@ -78,6 +83,10 @@ def scan(
         hybrid_backend: Hybrid search backend ("client_fusion", "native_sparse", "auto")
         lexical_backend: Lexical scoring algorithm ("bm25", "tfidf")
         text_field: Metadata field containing document text (for hybrid search)
+        rerank: Enable reranking as post-processing step (default: False)
+        rerank_method: Reranking method name ("default" or "cross_encoder")
+        rerank_top_n: Number of candidates to retrieve before reranking
+        rerank_params: Custom parameters for reranking method (e.g., model name)
         concept_aware: Enable concept-aware hub detection
         modality_aware: Enable modality-aware hub detection
         concept_field: Metadata field name for concept labels
@@ -124,6 +133,16 @@ def scan(
             hybrid_alpha=0.7,
             lexical_backend="bm25",
             k=20
+        )
+        
+        # Scan with reranking (cross-encoder for better accuracy)
+        results = scan(
+            embeddings_path="data/embeddings.npy",
+            metadata_path="data/metadata.json",
+            query_texts_path="data/queries.json",
+            rerank=True,
+            rerank_method="cross_encoder",
+            rerank_top_n=100,
         )
         
         # Concept and modality-aware scan
@@ -179,6 +198,14 @@ def scan(
     config.scan.ranking.hybrid.backend = hybrid_backend
     config.scan.ranking.hybrid.lexical_backend = lexical_backend
     config.scan.ranking.hybrid.text_field = text_field
+    
+    # Apply reranking configuration (optional)
+    if rerank:
+        config.scan.ranking.rerank = True
+        config.scan.ranking.rerank_method = rerank_method
+        config.scan.ranking.rerank_top_n = rerank_top_n
+        if rerank_params:
+            config.scan.ranking.rerank_params = rerank_params
     
     # Apply concept-aware and modality-aware settings
     if concept_aware:
@@ -335,177 +362,6 @@ def get_suspicious_documents(
     return suspicious
 
 
-def scan_with_ranking(
-    embeddings_path: Optional[str] = None,
-    index_path: Optional[str] = None,
-    metadata_path: Optional[str] = None,
-    query_texts_path: Optional[str] = None,
-    ranking_method: str = "vector",
-    hybrid_alpha: float = 0.5,
-    # Hybrid search configuration
-    hybrid_backend: str = "auto",
-    lexical_backend: str = "bm25",
-    text_field: str = "text",
-    rerank: bool = False,
-    rerank_method: str = "default",
-    rerank_top_n: int = 100,
-    rerank_params: Optional[Dict[str, Any]] = None,
-    concept_aware: bool = False,
-    modality_aware: bool = False,
-    concept_field: str = "concept",
-    modality_field: str = "modality",
-    num_concepts: int = 10,
-    # Multi-index / late fusion options
-    text_index_path: Optional[str] = None,
-    text_embeddings_path: Optional[str] = None,
-    image_index_path: Optional[str] = None,
-    image_embeddings_path: Optional[str] = None,
-    late_fusion: bool = False,
-    fusion_method: str = "rrf",
-    text_weight: float = 0.4,
-    image_weight: float = 0.4,
-    output_dir: str = "reports/",
-    k: int = 20,
-    num_queries: int = 10000,
-    **kwargs,
-) -> Dict[str, Any]:
-    """
-    Run a scan with specified ranking method.
-    
-    Args:
-        embeddings_path: Path to embeddings file (.npy/.npz)
-        index_path: Path to FAISS index file (.index)
-        metadata_path: Optional path to metadata file
-        query_texts_path: Optional path to query texts file (for lexical/hybrid search)
-        ranking_method: Ranking method ("vector", "hybrid", "lexical")
-        hybrid_alpha: Weight for vector search in hybrid mode (0.0-1.0)
-        hybrid_backend: Hybrid search backend ("client_fusion", "native_sparse", "auto")
-        lexical_backend: Lexical scoring algorithm ("bm25", "tfidf")
-        text_field: Metadata field containing document text (for hybrid search)
-        rerank: Whether to enable reranking as post-processing
-        rerank_method: Reranking method name (default: "default")
-        rerank_top_n: Number of candidates to retrieve before reranking
-        rerank_params: Custom parameters for reranking method
-        concept_aware: Enable concept-aware hub detection
-        modality_aware: Enable modality-aware hub detection
-        concept_field: Metadata field name for concept labels
-        modality_field: Metadata field name for modality labels
-        num_concepts: Number of concept clusters for auto-detection
-        text_index_path: Path to text index file (for multi-index mode)
-        text_embeddings_path: Path to text embeddings file (for multi-index mode)
-        image_index_path: Path to image index file (for multi-index mode)
-        image_embeddings_path: Path to image embeddings file (for multi-index mode)
-        late_fusion: Enable late fusion of multi-index results
-        fusion_method: Late fusion method ("rrf", "weighted_sum", "max")
-        text_weight: Weight for text index in fusion (0.0-1.0)
-        image_weight: Weight for image index in fusion (0.0-1.0)
-        output_dir: Directory to save reports
-        k: Number of nearest neighbors to retrieve
-        num_queries: Number of queries to sample
-        **kwargs: Additional configuration options
-        
-    Returns:
-        Scan results dictionary
-        
-    Example:
-        ```python
-        from hubscan.sdk import scan_with_ranking
-        
-        # Hybrid search with BM25 and concept awareness
-        results = scan_with_ranking(
-            embeddings_path="data/embeddings.npy",
-            query_texts_path="data/queries.json",
-            ranking_method="hybrid",
-            hybrid_alpha=0.6,
-            hybrid_backend="client_fusion",
-            lexical_backend="bm25",
-            concept_aware=True,
-        )
-        
-        # Hybrid search with TF-IDF
-        results = scan_with_ranking(
-            embeddings_path="data/embeddings.npy",
-            query_texts_path="data/queries.json",
-            ranking_method="hybrid",
-            lexical_backend="tfidf",
-        )
-        
-        # Multi-index scan with late fusion
-        results = scan_with_ranking(
-            text_index_path="data/text_index.index",
-            image_index_path="data/image_index.index",
-            metadata_path="data/metadata.json",
-            late_fusion=True,
-            fusion_method="rrf",
-            modality_aware=True
-        )
-        ```
-    """
-    config = _create_config_from_params(
-        embeddings_path=embeddings_path,
-        index_path=index_path,
-        metadata_path=metadata_path,
-        output_dir=output_dir,
-        k=k,
-        num_queries=num_queries,
-        **kwargs,
-    )
-    
-    # Set ranking configuration
-    config.scan.ranking.method = ranking_method
-    config.scan.ranking.hybrid_alpha = hybrid_alpha
-    if query_texts_path:
-        config.scan.query_texts_path = query_texts_path
-    
-    # Set hybrid search configuration
-    config.scan.ranking.hybrid.backend = hybrid_backend
-    config.scan.ranking.hybrid.lexical_backend = lexical_backend
-    config.scan.ranking.hybrid.text_field = text_field
-    
-    # Set reranking configuration
-    config.scan.ranking.rerank = rerank
-    if rerank:
-        config.scan.ranking.rerank_method = rerank_method
-        config.scan.ranking.rerank_top_n = rerank_top_n
-        if rerank_params:
-            config.scan.ranking.rerank_params = rerank_params
-    
-    # Apply concept-aware and modality-aware settings
-    if concept_aware:
-        config.detectors.concept_aware.enabled = True
-        config.detectors.concept_aware.metadata_field = concept_field
-        config.detectors.concept_aware.num_concepts = num_concepts
-    if modality_aware:
-        config.detectors.modality_aware.enabled = True
-        config.detectors.modality_aware.doc_modality_field = modality_field
-        config.detectors.modality_aware.query_modality_field = modality_field
-    
-    # Apply multi-index configuration
-    if text_index_path or image_index_path:
-        from .config.config import MultiIndexConfig, LateFusionConfig
-        
-        config.input.mode = "multi_index"
-        config.input.multi_index = MultiIndexConfig(
-            text_index_path=text_index_path,
-            text_embeddings_path=text_embeddings_path,
-            image_index_path=image_index_path,
-            image_embeddings_path=image_embeddings_path,
-        )
-        config.scan.ranking.parallel_retrieval = True
-        
-        if late_fusion:
-            config.input.late_fusion = LateFusionConfig(
-                enabled=True,
-                fusion_method=fusion_method,
-                text_weight=text_weight,
-                image_weight=image_weight,
-            )
-    
-    scanner = Scanner(config)
-    scanner.load_data()
-    return scanner.scan()
-
-
 def compare_ranking_methods(
     embeddings_path: str,
     metadata_path: Optional[str] = None,
@@ -558,7 +414,7 @@ def compare_ranking_methods(
         if method in ["lexical", "hybrid"] and not query_texts_path:
             continue  # Skip methods that require query texts
         
-        method_results = scan_with_ranking(
+        method_results = scan(
             embeddings_path=embeddings_path,
             metadata_path=metadata_path,
             query_texts_path=query_texts_path,
