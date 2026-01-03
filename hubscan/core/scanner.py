@@ -78,6 +78,87 @@ class Scanner:
         self.image_embeddings: Optional[np.ndarray] = None
         self.unified_embeddings: Optional[np.ndarray] = None
     
+    def _get_hybrid_config(self) -> Dict[str, Any]:
+        """Get hybrid search configuration as a dict for adapters."""
+        hybrid_cfg = self.config.scan.ranking.hybrid
+        return {
+            "backend": hybrid_cfg.backend,
+            "lexical_backend": hybrid_cfg.lexical_backend,
+            "normalize_scores": hybrid_cfg.normalize_scores,
+            "text_field": hybrid_cfg.text_field,
+            # Qdrant
+            "qdrant_dense_vector_name": hybrid_cfg.qdrant_dense_vector_name,
+            "qdrant_sparse_vector_name": hybrid_cfg.qdrant_sparse_vector_name,
+            # Pinecone
+            "pinecone_has_sparse": hybrid_cfg.pinecone_has_sparse,
+            # Weaviate
+            "weaviate_bm25_properties": hybrid_cfg.weaviate_bm25_properties,
+        }
+    
+    def _get_document_texts(self, num_docs: int) -> Optional[List[str]]:
+        """Extract document texts from metadata for hybrid search.
+        
+        Args:
+            num_docs: Expected number of documents
+            
+        Returns:
+            List of document texts or None if not available
+        """
+        if not self.metadata:
+            return None
+        
+        text_field = self.config.scan.ranking.hybrid.text_field
+        
+        # Try to get texts from metadata using the configured field
+        if self.metadata.has_field(text_field):
+            try:
+                document_texts = [
+                    self.metadata.get_field(text_field, i) for i in range(num_docs)
+                ]
+                logger.info(f"Loaded {len(document_texts)} document texts from '{text_field}' field")
+                return document_texts
+            except Exception as e:
+                logger.warning(f"Failed to get document texts from '{text_field}': {e}")
+        
+        # Fall back to trying to get as a list
+        try:
+            document_texts = self.metadata.get(text_field)
+            if document_texts:
+                if len(document_texts) != num_docs:
+                    logger.warning(
+                        f"Document texts length ({len(document_texts)}) doesn't match "
+                        f"expected ({num_docs}), skipping"
+                    )
+                    return None
+                return document_texts
+        except Exception:
+            pass
+        
+        return None
+    
+    def _validate_hybrid_requirements(self, document_texts: Optional[List[str]]):
+        """Validate that hybrid search requirements are met.
+        
+        Raises ValueError with clear message if requirements not met.
+        """
+        ranking_method = self.config.scan.ranking.method
+        if ranking_method not in ("hybrid", "lexical"):
+            return
+        
+        hybrid_cfg = self.config.scan.ranking.hybrid
+        
+        # Client-side fusion requires document texts
+        if hybrid_cfg.backend in ("client_fusion", "auto"):
+            if document_texts is None:
+                text_field = hybrid_cfg.text_field
+                raise ValueError(
+                    f"Hybrid search with backend='{hybrid_cfg.backend}' requires document texts "
+                    f"in metadata field '{text_field}'. Either:\n"
+                    f"  1. Add '{text_field}' field to your metadata file, or\n"
+                    f"  2. Configure a different text field via scan.ranking.hybrid.text_field, or\n"
+                    f"  3. Use ranking.method='vector' instead of hybrid search."
+                )
+    
     def load_data(self):
         """Load embeddings, index, and metadata according to config."""
         logger.info("Loading data...")
@@ -110,19 +191,16 @@ class Scanner:
             
             # Wrap in adapter
             # Include document texts if available for lexical search
-            document_texts = None
-            if self.metadata and self.metadata.has_field("text"):
-                document_texts = [self.metadata.get_field("text", i) for i in range(len(self.doc_embeddings))]
-            elif self.metadata:
-                # Try to get texts from metadata as a list
-                try:
-                    document_texts = self.metadata.get("text")
-                    if document_texts and len(document_texts) != len(self.doc_embeddings):
-                        logger.warning(f"Document texts length ({len(document_texts)}) doesn't match embeddings ({len(self.doc_embeddings)}), skipping")
-                        document_texts = None
-                except:
-                    document_texts = None
-            self.index = FAISSIndex(faiss_index, document_texts=document_texts)
+            document_texts = self._get_document_texts(len(self.doc_embeddings))
+            
+            # Get hybrid config from ranking config
+            hybrid_config = self._get_hybrid_config()
+            
+            self.index = FAISSIndex(
+                faiss_index, 
+                document_texts=document_texts,
+                hybrid_config=hybrid_config,
+            )
             
             # Save index if requested
             if self.config.index.save_path:
@@ -139,21 +217,17 @@ class Scanner:
             
             # Wrap in adapter
             # Include document texts if available for lexical search
-            document_texts = None
-            if self.metadata and self.metadata.has_field("text"):
-                # Get document texts - need to know the number of documents
-                num_docs = faiss_index.ntotal
-                try:
-                    document_texts = [self.metadata.get_field("text", i) for i in range(num_docs)]
-                except:
-                    try:
-                        document_texts = self.metadata.get("text")
-                        if document_texts and len(document_texts) != num_docs:
-                            logger.warning(f"Document texts length ({len(document_texts)}) doesn't match index ({num_docs}), skipping")
-                            document_texts = None
-                    except:
-                        document_texts = None
-            self.index = FAISSIndex(faiss_index, document_texts=document_texts)
+            num_docs = faiss_index.ntotal
+            document_texts = self._get_document_texts(num_docs)
+            
+            # Get hybrid config from ranking config
+            hybrid_config = self._get_hybrid_config()
+            
+            self.index = FAISSIndex(
+                faiss_index, 
+                document_texts=document_texts,
+                hybrid_config=hybrid_config,
+            )
             
             # Optionally load embeddings if needed for clustering/validation
             if self.config.input.embeddings_path:
@@ -185,7 +259,56 @@ class Scanner:
         
         elif input_mode == "vector_db_export":
             # Load from vector DB export (generic JSONL adapter)
-            raise NotImplementedError("vector_db_export mode not yet implemented")
+            from .io.adapters.jsonl_adapter import load_jsonl_export
+            
+            if not self.config.input.embeddings_path:
+                raise ValueError(
+                    "embeddings_path is required for vector_db_export mode. "
+                    "This should point to a JSONL file containing embeddings."
+                )
+            
+            export_path = self.config.input.embeddings_path
+            logger.info(f"Loading vector DB export from {export_path}")
+            
+            # Load embeddings and metadata from JSONL
+            self.doc_embeddings, export_metadata = load_jsonl_export(
+                export_path,
+                embedding_field=getattr(self.config.input, 'embedding_field', 'embedding'),
+                normalize=(self.config.input.metric == "cosine"),
+            )
+            
+            # Convert export metadata to Metadata object if not already loaded
+            if self.metadata is None and export_metadata:
+                # Convert list of dicts to columnar format for Metadata
+                columnar_data = {}
+                for key in export_metadata[0].keys():
+                    columnar_data[key] = [record.get(key) for record in export_metadata]
+                self.metadata = Metadata(columnar_data)
+            
+            logger.info(f"Building {self.config.index.type} index from export...")
+            
+            # Build FAISS index from exported embeddings
+            faiss_index = build_faiss_index(
+                self.doc_embeddings,
+                self.config.index.type,
+                self.config.input.metric,
+                self.config.index.params,
+            )
+            
+            # Get document texts if available for hybrid search
+            document_texts = self._get_document_texts(len(self.doc_embeddings))
+            hybrid_config = self._get_hybrid_config()
+            
+            self.index = FAISSIndex(
+                faiss_index,
+                document_texts=document_texts,
+                hybrid_config=hybrid_config,
+            )
+            
+            # Save index if requested
+            if self.config.index.save_path:
+                logger.info(f"Saving index to {self.config.index.save_path}")
+                save_faiss_index(faiss_index, self.config.index.save_path)
         
         elif input_mode == "multi_index":
             # Gold standard: parallel retrieval from separate indexes
@@ -272,6 +395,10 @@ class Scanner:
                        f"fusion={self.config.input.late_fusion and self.config.input.late_fusion.enabled}")
         
         logger.info(f"Loaded {len(self.doc_embeddings) if self.doc_embeddings is not None else 'unknown'} documents")
+        
+        # Validate hybrid search requirements
+        document_texts = getattr(self.index, '_document_texts', None) if self.index else None
+        self._validate_hybrid_requirements(document_texts)
     
     def scan(self) -> Dict:
         """
@@ -500,6 +627,17 @@ class Scanner:
         # Run detectors
         detector_results: Dict[str, any] = {}
         
+        # Build ranking custom params including hybrid config
+        ranking_custom_params = dict(self.config.scan.ranking.custom_params)
+        if ranking_method == "hybrid":
+            # Include hybrid-specific config in custom params
+            hybrid_cfg = self.config.scan.ranking.hybrid
+            ranking_custom_params.update({
+                "hybrid_backend": hybrid_cfg.backend,
+                "lexical_backend": hybrid_cfg.lexical_backend,
+                "normalize_scores": hybrid_cfg.normalize_scores,
+            })
+        
         # Common detection kwargs for all detectors
         common_detect_kwargs = {
             "batch_size": self.config.scan.batch_size,
@@ -510,7 +648,7 @@ class Scanner:
             "rerank": self.config.scan.ranking.rerank,
             "rerank_method": self.config.scan.ranking.rerank_method if self.config.scan.ranking.rerank else None,
             "rerank_top_n": self.config.scan.ranking.rerank_top_n if self.config.scan.ranking.rerank else None,
-            "ranking_custom_params": self.config.scan.ranking.custom_params,
+            "ranking_custom_params": ranking_custom_params,
             "rerank_params": self.config.scan.ranking.rerank_params if self.config.scan.ranking.rerank else {},
             # Concept/modality assignments for hubness detector
             "concept_assignment": concept_assignment,

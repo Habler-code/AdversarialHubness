@@ -22,6 +22,10 @@ import numpy as np
 import faiss
 
 from ..vector_index import VectorIndex
+from ..hybrid_fusion import ClientFusionHybridSearch, create_lexical_scorer
+from ....utils.logging import get_logger
+
+logger = get_logger()
 
 
 def _normalize_vectors(vectors: np.ndarray) -> np.ndarray:
@@ -40,12 +44,15 @@ class FAISSIndex(VectorIndex):
     layer while maintaining backward compatibility.
     
     Supports hybrid and lexical search when document texts are provided.
+    Hybrid search uses the shared ClientFusionHybridSearch for consistent
+    behavior across all adapters.
     """
     
     def __init__(
         self,
         index: faiss.Index,
         document_texts: Optional[List[str]] = None,
+        hybrid_config: Optional[Dict[str, Any]] = None,
     ):
         """
         Initialize FAISS adapter.
@@ -54,24 +61,49 @@ class FAISSIndex(VectorIndex):
             index: FAISS index object to wrap
             document_texts: Optional list of document texts for lexical search.
                           Must match the number of vectors in the index.
+            hybrid_config: Optional hybrid search configuration dict with keys:
+                          - lexical_backend: "bm25" or "tfidf" (default: "bm25")
+                          - normalize_scores: bool (default: True)
         """
         if not isinstance(index, faiss.Index):
             raise TypeError(f"Expected faiss.Index, got {type(index)}")
         self._index = index
         self._document_texts = document_texts
         self._bm25_index = None
+        self._hybrid_search: Optional[ClientFusionHybridSearch] = None
+        self._hybrid_config = hybrid_config or {}
         
-        # Build BM25 index if texts provided
+        # Build lexical index if texts provided
         if document_texts is not None:
             if len(document_texts) != index.ntotal:
                 raise ValueError(
                     f"Number of document texts ({len(document_texts)}) "
                     f"does not match index size ({index.ntotal})"
                 )
-            self._build_bm25_index()
+            self._build_lexical_index()
     
-    def _build_bm25_index(self):
-        """Build BM25 index from document texts."""
+    def _build_lexical_index(self):
+        """Build lexical index from document texts using shared utilities."""
+        if not self._document_texts:
+            return
+        
+        lexical_backend = self._hybrid_config.get("lexical_backend", "bm25")
+        normalize = self._hybrid_config.get("normalize_scores", True)
+        
+        try:
+            # Use shared ClientFusionHybridSearch
+            self._hybrid_search = ClientFusionHybridSearch(
+                document_texts=self._document_texts,
+                lexical_backend=lexical_backend,
+                normalize=normalize,
+            )
+            logger.debug(f"Built {lexical_backend} index for hybrid search")
+        except ImportError as e:
+            logger.warning(f"Falling back to legacy BM25: {e}")
+            self._build_bm25_index_legacy()
+    
+    def _build_bm25_index_legacy(self):
+        """Build BM25 index from document texts (legacy fallback)."""
         try:
             from rank_bm25 import BM25Okapi
         except ImportError:
@@ -85,8 +117,6 @@ class FAISSIndex(VectorIndex):
         
         # Check if we have any non-empty documents
         if not tokenized_docs or all(len(doc) == 0 for doc in tokenized_docs):
-            # Skip BM25 index building if all documents are empty
-            # This prevents division by zero errors in BM25
             self._bm25_index = None
             return
         
@@ -129,15 +159,21 @@ class FAISSIndex(VectorIndex):
         query_texts: Optional[List[str]],
         k: int,
         alpha: float = 0.5,
+        **kwargs,
     ) -> Tuple[np.ndarray, np.ndarray, Dict[str, Any]]:
         """
         Search using hybrid vector + lexical ranking.
+        
+        Uses the shared ClientFusionHybridSearch when available for consistent
+        behavior across all adapters. Falls back to legacy BM25 implementation
+        if the new hybrid search is not initialized.
         
         Args:
             query_vectors: Optional query embeddings array of shape (M, D)
             query_texts: Optional list of query text strings (M,)
             k: Number of nearest neighbors to retrieve per query
             alpha: Weight for vector search (0.0-1.0), where 1-alpha is weight for lexical
+            **kwargs: Additional arguments (hybrid_config options can override defaults)
             
         Returns:
             Tuple of (distances, indices, metadata)
@@ -145,6 +181,42 @@ class FAISSIndex(VectorIndex):
         if query_vectors is None and query_texts is None:
             raise ValueError("Either query_vectors or query_texts must be provided")
         
+        # Validate hybrid search requirements
+        if query_texts is not None and alpha < 1.0:
+            if self._hybrid_search is None and self._bm25_index is None:
+                raise ValueError(
+                    "Hybrid search requires document_texts to be provided when initializing "
+                    "FAISSIndex. Either provide document_texts or use ranking.method='vector'."
+                )
+        
+        M = len(query_vectors) if query_vectors is not None else len(query_texts)
+        
+        # Use new ClientFusionHybridSearch if available
+        if self._hybrid_search is not None and query_vectors is not None and query_texts is not None:
+            # Get dense results first
+            vector_distances, vector_indices = self.search(query_vectors, k)
+            
+            # Use ClientFusionHybridSearch for fusion
+            distances, indices, metadata = self._hybrid_search.fuse(
+                dense_distances=vector_distances,
+                dense_indices=vector_indices,
+                query_texts=query_texts,
+                k=k,
+                alpha=alpha,
+            )
+            return distances, indices, metadata
+        
+        # Fall back to legacy implementation
+        return self._search_hybrid_legacy(query_vectors, query_texts, k, alpha)
+    
+    def _search_hybrid_legacy(
+        self,
+        query_vectors: Optional[np.ndarray],
+        query_texts: Optional[List[str]],
+        k: int,
+        alpha: float = 0.5,
+    ) -> Tuple[np.ndarray, np.ndarray, Dict[str, Any]]:
+        """Legacy hybrid search implementation using BM25."""
         M = len(query_vectors) if query_vectors is not None else len(query_texts)
         
         # Get vector results
@@ -220,6 +292,7 @@ class FAISSIndex(VectorIndex):
             indices = np.array(combined_indices, dtype=np.int64)
             metadata = {
                 "ranking_method": "hybrid",
+                "hybrid_backend": "legacy_bm25",
                 "alpha": alpha,
                 "fallback": False,
             }
@@ -259,11 +332,40 @@ class FAISSIndex(VectorIndex):
         Returns:
             Tuple of (distances, indices, metadata)
         """
-        if self._bm25_index is None:
+        # Check if we have lexical search capability
+        if self._hybrid_search is None and self._bm25_index is None:
             raise ValueError(
                 "Lexical search requires document_texts to be provided "
                 "when initializing FAISSIndex"
             )
+        
+        # Use hybrid_search's lexical scorer if available
+        if self._hybrid_search is not None:
+            # Score all queries using the lexical scorer
+            lexical_scores = self._hybrid_search.lexical_scorer.score_batch(query_texts)
+            
+            M = len(query_texts)
+            distances = []
+            indices = []
+            
+            for i in range(M):
+                scores = lexical_scores[i]
+                top_k_indices = np.argsort(scores)[::-1][:k]
+                top_k_scores = scores[top_k_indices]
+                distances.append(top_k_scores.astype(np.float32))
+                indices.append(top_k_indices.astype(np.int64))
+            
+            distances_array = np.array(distances, dtype=np.float32)
+            indices_array = np.array(indices, dtype=np.int64)
+            
+            metadata = {
+                "ranking_method": "lexical",
+                "backend": self._hybrid_config.get("lexical_backend", "bm25"),
+            }
+            
+            return distances_array, indices_array, metadata
+        
+        # Fall back to legacy BM25
         
         M = len(query_texts)
         distances = []

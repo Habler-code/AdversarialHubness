@@ -27,6 +27,7 @@ except ImportError:
     ServerlessSpec = None
 
 from ..vector_index import VectorIndex
+from ..hybrid_fusion import ClientFusionHybridSearch
 from ....utils.logging import get_logger
 
 logger = get_logger()
@@ -38,6 +39,10 @@ class PineconeIndex(VectorIndex):
     
     This adapter connects to a Pinecone index and provides the VectorIndex
     interface for HubScan detection operations.
+    
+    Supports hybrid search via:
+    - client_fusion: Dense search in Pinecone + local lexical scoring (requires document_texts)
+    - native_sparse: Pinecone sparse vectors (requires index with sparse vectors)
     """
     
     def __init__(
@@ -46,6 +51,8 @@ class PineconeIndex(VectorIndex):
         api_key: str,
         dimension: int = 0,
         environment: Optional[str] = None,
+        document_texts: Optional[List[str]] = None,
+        hybrid_config: Optional[Dict[str, Any]] = None,
     ):
         """
         Initialize Pinecone adapter.
@@ -55,6 +62,13 @@ class PineconeIndex(VectorIndex):
             api_key: Pinecone API key
             dimension: Vector dimension (will be inferred from index if 0)
             environment: Pinecone environment (deprecated in v3+, optional)
+            document_texts: Optional list of document texts for client-side hybrid search.
+                          Must match the number of vectors in the index.
+            hybrid_config: Optional hybrid search configuration dict with keys:
+                          - backend: "client_fusion" or "native_sparse"
+                          - lexical_backend: "bm25" or "tfidf"
+                          - normalize_scores: bool
+                          - pinecone_has_sparse: bool
         """
         # Check import at runtime in case package was installed after module load
         if Pinecone is None:
@@ -87,7 +101,43 @@ class PineconeIndex(VectorIndex):
                     f"index dimension {index_info.dimension}"
                 )
         
+        # Hybrid search setup
+        self._document_texts = document_texts
+        self._hybrid_config = hybrid_config or {}
+        self._hybrid_search: Optional[ClientFusionHybridSearch] = None
+        
+        # Build lexical index if document texts provided
+        if document_texts is not None:
+            if len(document_texts) != self._ntotal and self._ntotal > 0:
+                logger.warning(
+                    f"Number of document texts ({len(document_texts)}) "
+                    f"does not match index size ({self._ntotal})"
+                )
+            self._build_hybrid_search()
+        
         logger.info(f"Connected to Pinecone index '{index_name}' with {self._ntotal} vectors")
+    
+    def _build_hybrid_search(self):
+        """Build client-side hybrid search if document texts available."""
+        if not self._document_texts:
+            return
+        
+        backend = self._hybrid_config.get("backend", "client_fusion")
+        if backend not in ("client_fusion", "auto"):
+            return  # native_sparse doesn't need local index
+        
+        lexical_backend = self._hybrid_config.get("lexical_backend", "bm25")
+        normalize = self._hybrid_config.get("normalize_scores", True)
+        
+        try:
+            self._hybrid_search = ClientFusionHybridSearch(
+                document_texts=self._document_texts,
+                lexical_backend=lexical_backend,
+                normalize=normalize,
+            )
+            logger.info(f"Built {lexical_backend} index for Pinecone hybrid search")
+        except ImportError as e:
+            logger.warning(f"Could not build hybrid search: {e}")
     
     def search(
         self, 
@@ -171,15 +221,21 @@ class PineconeIndex(VectorIndex):
         query_texts: Optional[List[str]],
         k: int,
         alpha: float = 0.5,
+        **kwargs,
     ) -> Tuple[np.ndarray, np.ndarray, Dict[str, Any]]:
         """
-        Search using Pinecone's native hybrid search.
+        Search using hybrid vector + lexical ranking.
+        
+        Supports two backends:
+        - client_fusion: Dense search in Pinecone + local BM25/TF-IDF (default)
+        - native_sparse: Pinecone sparse vectors (requires sparse vectors in index)
         
         Args:
             query_vectors: Optional query embeddings array of shape (M, D)
             query_texts: Optional list of query text strings (M,)
             k: Number of nearest neighbors to retrieve per query
             alpha: Weight for vector search (0.0-1.0), where 1-alpha is weight for lexical
+            **kwargs: Additional arguments (e.g., hybrid_backend override)
             
         Returns:
             Tuple of (distances, indices, metadata)
@@ -187,61 +243,61 @@ class PineconeIndex(VectorIndex):
         if query_vectors is None and query_texts is None:
             raise ValueError("Either query_vectors or query_texts must be provided")
         
-        M = len(query_vectors) if query_vectors is not None else len(query_texts)
-        distances = []
-        indices = []
+        backend = kwargs.get("hybrid_backend", self._hybrid_config.get("backend", "client_fusion"))
         
-        # Convert queries to format Pinecone expects
-        query_list = query_vectors.tolist() if query_vectors is not None else None
-        
-        try:
-            # Use Pinecone's hybrid query if both available
+        # Use client-side fusion if available
+        if backend in ("client_fusion", "auto") and self._hybrid_search is not None:
             if query_vectors is not None and query_texts is not None:
-                results = self.index.query_batch(
-                    queries=[
-                        {
-                            "vector": vec,
-                            "sparse": {"indices": [], "values": []},  # Sparse vector for text
-                            "topK": k,
-                        }
-                        for vec in query_list
-                    ],
-                    top_k=k,
-                    include_metadata=False,
-                    include_values=False,
+                # Get dense results first
+                dense_distances, dense_indices = self.search(query_vectors, k)
+                
+                # Use ClientFusionHybridSearch for fusion
+                distances, indices, metadata = self._hybrid_search.fuse(
+                    dense_distances=dense_distances,
+                    dense_indices=dense_indices,
+                    query_texts=query_texts,
+                    k=k,
+                    alpha=alpha,
                 )
-                # Note: Pinecone hybrid query requires sparse vectors
-                # For now, fall back to vector search if text provided
-                logger.warning(
-                    "Pinecone hybrid search with sparse vectors not fully implemented. "
-                    "Falling back to vector search."
-                )
-                distances, indices = self.search(query_vectors, k)
-            elif query_vectors is not None:
-                distances, indices = self.search(query_vectors, k)
-            else:
-                raise ValueError("Pinecone requires query_vectors for search")
-            
-            metadata = {
-                "ranking_method": "hybrid" if query_texts is not None else "vector",
-                "alpha": alpha,
-                "fallback": query_texts is not None,
-            }
-            
-            return distances, indices, metadata
-            
-        except Exception as e:
-            logger.error(f"Pinecone hybrid query failed: {e}")
-            # Fallback to vector search
-            if query_vectors is not None:
-                distances, indices = self.search(query_vectors, k)
-                metadata = {
-                    "ranking_method": "vector",
-                    "alpha": 1.0,
-                    "fallback": True,
-                }
                 return distances, indices, metadata
-            raise
+        
+        # Validate hybrid requirements if text is provided but no hybrid search available
+        if query_texts is not None and alpha < 1.0:
+            if self._hybrid_search is None and backend not in ("native_sparse",):
+                raise ValueError(
+                    "Hybrid search requires document_texts to be provided when initializing "
+                    "PineconeIndex for client_fusion backend, or a Pinecone index with sparse "
+                    "vectors for native_sparse backend. "
+                    "Either provide document_texts or use ranking.method='vector'."
+                )
+        
+        # Native sparse (requires Pinecone sparse vectors)
+        if backend == "native_sparse":
+            pinecone_has_sparse = self._hybrid_config.get("pinecone_has_sparse", False)
+            if not pinecone_has_sparse:
+                raise ValueError(
+                    "Native sparse hybrid search requires a Pinecone index with sparse vectors. "
+                    "Set hybrid.pinecone_has_sparse=true in config if your index supports it, "
+                    "or use hybrid.backend='client_fusion' with document_texts."
+                )
+            # TODO: Implement native Pinecone sparse hybrid when sparse vectors are available
+            logger.warning(
+                "Pinecone native sparse hybrid not yet implemented. "
+                "Falling back to vector search."
+            )
+        
+        # Fallback to vector search
+        if query_vectors is not None:
+            distances, indices = self.search(query_vectors, k)
+            metadata = {
+                "ranking_method": "vector",
+                "alpha": alpha,
+                "fallback": True,
+                "fallback_reason": "no_hybrid_support",
+            }
+            return distances, indices, metadata
+        
+        raise ValueError("Pinecone requires query_vectors for search")
     
     def search_lexical(
         self,

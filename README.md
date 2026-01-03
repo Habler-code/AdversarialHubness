@@ -61,11 +61,34 @@ See [Concept and Modality Guide](docs/CONCEPTS_AND_MODALITIES.md) for detailed i
 - **Multiple Detection Strategies**: Hubness detection, cluster spread analysis, stability testing, and deduplication
 - **Advanced Detection Modes**: Concept-aware and modality-aware detection for specialized use cases
 - **Multiple Retrieval Methods**: Vector search, hybrid search (vector + lexical), and pure lexical search
+- **Client-Side Hybrid Search**: Works with any vector database by combining dense search with local BM25/TF-IDF
 - **Reranking Support**: Optional post-processing reranking for improved precision
 - **Multi-Index Late Fusion**: Gold standard architecture for secure multimodal RAG systems
 - **Vector Database Support**: FAISS, Pinecone, Qdrant, Weaviate with unified interface
 - **Comprehensive Reporting**: JSON and HTML reports with detailed metrics and evidence
 - **Plugin System**: Extensible architecture for custom retrieval methods, reranking, and detectors
+
+### Hybrid Search
+
+HubScan supports **true hybrid search** across all vector database adapters through client-side fusion:
+
+- **Client Fusion Mode**: Performs dense (vector) search in your DB, then computes BM25/TF-IDF scores locally from document texts, and fuses results
+- **Native Mode**: Uses database-native hybrid capabilities (Weaviate BM25, Pinecone sparse vectors)
+- **Configurable Alpha**: Control the balance between semantic (dense) and lexical (sparse) search
+
+```yaml
+# Example hybrid search configuration
+scan:
+  ranking:
+    method: hybrid
+    hybrid_alpha: 0.7  # 70% vector, 30% lexical
+    hybrid:
+      backend: client_fusion  # or "native_sparse" for DB-native
+      lexical_backend: bm25   # or "tfidf"
+      text_field: text        # metadata field with document text
+```
+
+This enables hybrid search on **any vector database**, even those without native sparse vector support, by requiring document texts in your metadata.
 
 ### Detection Pipeline
 
@@ -182,7 +205,7 @@ hubscan build-index --config config.yaml
 ```python
 from hubscan import scan, get_suspicious_documents, Verdict
 
-# Simple scan
+# Simple scan with vector search
 results = scan(
     embeddings_path="data/embeddings.npy",
     metadata_path="data/metadata.json",
@@ -192,6 +215,17 @@ results = scan(
 
 # Get high-risk documents
 high_risk = get_suspicious_documents(results, verdict=Verdict.HIGH, top_k=10)
+
+# Hybrid search (dense + lexical)
+results = scan(
+    embeddings_path="data/embeddings.npy",
+    metadata_path="data/metadata.json",
+    ranking_method="hybrid",
+    hybrid_alpha=0.7,  # 70% vector, 30% lexical
+    query_texts_path="data/query_texts.json",
+    k=20,
+    num_queries=10000
+)
 
 # Concept-aware detection
 results = scan(

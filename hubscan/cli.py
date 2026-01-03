@@ -63,6 +63,9 @@ def cli(verbose: bool):
 @click.option("--summary-only", is_flag=True, help="Show only summary, don't save full reports")
 @click.option("--ranking-method", type=click.Choice(["vector", "hybrid", "lexical"]), help="Ranking method to use")
 @click.option("--hybrid-alpha", type=float, default=0.5, help="Weight for vector search in hybrid mode (0.0-1.0)")
+@click.option("--hybrid-backend", type=click.Choice(["client_fusion", "native_sparse", "auto"]), default="auto", help="Hybrid search backend")
+@click.option("--lexical-backend", type=click.Choice(["bm25", "tfidf"]), default="bm25", help="Lexical scoring algorithm for hybrid search")
+@click.option("--text-field", type=str, default="text", help="Metadata field containing document text (for hybrid search)")
 @click.option("--query-texts", type=click.Path(exists=True), help="Path to query texts file (for lexical/hybrid search)")
 @click.option("--rerank", is_flag=True, help="Enable reranking as post-processing step")
 @click.option("--rerank-method", type=str, default="default", help="Reranking method name (default: default)")
@@ -87,6 +90,9 @@ def scan(
     summary_only: bool,
     ranking_method: Optional[str],
     hybrid_alpha: float,
+    hybrid_backend: str,
+    lexical_backend: str,
+    text_field: str,
     query_texts: Optional[str],
     rerank: bool,
     rerank_method: str,
@@ -133,6 +139,14 @@ def scan(
                 cfg.scan.ranking.hybrid_alpha = hybrid_alpha
             if query_texts:
                 cfg.scan.query_texts_path = query_texts
+            
+            # Override hybrid search config from CLI
+            if hybrid_backend:
+                cfg.scan.ranking.hybrid.backend = hybrid_backend
+            if lexical_backend:
+                cfg.scan.ranking.hybrid.lexical_backend = lexical_backend
+            if text_field:
+                cfg.scan.ranking.hybrid.text_field = text_field
             
             # Override reranking config from CLI if provided
             if rerank:
@@ -433,11 +447,177 @@ def extract_embeddings(config: str, output: str, batch_size: int, limit: Optiona
 
 @cli.command()
 @click.option("--config", "-c", required=True, type=click.Path(exists=True), help="Path to config YAML file")
-def validate(config: str):
-    """Validate approximate index against exact search."""
+@click.option("--check-data", is_flag=True, help="Verify that data files exist and are readable")
+@click.option("--check-index", is_flag=True, help="Validate index integrity and perform test queries")
+@click.option("--sample-queries", type=int, default=10, help="Number of sample queries for index validation")
+def validate(config: str, check_data: bool, check_index: bool, sample_queries: int):
+    """Validate a configuration file and optionally verify data/index integrity."""
     logger = get_logger()
-    click.echo("Validation feature coming soon...")
-    # TODO: Implement validation
+    
+    all_valid = True
+    
+    try:
+        # Load and validate config structure
+        console.print(f"[bold cyan]Validating configuration: {config}[/bold cyan]\n")
+        cfg = Config.from_yaml(config)
+        console.print(f"[green]Config structure is valid[/green]")
+        
+        # Display configuration summary
+        table = Table(title="Configuration Summary", show_header=True, header_style="bold magenta")
+        table.add_column("Setting", style="cyan")
+        table.add_column("Value", style="green")
+        
+        table.add_row("Input Mode", cfg.input.mode)
+        table.add_row("Metric", cfg.input.metric)
+        table.add_row("k (neighbors)", str(cfg.scan.k))
+        table.add_row("num_queries", str(cfg.scan.num_queries))
+        table.add_row("Ranking Method", cfg.scan.ranking.method)
+        table.add_row("Output Directory", cfg.output.out_dir)
+        
+        # Show enabled detectors
+        enabled_detectors = []
+        if cfg.detectors.hubness.enabled:
+            enabled_detectors.append("hubness")
+        if cfg.detectors.cluster_spread.enabled:
+            enabled_detectors.append("cluster_spread")
+        if cfg.detectors.stability.enabled:
+            enabled_detectors.append("stability")
+        if cfg.detectors.dedup.enabled:
+            enabled_detectors.append("dedup")
+        table.add_row("Enabled Detectors", ", ".join(enabled_detectors) or "none")
+        
+        console.print("\n")
+        console.print(table)
+        
+        if check_data:
+            console.print("\n[bold cyan]Checking data files...[/bold cyan]")
+            
+            # Check embeddings path
+            if cfg.input.embeddings_path:
+                path = Path(cfg.input.embeddings_path)
+                if path.exists():
+                    try:
+                        import numpy as np
+                        data = np.load(path)
+                        console.print(f"  [green]Embeddings: {path}[/green]")
+                        console.print(f"    Shape: {data.shape}, dtype: {data.dtype}")
+                    except Exception as e:
+                        console.print(f"  [red]Embeddings: {path} (LOAD ERROR: {e})[/red]")
+                        all_valid = False
+                else:
+                    console.print(f"  [red]Embeddings: {path} (NOT FOUND)[/red]")
+                    all_valid = False
+            
+            # Check index path
+            if cfg.input.index_path:
+                path = Path(cfg.input.index_path)
+                if path.exists():
+                    try:
+                        import faiss
+                        index = faiss.read_index(str(path))
+                        console.print(f"  [green]Index: {path}[/green]")
+                        console.print(f"    Vectors: {index.ntotal}, dimension: {index.d}")
+                    except Exception as e:
+                        console.print(f"  [red]Index: {path} (LOAD ERROR: {e})[/red]")
+                        all_valid = False
+                else:
+                    console.print(f"  [red]Index: {path} (NOT FOUND)[/red]")
+                    all_valid = False
+            
+            # Check metadata path
+            if cfg.input.metadata_path:
+                path = Path(cfg.input.metadata_path)
+                if path.exists():
+                    try:
+                        import json
+                        with open(path) as f:
+                            metadata = json.load(f)
+                        if isinstance(metadata, list):
+                            console.print(f"  [green]Metadata: {path}[/green]")
+                            console.print(f"    Records: {len(metadata)}")
+                            if metadata:
+                                console.print(f"    Fields: {list(metadata[0].keys())[:5]}...")
+                        elif isinstance(metadata, dict):
+                            console.print(f"  [green]Metadata: {path}[/green]")
+                            console.print(f"    Fields: {list(metadata.keys())[:5]}...")
+                    except Exception as e:
+                        console.print(f"  [red]Metadata: {path} (LOAD ERROR: {e})[/red]")
+                        all_valid = False
+                else:
+                    console.print(f"  [red]Metadata: {path} (NOT FOUND)[/red]")
+                    all_valid = False
+            
+            # Check query texts path
+            if cfg.scan.query_texts_path:
+                path = Path(cfg.scan.query_texts_path)
+                if path.exists():
+                    try:
+                        import json
+                        with open(path) as f:
+                            texts = json.load(f)
+                        console.print(f"  [green]Query Texts: {path}[/green]")
+                        console.print(f"    Count: {len(texts)}")
+                    except Exception as e:
+                        console.print(f"  [red]Query Texts: {path} (LOAD ERROR: {e})[/red]")
+                        all_valid = False
+                else:
+                    console.print(f"  [yellow]Query Texts: {path} (NOT FOUND - optional)[/yellow]")
+        
+        if check_index:
+            console.print("\n[bold cyan]Validating index integrity...[/bold cyan]")
+            
+            try:
+                # Load scanner to test index
+                scanner = Scanner(cfg)
+                scanner.load_data()
+                
+                if scanner.index is not None and scanner.doc_embeddings is not None:
+                    import numpy as np
+                    
+                    # Run sample queries
+                    num_docs = len(scanner.doc_embeddings)
+                    num_test = min(sample_queries, num_docs)
+                    test_indices = np.random.choice(num_docs, num_test, replace=False)
+                    test_queries = scanner.doc_embeddings[test_indices]
+                    
+                    console.print(f"  Running {num_test} test queries...")
+                    
+                    # Search
+                    distances, indices = scanner.index.search(test_queries, cfg.scan.k)
+                    
+                    # Validate results
+                    valid_results = 0
+                    self_matches = 0
+                    for i, test_idx in enumerate(test_indices):
+                        if test_idx in indices[i]:
+                            self_matches += 1
+                        if np.all(indices[i] >= 0) and np.all(indices[i] < num_docs):
+                            valid_results += 1
+                    
+                    console.print(f"  [green]Valid result sets: {valid_results}/{num_test}[/green]")
+                    console.print(f"  [green]Self-match rate: {self_matches}/{num_test}[/green]")
+                    
+                    if self_matches < num_test * 0.9:
+                        console.print(f"  [yellow]Warning: Low self-match rate may indicate index issues[/yellow]")
+                else:
+                    console.print(f"  [yellow]Skipping index validation (no index or embeddings loaded)[/yellow]")
+                    
+            except Exception as e:
+                console.print(f"  [red]Index validation failed: {e}[/red]")
+                all_valid = False
+        
+        # Final verdict
+        console.print("\n")
+        if all_valid:
+            console.print(f"[bold green]Validation PASSED[/bold green]")
+        else:
+            console.print(f"[bold red]Validation FAILED - see errors above[/bold red]")
+            sys.exit(1)
+        
+    except Exception as e:
+        logger.error(f"Configuration validation failed: {e}", exc_info=True)
+        console.print(f"[bold red]Config validation failed: {e}[/bold red]")
+        sys.exit(1)
 
 
 @cli.command()

@@ -91,9 +91,10 @@ def list_reranking_methods() -> List[str]:
 # Register built-in methods
 def _register_builtin_methods():
     """Register built-in reranking methods."""
-    from .builtin import DefaultReranking
+    from .builtin import DefaultReranking, CrossEncoderReranking
     
     register_reranking_method("default", DefaultReranking())
+    register_reranking_method("cross_encoder", CrossEncoderReranking())
 
 _register_builtin_methods()
 

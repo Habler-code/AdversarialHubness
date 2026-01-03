@@ -20,6 +20,16 @@ from .embeddings import load_embeddings, save_embeddings
 from .faiss_index import load_faiss_index, build_faiss_index, save_faiss_index, wrap_faiss_index
 from .metadata import load_metadata, Metadata
 from .vector_index import VectorIndex
+from .hybrid_fusion import (
+    LexicalScorer,
+    BM25Scorer,
+    TFIDFScorer,
+    create_lexical_scorer,
+    normalize_scores,
+    fuse_dense_lexical,
+    ClientFusionHybridSearch,
+)
+from .adapters.jsonl_adapter import JSONLExportLoader, load_jsonl_export
 
 __all__ = [
     "load_embeddings",
@@ -31,5 +41,16 @@ __all__ = [
     "load_metadata",
     "Metadata",
     "VectorIndex",
+    # Hybrid fusion
+    "LexicalScorer",
+    "BM25Scorer",
+    "TFIDFScorer",
+    "create_lexical_scorer",
+    "normalize_scores",
+    "fuse_dense_lexical",
+    "ClientFusionHybridSearch",
+    # JSONL export loading
+    "JSONLExportLoader",
+    "load_jsonl_export",
 ]
 

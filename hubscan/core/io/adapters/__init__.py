@@ -23,8 +23,9 @@ if TYPE_CHECKING:
     from ..vector_index import VectorIndex
 
 from .faiss_adapter import FAISSIndex
+from .jsonl_adapter import JSONLExportLoader, load_jsonl_export
 
-__all__ = ["FAISSIndex", "create_index"]
+__all__ = ["FAISSIndex", "JSONLExportLoader", "load_jsonl_export", "create_index"]
 
 
 def create_index(config: "InputConfig") -> "VectorIndex":

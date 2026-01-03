@@ -16,8 +16,8 @@
 
 """Configuration management using Pydantic models."""
 
-from typing import Literal, Optional, Dict, Any, Union
-from pydantic import BaseModel, Field, field_validator
+from typing import Literal, Optional, Dict, Any, Union, List
+from pydantic import BaseModel, Field, field_validator, model_validator
 from pydantic_settings import BaseSettings
 
 
@@ -54,6 +54,66 @@ class DiversityConfig(BaseModel):
     enabled: bool = Field(default=False, description="Enable diversity enforcement in final results")
     min_distance: float = Field(default=0.3, ge=0.0, le=1.0, description="Minimum cosine distance between results")
     max_results_per_cluster: Optional[int] = Field(default=None, description="Max results per semantic cluster")
+
+
+class HybridSearchConfig(BaseModel):
+    """Configuration for hybrid search (dense + lexical).
+    
+    Hybrid search combines semantic (dense vector) search with lexical (keyword) search.
+    Two backends are supported:
+    
+    - **client_fusion**: Works with any vector DB. Runs dense search in DB, then computes
+      lexical scores locally (BM25/TF-IDF) from document texts and fuses client-side.
+      Requires document texts in metadata.
+    
+    - **native_sparse**: Uses DB-native sparse vectors (Pinecone sparse vectors, 
+      Qdrant dense+sparse fields, Weaviate BM25). Requires the DB to already have
+      sparse vectors indexed or BM25 enabled.
+    """
+    backend: Literal["client_fusion", "native_sparse", "auto"] = Field(
+        default="auto",
+        description=(
+            "Hybrid search backend: "
+            "'client_fusion' (dense DB + local lexical), "
+            "'native_sparse' (DB-native sparse vectors), "
+            "'auto' (try native_sparse if available, fallback to client_fusion)"
+        )
+    )
+    lexical_backend: Literal["bm25", "tfidf"] = Field(
+        default="bm25",
+        description="Lexical scoring algorithm for client_fusion mode"
+    )
+    text_field: str = Field(
+        default="text",
+        description="Metadata field containing document text (for client_fusion)"
+    )
+    normalize_scores: bool = Field(
+        default=True,
+        description="Normalize dense and lexical scores to [0,1] before fusion"
+    )
+    
+    # Native sparse settings (for DB backends that support it)
+    # Qdrant
+    qdrant_dense_vector_name: str = Field(
+        default="dense",
+        description="Name of the dense vector field in Qdrant collection"
+    )
+    qdrant_sparse_vector_name: str = Field(
+        default="sparse",
+        description="Name of the sparse vector field in Qdrant collection"
+    )
+    
+    # Pinecone
+    pinecone_has_sparse: bool = Field(
+        default=False,
+        description="Whether Pinecone index has sparse vectors"
+    )
+    
+    # Weaviate (uses native BM25)
+    weaviate_bm25_properties: List[str] = Field(
+        default_factory=lambda: ["text"],
+        description="Properties to search with BM25 in Weaviate"
+    )
 
 
 class InputConfig(BaseModel):
@@ -125,6 +185,10 @@ class RankingConfig(BaseModel):
         le=1.0,
         description="Weight for vector search in hybrid mode (1-alpha for lexical)"
     )
+    hybrid: HybridSearchConfig = Field(
+        default_factory=HybridSearchConfig,
+        description="Hybrid search configuration (dense + lexical)"
+    )
     rerank: bool = Field(
         default=False,
         description="Enable reranking as post-processing step"
@@ -140,7 +204,7 @@ class RankingConfig(BaseModel):
     )
     lexical_backend: Optional[str] = Field(
         default=None,
-        description="Lexical search backend (e.g., 'bm25', 'tfidf')"
+        description="Lexical search backend (e.g., 'bm25', 'tfidf') - deprecated, use hybrid.lexical_backend"
     )
     custom_params: Dict[str, Any] = Field(
         default_factory=dict,
@@ -399,6 +463,43 @@ class Config(BaseSettings):
     scoring: ScoringConfig = Field(default_factory=ScoringConfig)
     thresholds: ThresholdsConfig = Field(default_factory=ThresholdsConfig)
     output: OutputConfig = Field(default_factory=OutputConfig)
+
+    @model_validator(mode='after')
+    def validate_hybrid_requirements(self) -> 'Config':
+        """Validate hybrid/lexical search requirements at config level.
+        
+        This provides early fail-fast validation before data loading.
+        Full validation (e.g., checking metadata has text field) happens in Scanner.
+        """
+        ranking_method = self.scan.ranking.method
+        
+        # Hybrid/lexical require query_texts_path
+        if ranking_method in ("hybrid", "lexical"):
+            if not self.scan.query_texts_path:
+                raise ValueError(
+                    f"scan.query_texts_path is required when ranking.method='{ranking_method}'. "
+                    f"Provide a JSON file containing query text strings for lexical scoring."
+                )
+        
+        # Client-fusion hybrid requires metadata for document texts
+        if ranking_method == "hybrid":
+            hybrid_config = self.scan.ranking.hybrid
+            if hybrid_config.backend in ("client_fusion", "auto"):
+                # We can only warn here; full validation requires loading metadata
+                # Scanner.load_data() will do the full check
+                pass
+            
+            # Native sparse has DB-specific requirements
+            if hybrid_config.backend == "native_sparse":
+                mode = self.input.mode
+                if mode == "pinecone" and not hybrid_config.pinecone_has_sparse:
+                    raise ValueError(
+                        "Native sparse hybrid for Pinecone requires sparse vectors. "
+                        "Either set scan.ranking.hybrid.pinecone_has_sparse=true if your index "
+                        "has sparse vectors, or use hybrid.backend='client_fusion'."
+                    )
+        
+        return self
 
     @classmethod
     def from_yaml(cls, path: str) -> "Config":

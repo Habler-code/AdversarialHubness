@@ -25,6 +25,7 @@ except ImportError:
     weaviate = None
 
 from ..vector_index import VectorIndex
+from ..hybrid_fusion import ClientFusionHybridSearch
 from ....utils.logging import get_logger
 
 logger = get_logger()
@@ -36,6 +37,10 @@ class WeaviateIndex(VectorIndex):
     
     This adapter connects to a Weaviate class and provides the VectorIndex
     interface for HubScan detection operations.
+    
+    Supports hybrid search via:
+    - native: Weaviate's built-in BM25 + nearVector (default, recommended)
+    - client_fusion: Dense search + local BM25/TF-IDF (requires document_texts)
     """
     
     def __init__(
@@ -43,6 +48,8 @@ class WeaviateIndex(VectorIndex):
         class_name: str,
         url: str = "http://localhost:8080",
         api_key: Optional[str] = None,
+        document_texts: Optional[List[str]] = None,
+        hybrid_config: Optional[Dict[str, Any]] = None,
     ):
         """
         Initialize Weaviate adapter.
@@ -51,7 +58,17 @@ class WeaviateIndex(VectorIndex):
             class_name: Name of the Weaviate class (collection)
             url: Weaviate server URL
             api_key: Optional API key for Weaviate Cloud
+            document_texts: Optional list of document texts for client-side hybrid search.
+                          Note: Weaviate has native BM25 support, so this is usually not needed.
+            hybrid_config: Optional hybrid search configuration dict with keys:
+                          - backend: "native" (default) or "client_fusion"
+                          - lexical_backend: "bm25" or "tfidf" (for client_fusion)
+                          - normalize_scores: bool
+                          - weaviate_bm25_properties: List[str] (properties to search)
         """
+        self._hybrid_config = hybrid_config or {}
+        self._document_texts = document_texts
+        self._hybrid_search: Optional[ClientFusionHybridSearch] = None
         if weaviate is None:
             raise ImportError(
                 "Weaviate adapter requires 'weaviate-client' package. "
@@ -162,6 +179,32 @@ class WeaviateIndex(VectorIndex):
             raise ValueError(
                 f"Failed to connect to Weaviate class '{class_name}': {e}"
             )
+        
+        # Build client-side hybrid search if document_texts provided
+        if document_texts is not None:
+            self._build_hybrid_search()
+    
+    def _build_hybrid_search(self):
+        """Build client-side hybrid search if document texts available."""
+        if not self._document_texts:
+            return
+        
+        backend = self._hybrid_config.get("backend", "native")
+        if backend not in ("client_fusion",):
+            return  # Native doesn't need local index
+        
+        lexical_backend = self._hybrid_config.get("lexical_backend", "bm25")
+        normalize = self._hybrid_config.get("normalize_scores", True)
+        
+        try:
+            self._hybrid_search = ClientFusionHybridSearch(
+                document_texts=self._document_texts,
+                lexical_backend=lexical_backend,
+                normalize=normalize,
+            )
+            logger.info(f"Built {lexical_backend} index for Weaviate client-side hybrid search")
+        except ImportError as e:
+            logger.warning(f"Could not build hybrid search: {e}")
     
     def search(
         self, 
@@ -258,21 +301,48 @@ class WeaviateIndex(VectorIndex):
         query_texts: Optional[List[str]],
         k: int,
         alpha: float = 0.5,
+        **kwargs,
     ) -> Tuple[np.ndarray, np.ndarray, Dict[str, Any]]:
         """
-        Search using Weaviate's hybrid search (vector + BM25).
+        Search using hybrid vector + lexical ranking.
+        
+        Supports two backends:
+        - native: Weaviate's built-in BM25 + nearVector (default, recommended)
+        - client_fusion: Dense search + local BM25/TF-IDF
         
         Args:
             query_vectors: Optional query embeddings array of shape (M, D)
             query_texts: Optional list of query text strings (M,)
             k: Number of nearest neighbors to retrieve per query
             alpha: Weight for vector search (0.0-1.0), where 1-alpha is weight for lexical
+            **kwargs: Additional arguments (e.g., hybrid_backend override)
             
         Returns:
             Tuple of (distances, indices, metadata)
         """
         if query_vectors is None and query_texts is None:
             raise ValueError("Either query_vectors or query_texts must be provided")
+        
+        backend = kwargs.get("hybrid_backend", self._hybrid_config.get("backend", "native"))
+        
+        # Use client-side fusion if explicitly requested and available
+        if backend == "client_fusion" and self._hybrid_search is not None:
+            if query_vectors is not None and query_texts is not None:
+                # Get dense results first
+                dense_distances, dense_indices = self.search(query_vectors, k)
+                
+                # Use ClientFusionHybridSearch for fusion
+                distances, indices, metadata = self._hybrid_search.fuse(
+                    dense_distances=dense_distances,
+                    dense_indices=dense_indices,
+                    query_texts=query_texts,
+                    k=k,
+                    alpha=alpha,
+                )
+                return distances, indices, metadata
+        
+        # Use native Weaviate hybrid (BM25 + nearVector)
+        bm25_properties = self._hybrid_config.get("weaviate_bm25_properties", ["text"])
         
         M = len(query_vectors) if query_vectors is not None else len(query_texts)
         distances = []
@@ -298,7 +368,7 @@ class WeaviateIndex(VectorIndex):
                 if query_texts is not None:
                     query_builder = query_builder.with_bm25(
                         query=query_texts[i],
-                        properties=["text"],  # Assuming 'text' field exists
+                        properties=bm25_properties,
                     )
                 
                 result = query_builder.do()
@@ -346,6 +416,8 @@ class WeaviateIndex(VectorIndex):
         
         metadata = {
             "ranking_method": "hybrid",
+            "hybrid_backend": "native_weaviate",
+            "bm25_properties": bm25_properties,
             "alpha": alpha,
             "fallback": False,
         }

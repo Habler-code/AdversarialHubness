@@ -30,6 +30,7 @@ except ImportError:
     QueryVector = None
 
 from ..vector_index import VectorIndex
+from ..hybrid_fusion import ClientFusionHybridSearch
 from ....utils.logging import get_logger
 
 logger = get_logger()
@@ -41,6 +42,10 @@ class QdrantIndex(VectorIndex):
     
     This adapter connects to a Qdrant collection and provides the VectorIndex
     interface for HubScan detection operations.
+    
+    Supports hybrid search via:
+    - client_fusion: Dense search in Qdrant + local lexical scoring (requires document_texts)
+    - native_sparse: Qdrant dense+sparse vectors (requires collection with sparse vectors)
     """
     
     def __init__(
@@ -48,6 +53,8 @@ class QdrantIndex(VectorIndex):
         collection_name: str,
         url: str = "http://localhost:6333",
         api_key: Optional[str] = None,
+        document_texts: Optional[List[str]] = None,
+        hybrid_config: Optional[Dict[str, Any]] = None,
     ):
         """
         Initialize Qdrant adapter.
@@ -56,6 +63,14 @@ class QdrantIndex(VectorIndex):
             collection_name: Name of the Qdrant collection
             url: Qdrant server URL
             api_key: Optional API key for Qdrant Cloud
+            document_texts: Optional list of document texts for client-side hybrid search.
+                          Must match the number of vectors in the collection.
+            hybrid_config: Optional hybrid search configuration dict with keys:
+                          - backend: "client_fusion" or "native_sparse"
+                          - lexical_backend: "bm25" or "tfidf"
+                          - normalize_scores: bool
+                          - qdrant_dense_vector_name: str (for native_sparse)
+                          - qdrant_sparse_vector_name: str (for native_sparse)
         """
         # Check import at runtime in case package was installed after module load
         if QdrantClient is None:
@@ -94,6 +109,42 @@ class QdrantIndex(VectorIndex):
             raise ValueError(
                 f"Failed to connect to Qdrant collection '{collection_name}': {e}"
             )
+        
+        # Hybrid search setup
+        self._document_texts = document_texts
+        self._hybrid_config = hybrid_config or {}
+        self._hybrid_search: Optional[ClientFusionHybridSearch] = None
+        
+        # Build lexical index if document texts provided
+        if document_texts is not None:
+            if len(document_texts) != self._ntotal and self._ntotal > 0:
+                logger.warning(
+                    f"Number of document texts ({len(document_texts)}) "
+                    f"does not match collection size ({self._ntotal})"
+                )
+            self._build_hybrid_search()
+    
+    def _build_hybrid_search(self):
+        """Build client-side hybrid search if document texts available."""
+        if not self._document_texts:
+            return
+        
+        backend = self._hybrid_config.get("backend", "client_fusion")
+        if backend not in ("client_fusion", "auto"):
+            return  # native_sparse doesn't need local index
+        
+        lexical_backend = self._hybrid_config.get("lexical_backend", "bm25")
+        normalize = self._hybrid_config.get("normalize_scores", True)
+        
+        try:
+            self._hybrid_search = ClientFusionHybridSearch(
+                document_texts=self._document_texts,
+                lexical_backend=lexical_backend,
+                normalize=normalize,
+            )
+            logger.info(f"Built {lexical_backend} index for Qdrant hybrid search")
+        except ImportError as e:
+            logger.warning(f"Could not build hybrid search: {e}")
     
     def search(
         self, 
@@ -184,15 +235,21 @@ class QdrantIndex(VectorIndex):
         query_texts: Optional[List[str]],
         k: int,
         alpha: float = 0.5,
+        **kwargs,
     ) -> Tuple[np.ndarray, np.ndarray, Dict[str, Any]]:
         """
-        Search using Qdrant's native hybrid search.
+        Search using hybrid vector + lexical ranking.
+        
+        Supports two backends:
+        - client_fusion: Dense search in Qdrant + local BM25/TF-IDF (default)
+        - native_sparse: Qdrant dense+sparse vectors (requires sparse vectors in collection)
         
         Args:
             query_vectors: Optional query embeddings array of shape (M, D)
             query_texts: Optional list of query text strings (M,)
             k: Number of nearest neighbors to retrieve per query
             alpha: Weight for vector search (0.0-1.0), where 1-alpha is weight for lexical
+            **kwargs: Additional arguments (e.g., hybrid_backend override)
             
         Returns:
             Tuple of (distances, indices, metadata)
@@ -200,14 +257,50 @@ class QdrantIndex(VectorIndex):
         if query_vectors is None and query_texts is None:
             raise ValueError("Either query_vectors or query_texts must be provided")
         
-        # For now, Qdrant hybrid search requires both vector and sparse (text) vectors
-        # Fall back to vector search if only vectors provided
+        backend = kwargs.get("hybrid_backend", self._hybrid_config.get("backend", "client_fusion"))
+        
+        # Use client-side fusion if available
+        if backend in ("client_fusion", "auto") and self._hybrid_search is not None:
+            if query_vectors is not None and query_texts is not None:
+                # Get dense results first
+                dense_distances, dense_indices = self.search(query_vectors, k)
+                
+                # Use ClientFusionHybridSearch for fusion
+                distances, indices, metadata = self._hybrid_search.fuse(
+                    dense_distances=dense_distances,
+                    dense_indices=dense_indices,
+                    query_texts=query_texts,
+                    k=k,
+                    alpha=alpha,
+                )
+                return distances, indices, metadata
+        
+        # Validate hybrid requirements if text is provided but no hybrid search available
+        if query_texts is not None and alpha < 1.0:
+            if self._hybrid_search is None and backend not in ("native_sparse",):
+                raise ValueError(
+                    "Hybrid search requires document_texts to be provided when initializing "
+                    "QdrantIndex for client_fusion backend, or a Qdrant collection with sparse "
+                    "vectors for native_sparse backend. "
+                    "Either provide document_texts or use ranking.method='vector'."
+                )
+        
+        # Native sparse (requires Qdrant sparse vectors)
+        if backend == "native_sparse":
+            # TODO: Implement native Qdrant sparse hybrid when collection has sparse vectors
+            logger.warning(
+                "Qdrant native sparse hybrid not yet implemented. "
+                "Falling back to vector search."
+            )
+        
+        # Fallback to vector search
         if query_vectors is not None:
             distances, indices = self.search(query_vectors, k)
             metadata = {
-                "ranking_method": "hybrid" if query_texts is not None else "vector",
+                "ranking_method": "vector",
                 "alpha": alpha,
-                "fallback": query_texts is not None,  # True if text provided but not used
+                "fallback": True,
+                "fallback_reason": "no_hybrid_support",
             }
             return distances, indices, metadata
         else:

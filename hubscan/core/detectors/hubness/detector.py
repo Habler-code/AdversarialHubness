@@ -165,6 +165,9 @@ class HubnessDetector(Detector):
         if M == 0:
             return DetectorResult(scores=np.zeros(N))
         
+        # Extract ranking custom params for hybrid configuration
+        ranking_custom_params = kwargs.get("ranking_custom_params", {})
+        
         # Accumulate hits from query processing
         accumulator = self._accumulate_hits(
             index=index,
@@ -177,6 +180,7 @@ class HubnessDetector(Detector):
             concept_assignment=concept_assignment,
             modality_assignment=modality_assignment,
             num_docs=N,
+            ranking_custom_params=ranking_custom_params,
         )
         
         # Run scorers and combine results
@@ -232,12 +236,27 @@ class HubnessDetector(Detector):
         concept_assignment: Optional["ConceptAssignment"],
         modality_assignment: Optional["ModalityAssignment"],
         num_docs: int,
+        ranking_custom_params: Optional[Dict[str, Any]] = None,
     ) -> BucketedHubnessAccumulator:
         """Process queries in batches and accumulate hits.
+        
+        Args:
+            index: Vector index for similarity search
+            queries: Query embeddings (M, D)
+            k: Number of nearest neighbors
+            batch_size: Batch size for query processing
+            ranking_method: Ranking method name
+            hybrid_alpha: Alpha for hybrid search
+            query_texts: Query texts for lexical/hybrid search
+            concept_assignment: Concept assignments
+            modality_assignment: Modality assignments
+            num_docs: Total number of documents
+            ranking_custom_params: Custom parameters for ranking method (e.g., hybrid_backend)
         
         Returns:
             BucketedHubnessAccumulator with all hits recorded
         """
+        ranking_custom_params = ranking_custom_params or {}
         M = len(queries)
         
         # Initialize accumulator
@@ -265,7 +284,7 @@ class HubnessDetector(Detector):
             if query_texts is not None:
                 batch_query_texts = query_texts[batch_start:batch_end]
             
-            # Execute ranking
+            # Execute ranking with custom params
             if ranking_method == "hybrid":
                 batch_distances, batch_indices, _ = ranking_method_impl.search(
                     index=index,
@@ -273,6 +292,7 @@ class HubnessDetector(Detector):
                     query_texts=batch_query_texts,
                     k=k,
                     alpha=hybrid_alpha,
+                    **ranking_custom_params,
                 )
             elif ranking_method == "lexical":
                 batch_distances, batch_indices, _ = ranking_method_impl.search(
@@ -280,6 +300,7 @@ class HubnessDetector(Detector):
                     query_vectors=batch_queries,
                     query_texts=batch_query_texts,
                     k=k,
+                    **ranking_custom_params,
                 )
             else:
                 batch_distances, batch_indices, _ = ranking_method_impl.search(
@@ -287,6 +308,7 @@ class HubnessDetector(Detector):
                     query_vectors=batch_queries,
                     query_texts=None,
                     k=k,
+                    **ranking_custom_params,
                 )
             
             # Accumulate hits

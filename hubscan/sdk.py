@@ -34,6 +34,15 @@ def scan(
     output_dir: str = "reports/",
     k: int = 20,
     num_queries: int = 10000,
+    # Ranking options
+    ranking_method: str = "vector",
+    hybrid_alpha: float = 0.5,
+    query_texts_path: Optional[str] = None,
+    # Hybrid search options
+    hybrid_backend: str = "auto",
+    lexical_backend: str = "bm25",
+    text_field: str = "text",
+    # Detection options
     concept_aware: bool = False,
     modality_aware: bool = False,
     concept_field: str = "concept",
@@ -63,6 +72,12 @@ def scan(
         output_dir: Directory to save reports
         k: Number of nearest neighbors to retrieve
         num_queries: Number of queries to sample
+        ranking_method: Ranking method ("vector", "hybrid", "lexical")
+        hybrid_alpha: Weight for vector search in hybrid mode (0.0-1.0)
+        query_texts_path: Path to query texts file (required for hybrid/lexical)
+        hybrid_backend: Hybrid search backend ("client_fusion", "native_sparse", "auto")
+        lexical_backend: Lexical scoring algorithm ("bm25", "tfidf")
+        text_field: Metadata field containing document text (for hybrid search)
         concept_aware: Enable concept-aware hub detection
         modality_aware: Enable modality-aware hub detection
         concept_field: Metadata field name for concept labels
@@ -92,12 +107,23 @@ def scan(
         ```python
         from hubscan.sdk import scan
         
-        # Basic scan
+        # Basic scan with vector search
         results = scan(
             embeddings_path="data/embeddings.npy",
             metadata_path="data/metadata.json",
             k=20,
             num_queries=5000
+        )
+        
+        # Hybrid search scan
+        results = scan(
+            embeddings_path="data/embeddings.npy",
+            metadata_path="data/metadata.json",
+            query_texts_path="data/queries.json",
+            ranking_method="hybrid",
+            hybrid_alpha=0.7,
+            lexical_backend="bm25",
+            k=20
         )
         
         # Concept and modality-aware scan
@@ -142,6 +168,17 @@ def scan(
             num_queries=num_queries,
             **kwargs,
         )
+    
+    # Apply ranking configuration
+    config.scan.ranking.method = ranking_method
+    config.scan.ranking.hybrid_alpha = hybrid_alpha
+    if query_texts_path:
+        config.scan.query_texts_path = query_texts_path
+    
+    # Apply hybrid search configuration
+    config.scan.ranking.hybrid.backend = hybrid_backend
+    config.scan.ranking.hybrid.lexical_backend = lexical_backend
+    config.scan.ranking.hybrid.text_field = text_field
     
     # Apply concept-aware and modality-aware settings
     if concept_aware:
@@ -305,6 +342,10 @@ def scan_with_ranking(
     query_texts_path: Optional[str] = None,
     ranking_method: str = "vector",
     hybrid_alpha: float = 0.5,
+    # Hybrid search configuration
+    hybrid_backend: str = "auto",
+    lexical_backend: str = "bm25",
+    text_field: str = "text",
     rerank: bool = False,
     rerank_method: str = "default",
     rerank_top_n: int = 100,
@@ -338,6 +379,9 @@ def scan_with_ranking(
         query_texts_path: Optional path to query texts file (for lexical/hybrid search)
         ranking_method: Ranking method ("vector", "hybrid", "lexical")
         hybrid_alpha: Weight for vector search in hybrid mode (0.0-1.0)
+        hybrid_backend: Hybrid search backend ("client_fusion", "native_sparse", "auto")
+        lexical_backend: Lexical scoring algorithm ("bm25", "tfidf")
+        text_field: Metadata field containing document text (for hybrid search)
         rerank: Whether to enable reranking as post-processing
         rerank_method: Reranking method name (default: "default")
         rerank_top_n: Number of candidates to retrieve before reranking
@@ -367,15 +411,23 @@ def scan_with_ranking(
         ```python
         from hubscan.sdk import scan_with_ranking
         
-        # Hybrid search with reranking and concept awareness
+        # Hybrid search with BM25 and concept awareness
         results = scan_with_ranking(
             embeddings_path="data/embeddings.npy",
             query_texts_path="data/queries.json",
             ranking_method="hybrid",
             hybrid_alpha=0.6,
-            rerank=True,
+            hybrid_backend="client_fusion",
+            lexical_backend="bm25",
             concept_aware=True,
-            modality_aware=True
+        )
+        
+        # Hybrid search with TF-IDF
+        results = scan_with_ranking(
+            embeddings_path="data/embeddings.npy",
+            query_texts_path="data/queries.json",
+            ranking_method="hybrid",
+            lexical_backend="tfidf",
         )
         
         # Multi-index scan with late fusion
@@ -404,6 +456,11 @@ def scan_with_ranking(
     config.scan.ranking.hybrid_alpha = hybrid_alpha
     if query_texts_path:
         config.scan.query_texts_path = query_texts_path
+    
+    # Set hybrid search configuration
+    config.scan.ranking.hybrid.backend = hybrid_backend
+    config.scan.ranking.hybrid.lexical_backend = lexical_backend
+    config.scan.ranking.hybrid.text_field = text_field
     
     # Set reranking configuration
     config.scan.ranking.rerank = rerank

@@ -354,6 +354,85 @@ scanner.load_data()
 results = scanner.scan()
 ```
 
+### Hybrid Search Configuration
+
+HubScan supports **true hybrid search** (dense + lexical) across all vector database backends through client-side fusion:
+
+```python
+from hubscan import scan
+
+# Basic hybrid search
+results = scan(
+    embeddings_path="data/embeddings.npy",
+    metadata_path="data/metadata.json",  # Must have 'text' field
+    query_texts_path="data/queries.json",  # Required for hybrid/lexical
+    ranking_method="hybrid",
+    hybrid_alpha=0.7,  # 70% vector, 30% lexical
+    k=20,
+    num_queries=5000
+)
+```
+
+**Hybrid Search Backends:**
+
+1. **Client Fusion (default)**: Works with ANY vector database
+   - Performs dense search in your vector DB
+   - Computes BM25/TF-IDF scores locally from document texts
+   - Fuses results using configurable alpha weight
+   - **Requires**: Document texts in metadata (e.g., `metadata.text` field)
+
+2. **Native Sparse**: Uses database-native hybrid capabilities
+   - Weaviate: Native BM25 + nearVector
+   - Pinecone: Sparse vectors (if indexed)
+   - Qdrant: Dense + sparse fields (if configured)
+
+**Configuration via YAML:**
+
+```yaml
+scan:
+  query_texts_path: "data/queries.json"  # Required for hybrid/lexical
+  ranking:
+    method: hybrid
+    hybrid_alpha: 0.7  # 70% vector, 30% lexical
+    hybrid:
+      # Backend selection: "client_fusion", "native_sparse", or "auto"
+      backend: client_fusion
+      
+      # Lexical scoring algorithm (for client_fusion)
+      lexical_backend: bm25  # or "tfidf"
+      
+      # Metadata field containing document text
+      text_field: text
+      
+      # Score normalization before fusion
+      normalize_scores: true
+      
+      # Weaviate-specific: BM25 properties
+      weaviate_bm25_properties: ["text", "title"]
+      
+      # Pinecone-specific: sparse vector support
+      pinecone_has_sparse: false
+      
+      # Qdrant-specific: vector field names
+      qdrant_dense_vector_name: dense
+      qdrant_sparse_vector_name: sparse
+```
+
+**Requirements for Hybrid Search:**
+
+| Requirement | Description |
+|-------------|-------------|
+| `query_texts_path` | JSON file with query text strings |
+| `metadata.text` | Document texts in metadata (for `client_fusion`) |
+| `ranking.method: hybrid` | Enable hybrid ranking |
+
+**Alpha Parameter:**
+- `alpha = 1.0`: Pure vector search (semantic only)
+- `alpha = 0.5`: Equal weight (balanced)
+- `alpha = 0.0`: Pure lexical search (keyword only)
+
+Recommended: Start with `alpha = 0.7` for semantic-dominant hybrid search.
+
 ## Examples
 
 See `examples/sdk_example.py` for complete SDK examples.

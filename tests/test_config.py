@@ -159,10 +159,16 @@ def test_scan_config_with_ranking():
 
 def test_config_from_yaml_with_ranking(tmp_path):
     """Test loading configuration with ranking from YAML."""
+    # Create a temporary query texts file for hybrid search requirement
+    query_texts_file = tmp_path / "query_texts.json"
+    with open(query_texts_file, "w") as f:
+        f.write('["query 1", "query 2"]')
+    
     config_data = {
         "scan": {
             "k": 20,
             "num_queries": 1000,
+            "query_texts_path": str(query_texts_file),  # Required for hybrid
             "ranking": {
                 "method": "hybrid",
                 "hybrid_alpha": 0.6,
