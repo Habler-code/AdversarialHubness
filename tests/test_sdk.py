@@ -26,7 +26,6 @@ from unittest.mock import patch, MagicMock
 from hubscan import (
     scan,
     quick_scan,
-    scan_from_config,
     get_suspicious_documents,
     explain_document,
     Verdict,
@@ -151,8 +150,8 @@ def test_explain_document(sample_results):
     assert explanation is None
 
 
-def test_scan_from_config(tmp_path):
-    """Test scan_from_config function."""
+def test_scan_with_config_file(tmp_path):
+    """Test scan function with config_path parameter."""
     # Create config file
     config_content = """
 input:
@@ -219,7 +218,8 @@ output:
         mock_scanner.scan.return_value = mock_results
         mock_scanner_class.return_value = mock_scanner
         
-        results = scan_from_config(str(config_file))
+        # Use scan() with config_path instead of scan_from_config()
+        results = scan(config_path=str(config_file))
         assert "json_report" in results
 
 

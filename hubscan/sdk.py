@@ -300,29 +300,6 @@ def quick_scan(
         return results
 
 
-def scan_from_config(config_path: str) -> Dict[str, Any]:
-    """
-    Run a scan from a configuration file.
-    
-    Args:
-        config_path: Path to YAML configuration file
-        
-    Returns:
-        Scan results dictionary
-        
-    Example:
-        ```python
-        from hubscan.sdk import scan_from_config
-        
-        results = scan_from_config("config.yaml")
-        ```
-    """
-    config = Config.from_yaml(config_path)
-    scanner = Scanner(config)
-    scanner.load_data()
-    return scanner.scan()
-
-
 def get_suspicious_documents(
     results: Dict[str, Any],
     verdict: Optional[Verdict] = Verdict.HIGH,

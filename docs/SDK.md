@@ -63,14 +63,14 @@ results = quick_scan(
 )
 ```
 
-### `scan_from_config()`
+### Scan from Config File
 
-Run a scan from a YAML configuration file.
+Use `scan()` with `config_path` to run from a YAML configuration file:
 
 ```python
-from hubscan import scan_from_config
+from hubscan import scan
 
-results = scan_from_config("config.yaml")
+results = scan(config_path="config.yaml")
 ```
 
 ### `extract_embeddings()`

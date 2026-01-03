@@ -45,7 +45,6 @@ from .core.scoring import combine_scores, apply_thresholds, Verdict
 from .sdk import (
     scan,
     quick_scan,
-    scan_from_config,
     get_suspicious_documents,
     explain_document,
 )
@@ -71,7 +70,6 @@ __all__ = [
     # SDK (primary API)
     "scan",
     "quick_scan",
-    "scan_from_config",
     "get_suspicious_documents",
     "explain_document",
 ]
