@@ -137,22 +137,16 @@ class WeaviateIndex(VectorIndex):
                     "Install with: pip install weaviate-client"
                 )
         
+        # Initialize dimension - will be inferred from first query if needed
+        self._dimension = 0
+        
         # Get schema info
         try:
             schema = self.client.schema.get(class_name)
             if not schema:
                 raise ValueError(f"Weaviate class '{class_name}' not found")
             
-            # Get vectorizer config to determine dimension
-            vectorizer_config = schema.get("vectorizer", {})
-            if "vectorizeClassName" in vectorizer_config:
-                # Infer dimension from vectorizer (may need manual specification)
-                # For now, we'll require dimension to be specified or infer from query
-                self._dimension = 0  # Will be inferred from first query
-            else:
-                # Check vectorIndexConfig for dimension
-                vector_index_config = schema.get("vectorIndexConfig", {})
-                # Dimension is typically not in schema, will infer from queries
+            # Note: Weaviate doesn't store dimension in schema, will infer from first query
             
             # Get count
             result = (
@@ -341,7 +335,8 @@ class WeaviateIndex(VectorIndex):
                 )
                 return distances, indices, metadata
         
-        # Use native Weaviate hybrid (BM25 + nearVector)
+        # Use native Weaviate hybrid search
+        # Weaviate's .with_hybrid() combines BM25 + vector search natively
         bm25_properties = self._hybrid_config.get("weaviate_bm25_properties", ["text"])
         
         M = len(query_vectors) if query_vectors is not None else len(query_texts)
@@ -350,26 +345,22 @@ class WeaviateIndex(VectorIndex):
         
         for i in range(M):
             try:
+                query_text = query_texts[i] if query_texts is not None else ""
+                query_vector = query_vectors[i].tolist() if query_vectors is not None else None
+                
+                # Use Weaviate's native hybrid search method
                 query_builder = (
                     self.client.query
                     .get(self.class_name)
-                    .with_limit(k)
-                    .with_additional(["distance", "id"])
-                )
-                
-                # Add vector search if available
-                if query_vectors is not None:
-                    query_builder = query_builder.with_near_vector({
-                        "vector": query_vectors[i].tolist(),
-                        "certainty": alpha,  # Use alpha as certainty/weight
-                    })
-                
-                # Add BM25 text search if available
-                if query_texts is not None:
-                    query_builder = query_builder.with_bm25(
-                        query=query_texts[i],
+                    .with_hybrid(
+                        query=query_text,
+                        vector=query_vector,
+                        alpha=alpha,  # 0 = pure BM25, 1 = pure vector
                         properties=bm25_properties,
                     )
+                    .with_limit(k)
+                    .with_additional(["score", "id"])
+                )
                 
                 result = query_builder.do()
                 
@@ -379,19 +370,23 @@ class WeaviateIndex(VectorIndex):
                 if result and "data" in result and "Get" in result["data"]:
                     get_data = result["data"]["Get"].get(self.class_name, [])
                     
-                    for item in get_data:
-                        additional = item.get("_additional", {})
-                        distance = additional.get("distance", float('inf'))
-                        point_id = additional.get("id", None)
-                        
-                        result_distances.append(float(distance))
-                        
-                        if point_id:
-                            idx = hash(str(point_id)) % (2**31)
-                        else:
-                            idx = -1
-                        
-                        result_indices.append(idx)
+                    if get_data:
+                        for item in get_data:
+                            additional = item.get("_additional", {})
+                            # Weaviate hybrid returns "score" (higher is better)
+                            # Convert to distance-like metric (lower is better)
+                            score = additional.get("score", 0.0)
+                            distance = 1.0 - float(score) if score is not None else float('inf')
+                            point_id = additional.get("id", None)
+                            
+                            result_distances.append(distance)
+                            
+                            if point_id:
+                                idx = hash(str(point_id)) % (2**31)
+                            else:
+                                idx = -1
+                            
+                            result_indices.append(idx)
                 
                 # Pad to k if needed
                 while len(result_distances) < k:
@@ -402,14 +397,16 @@ class WeaviateIndex(VectorIndex):
                 indices.append(result_indices[:k])
             
             except Exception as e:
-                logger.error(f"Weaviate hybrid search failed: {e}")
-                # Fallback to vector search
+                logger.warning(f"Weaviate hybrid search failed for query {i}: {e}")
+                # Fallback to vector search if available
                 if query_vectors is not None:
                     vec_distances, vec_indices = self.search(query_vectors[i:i+1], k)
                     distances.append(vec_distances[0].tolist())
                     indices.append(vec_indices[0].tolist())
                 else:
-                    raise
+                    # Fallback to empty results if no vector available
+                    distances.append([float('inf')] * k)
+                    indices.append([-1] * k)
         
         distances_array = np.array(distances, dtype=np.float32)
         indices_array = np.array(indices, dtype=np.int64)

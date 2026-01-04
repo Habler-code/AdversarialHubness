@@ -159,19 +159,16 @@ class PineconeIndex(VectorIndex):
         distances = []
         indices = []
         
-        # Convert to list of lists for Pinecone
-        query_list = query_vectors.tolist()
-        
-        # Pinecone query_batch returns results for all queries
+        # Query each vector individually (Pinecone v3+ doesn't have batch query)
         try:
-            results = self.index.query_batch(
-                queries=query_list,
-                top_k=k,
-                include_metadata=False,
-                include_values=False,
-            )
-            
-            for result in results:
+            for query_vector in query_vectors:
+                result = self.index.query(
+                    vector=query_vector.tolist(),
+                    top_k=k,
+                    include_metadata=False,
+                    include_values=False,
+                )
+                
                 result_distances = []
                 result_indices = []
                 

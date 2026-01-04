@@ -167,13 +167,14 @@ class QdrantIndex(VectorIndex):
         
         for query in query_vectors:
             try:
-                results = self.client.search(
+                response = self.client.query_points(
                     collection_name=self.collection_name,
-                    query_vector=query.tolist(),
+                    query=query.tolist(),
                     limit=k,
                     with_payload=False,
                     with_vectors=False,
                 )
+                results = response.points
                 
                 result_distances = []
                 result_indices = []
