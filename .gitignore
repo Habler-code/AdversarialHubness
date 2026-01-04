@@ -56,3 +56,4 @@ demo_data/
 demo_data_multi_backend/
 examples/reports/
 tmp/
+.env
