@@ -125,6 +125,107 @@ def example_custom_config():
     print(f"Verdicts: {results['json_report']['summary']['verdict_counts']}")
 
 
+def example_hybrid_search():
+    """Example: Hybrid search (vector + lexical)."""
+    print("\n" + "=" * 60)
+    print("Example 5: Hybrid Search (Vector + Lexical)")
+    print("=" * 60)
+    
+    # Note: This requires query_texts_path and metadata with 'text' field
+    # For this example, we'll skip if query texts don't exist
+    query_texts_path = Path(__file__).parent.parent / "data" / "query_texts.json"
+    metadata_path = Path(__file__).parent.parent / "data" / "toy_metadata.json"
+    
+    if not query_texts_path.exists() or not metadata_path.exists():
+        print("Skipping hybrid search example - query_texts.json or metadata.json not found")
+        print("To use hybrid search, you need:")
+        print("  1. query_texts.json with query text strings")
+        print("  2. metadata.json with 'text' field containing document texts")
+        return
+    
+    results = scan(
+        embeddings_path=str(Path(__file__).parent.parent / "data" / "toy_embeddings.npy"),
+        metadata_path=str(metadata_path),
+        query_texts_path=str(query_texts_path),
+        ranking_method="hybrid",
+        hybrid_alpha=0.7,  # 70% vector, 30% lexical
+        hybrid_backend="client_fusion",  # Works with any vector DB
+        lexical_backend="bm25",  # or "tfidf"
+        text_field="text",  # Metadata field with document text
+        k=10,
+        num_queries=100,
+        output_dir=str(Path(__file__).parent.parent / "reports")
+    )
+    
+    print(f"Hybrid search completed in {results['runtime']:.2f} seconds")
+    print(f"Found {len(results['verdicts'])} documents")
+    
+    high_risk = get_suspicious_documents(results, verdict=Verdict.HIGH, top_k=5)
+    print(f"\nTop 5 high-risk documents:")
+    for doc in high_risk:
+        print(f"  Doc {doc['doc_index']}: Risk={doc['risk_score']:.4f}, Verdict={doc['verdict']}")
+
+
+def example_reranking():
+    """Example: Scan with reranking for improved accuracy."""
+    print("\n" + "=" * 60)
+    print("Example 6: Scan with Reranking")
+    print("=" * 60)
+    
+    # Note: Reranking requires query_texts_path for cross-encoder
+    query_texts_path = Path(__file__).parent.parent / "data" / "query_texts.json"
+    metadata_path = Path(__file__).parent.parent / "data" / "toy_metadata.json"
+    
+    if not query_texts_path.exists() or not metadata_path.exists():
+        print("Skipping reranking example - query_texts.json or metadata.json not found")
+        print("To use reranking, you need:")
+        print("  1. query_texts.json with query text strings")
+        print("  2. metadata.json with 'text' field containing document texts")
+        return
+    
+    results = scan(
+        embeddings_path=str(Path(__file__).parent.parent / "data" / "toy_embeddings.npy"),
+        metadata_path=str(metadata_path),
+        query_texts_path=str(query_texts_path),
+        rerank=True,
+        rerank_method="cross_encoder",  # or "default"
+        rerank_top_n=100,  # Retrieve top 100, then rerank to top k
+        k=10,
+        num_queries=100,
+        output_dir=str(Path(__file__).parent.parent / "reports")
+    )
+    
+    print(f"Scan with reranking completed in {results['runtime']:.2f} seconds")
+    print(f"Found {len(results['verdicts'])} documents")
+    
+    high_risk = get_suspicious_documents(results, verdict=Verdict.HIGH, top_k=5)
+    print(f"\nTop 5 high-risk documents (after reranking):")
+    for doc in high_risk:
+        print(f"  Doc {doc['doc_index']}: Risk={doc['risk_score']:.4f}, Verdict={doc['verdict']}")
+
+
+def example_config_file():
+    """Example: Using config file instead of parameters."""
+    print("\n" + "=" * 60)
+    print("Example 7: Scan from Config File")
+    print("=" * 60)
+    
+    config_path = Path(__file__).parent.parent / "configs" / "toy_config.yaml"
+    
+    if not config_path.exists():
+        print(f"Skipping config file example - {config_path} not found")
+        return
+    
+    results = scan(
+        config_path=str(config_path),
+        output_dir=str(Path(__file__).parent.parent / "reports")
+    )
+    
+    print(f"Scan from config completed in {results['runtime']:.2f} seconds")
+    print(f"Found {len(results['verdicts'])} documents")
+    print(f"Verdicts: {results['json_report']['summary']['verdict_counts']}")
+
+
 if __name__ == "__main__":
     # Make sure toy data exists
     toy_embeddings_path = Path(__file__).parent.parent / "data" / "toy_embeddings.npy"
@@ -138,4 +239,7 @@ if __name__ == "__main__":
     example_quick_scan()
     example_explain_document()
     example_custom_config()
+    example_hybrid_search()
+    example_reranking()
+    example_config_file()
 

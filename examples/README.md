@@ -70,6 +70,9 @@ SDK usage patterns:
 - Quick scan with in-memory embeddings
 - Document explanation
 - Custom configuration
+- Hybrid search (vector + lexical)
+- Reranking for improved accuracy
+- Scan from config file
 
 ## Plugins
 
@@ -171,6 +174,52 @@ from hubscan import scan
 results = scan(
     embeddings_path="examples/data/toy_embeddings.npy",
     metadata_path="examples/data/toy_metadata.json",
+    k=20,
+    num_queries=1000
+)
+```
+
+### Scan from Config File
+
+```python
+from hubscan import scan
+
+results = scan(
+    config_path="examples/configs/toy_config.yaml",
+    output_dir="examples/reports"
+)
+```
+
+### Hybrid Search (Vector + Lexical)
+
+```python
+from hubscan import scan
+
+results = scan(
+    embeddings_path="examples/data/toy_embeddings.npy",
+    metadata_path="examples/data/toy_metadata.json",  # Must have 'text' field
+    query_texts_path="examples/data/query_texts.json",  # Required for hybrid
+    ranking_method="hybrid",
+    hybrid_alpha=0.7,  # 70% vector, 30% lexical
+    hybrid_backend="client_fusion",  # Works with any vector DB
+    lexical_backend="bm25",  # or "tfidf"
+    k=20,
+    num_queries=1000
+)
+```
+
+### Scan with Reranking
+
+```python
+from hubscan import scan
+
+results = scan(
+    embeddings_path="examples/data/toy_embeddings.npy",
+    metadata_path="examples/data/toy_metadata.json",
+    query_texts_path="examples/data/query_texts.json",  # Required for cross-encoder
+    rerank=True,
+    rerank_method="cross_encoder",  # or "default"
+    rerank_top_n=100,  # Retrieve top 100, then rerank to top k
     k=20,
     num_queries=1000
 )
