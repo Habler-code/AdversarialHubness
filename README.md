@@ -321,6 +321,3 @@ For issues, questions, or contributions:
 - **GitHub Issues**: [https://github.com/Habler-code/AdversarialHubness/issues](https://github.com/Habler-code/AdversarialHubness/issues)
 - **Documentation**: See `docs/` directory for detailed guides
 
-## Acknowledgments
-
-Developed with security and performance in mind for production RAG systems.
