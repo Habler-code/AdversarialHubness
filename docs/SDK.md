@@ -217,38 +217,6 @@ results = scan(
 - `text_weight`: Weight for text index in fusion (default: 0.4)
 - `image_weight`: Weight for image index in fusion (default: 0.4)
 
-### `compare_ranking_methods()`
-
-Compare detection performance across multiple ranking methods.
-
-```python
-from hubscan import compare_ranking_methods
-
-comparison = compare_ranking_methods(
-    embeddings_path="data/embeddings.npy",
-    query_texts_path="data/queries.json",
-    methods=["vector", "hybrid", "lexical"],
-    k=20,
-    num_queries=10000
-)
-
-# Access results for each method
-for method, method_results in comparison["results"].items():
-    print(f"{method}: {len(method_results['verdicts'])} suspicious docs")
-    
-    # Access detection metrics if ground truth available
-    if comparison.get("comparison") and method in comparison["comparison"]:
-        metrics = comparison["comparison"][method]
-        print(f"  Precision: {metrics.get('precision', 0):.3f}")
-        print(f"  Recall: {metrics.get('recall', 0):.3f}")
-        print(f"  F1: {metrics.get('f1', 0):.3f}")
-```
-
-**Returns:** Dictionary with:
-- `methods`: List of methods tested
-- `results`: Dictionary mapping method names to scan results
-- `comparison`: Optional comparison metrics (if ground truth available)
-
 ## Advanced Usage
 
 ### Custom Configuration

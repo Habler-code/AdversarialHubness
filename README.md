@@ -63,7 +63,6 @@ See [Concept and Modality Guide](docs/CONCEPTS_AND_MODALITIES.md) for detailed i
 - **Multiple Retrieval Methods**: Vector search, hybrid search (vector + lexical), and pure lexical search
 - **Client-Side Hybrid Search**: Works with any vector database by combining dense search with local BM25/TF-IDF
 - **Reranking Support**: Optional post-processing reranking for improved precision
-- **Multi-Index Late Fusion**: Gold standard architecture for secure multimodal RAG systems
 - **Vector Database Support**: FAISS, Pinecone, Qdrant, Weaviate with unified interface
 - **Comprehensive Reporting**: JSON and HTML reports with detailed metrics and evidence
 - **Plugin System**: Extensible architecture for custom retrieval methods, reranking, and detectors
@@ -192,9 +191,6 @@ hubscan scan --config config.yaml --ranking-method lexical
 
 # Extract embeddings from vector database
 hubscan extract-embeddings --config config.yaml --output embeddings.npy
-
-# Compare retrieval methods
-hubscan compare-ranking --config config.yaml --methods vector hybrid lexical
 
 # Build an index
 hubscan build-index --config config.yaml

@@ -82,9 +82,6 @@ hubscan scan --config config.yaml --ranking-method vector --rerank --rerank-meth
 # Hybrid search with reranking
 hubscan scan --config config.yaml --ranking-method hybrid --rerank --query-texts queries.json
 
-# Compare ranking methods
-hubscan compare-ranking --config config.yaml --query-texts queries.json --methods vector hybrid lexical
-
 # Multi-index scan with late fusion (gold standard architecture)
 hubscan scan --config config.yaml \
   --multi-index \
@@ -201,25 +198,6 @@ input:
   mode: weaviate
   weaviate_class_name: MyClass
   weaviate_url: http://localhost:8080
-```
-
-#### `compare-ranking`
-
-Compare detection performance across multiple ranking methods.
-
-```bash
-hubscan compare-ranking --config <config.yaml> [OPTIONS]
-```
-
-**Options:**
-- `--config, -c`: Path to YAML configuration file (required)
-- `--query-texts`: Path to query texts file (required for lexical/hybrid)
-- `--methods`: Ranking methods to compare (default: ["vector", "hybrid"])
-- `--output, -o`: Output directory (default: "reports/comparison")
-
-**Example:**
-```bash
-hubscan compare-ranking --config config.yaml --query-texts queries.json --methods vector hybrid lexical
 ```
 
 ## SDK Usage
