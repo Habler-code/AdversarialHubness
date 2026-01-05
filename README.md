@@ -308,16 +308,3 @@ See [Development Guide](docs/USAGE.md#development) for setup instructions and te
 
 This project is licensed under the Apache License 2.0 - see the [LICENSE](LICENSE) file for details.
 
-## References
-
-- [FAISS Documentation](https://github.com/facebookresearch/faiss)
-- [Adversarial Hubness in RAG Systems](https://ztingwei.com/publication/preprint_hubness/)
-- [Vector Search Security Best Practices](https://github.com/cisco-ai-defense/vector-search-security)
-
-## Support
-
-For issues, questions, or contributions:
-
-- **GitHub Issues**: [https://github.com/Habler-code/AdversarialHubness/issues](https://github.com/Habler-code/AdversarialHubness/issues)
-- **Documentation**: See `docs/` directory for detailed guides
-
