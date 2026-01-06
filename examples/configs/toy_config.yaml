@@ -11,7 +11,7 @@ index:
 
 scan:
   k: 10
-  num_queries: 100
+  num_queries: 200  # Similar to demo
   query_sampling: mixed
   batch_size: 32
   mixed_proportions:
@@ -24,8 +24,8 @@ detectors:
   hubness:
     enabled: true
     validate_exact: false
-    use_rank_weights: true  # Weight hits by rank position (rank 1 > rank k)
-    use_distance_weights: true  # Weight hits by similarity/distance scores
+    use_rank_weights: true
+    use_distance_weights: true
   cluster_spread:
     enabled: true
     num_clusters: 10
@@ -49,14 +49,15 @@ scoring:
     stability: 0.2
     boilerplate: 0.3
 
+# Thresholds tuned for high precision detection
+# Higher hub_z = fewer false positives, but may miss weak hubs
 thresholds:
-  policy: hybrid
-  hub_z: 3.0
-  percentile: 0.05
+  policy: z_score  # Only use z_score threshold
+  hub_z: 4.0  # Set above FPs (Z~3.2) but below weakest hub (Z~4.5)
+  percentile: 0.05  # Not used with z_score policy
 
 output:
   out_dir: examples/data/reports/
   privacy_mode: false
   emit_embeddings: false
   max_example_queries: 5
-

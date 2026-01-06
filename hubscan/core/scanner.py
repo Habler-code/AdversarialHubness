@@ -709,14 +709,52 @@ class Scanner:
         # Compute detection metrics if ground truth available
         if ground_truth_labels is not None:
             logger.info("Computing detection metrics...")
-            from .metrics.detection_metrics import compute_detection_metrics
+            from .metrics.detection_metrics import compute_auc_roc, compute_auc_pr
+            from .scoring.thresholds import Verdict
             
-            # Use combined scores as prediction scores
-            detection_metrics = compute_detection_metrics(
-                ground_truth_labels,
-                combined_scores,
-                threshold=np.median(combined_scores),  # Use median as threshold
-            )
+            # Use verdicts for prediction: HIGH = 1, else = 0
+            # This gives accurate precision/recall based on actual flagged documents
+            # Note: verdicts is a dict mapping doc_index -> Verdict
+            y_pred = np.zeros(num_docs, dtype=int)
+            for doc_idx, verdict in verdicts.items():
+                if verdict == Verdict.HIGH:
+                    y_pred[doc_idx] = 1
+            
+            # Compute verdict-based metrics
+            tp = int(np.sum((ground_truth_labels == 1) & (y_pred == 1)))
+            fp = int(np.sum((ground_truth_labels == 0) & (y_pred == 1)))
+            tn = int(np.sum((ground_truth_labels == 0) & (y_pred == 0)))
+            fn = int(np.sum((ground_truth_labels == 1) & (y_pred == 0)))
+            
+            precision = tp / (tp + fp) if (tp + fp) > 0 else 0.0
+            recall = tp / (tp + fn) if (tp + fn) > 0 else 0.0
+            f1 = 2 * precision * recall / (precision + recall) if (precision + recall) > 0 else 0.0
+            accuracy = (tp + tn) / (tp + fp + tn + fn) if (tp + fp + tn + fn) > 0 else 0.0
+            fpr = fp / (fp + tn) if (fp + tn) > 0 else 0.0
+            
+            # Compute AUC metrics using combined scores
+            try:
+                auc_roc = compute_auc_roc(ground_truth_labels, combined_scores)
+                auc_pr = compute_auc_pr(ground_truth_labels, combined_scores)
+            except Exception:
+                auc_roc = None
+                auc_pr = None
+            
+            detection_metrics = {
+                "threshold": "HIGH_VERDICT",
+                "confusion_matrix": [[tn, fp], [fn, tp]],
+                "tp": tp,
+                "fp": fp,
+                "tn": tn,
+                "fn": fn,
+                "precision": float(precision),
+                "recall": float(recall),
+                "f1": float(f1),
+                "accuracy": float(accuracy),
+                "fpr": float(fpr),
+                "auc_roc": auc_roc,
+                "auc_pr": auc_pr,
+            }
         
         # Generate reports
         logger.info("Generating reports...")

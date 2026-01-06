@@ -237,6 +237,44 @@ HTML_TEMPLATE = """
             </tr>
         </table>
         
+        {% if detection_metrics %}
+        <h2>Detection Performance Metrics</h2>
+        <p style="color: #666; margin-bottom: 15px;">
+            Ground truth labels (<code>is_adversarial</code>) found in metadata. Metrics based on HIGH verdict classification.
+        </p>
+        <div class="summary">
+            <div class="summary-card" style="border-left-color: #10b981;">
+                <h3>Precision</h3>
+                <div class="value">{{ "%.0f" | format(detection_metrics.precision * 100) }}%</div>
+            </div>
+            <div class="summary-card" style="border-left-color: #10b981;">
+                <h3>Recall</h3>
+                <div class="value">{{ "%.0f" | format(detection_metrics.recall * 100) }}%</div>
+            </div>
+            <div class="summary-card" style="border-left-color: #6366f1;">
+                <h3>F1-Score</h3>
+                <div class="value">{{ "%.4f" | format(detection_metrics.f1) }}</div>
+            </div>
+            <div class="summary-card" style="border-left-color: #6366f1;">
+                <h3>Accuracy</h3>
+                <div class="value">{{ "%.0f" | format(detection_metrics.accuracy * 100) }}%</div>
+            </div>
+        </div>
+        <table>
+            <tr><th>Metric</th><th>Value</th></tr>
+            <tr><td>True Positives (TP)</td><td><strong style="color: #10b981;">{{ detection_metrics.tp }}</strong></td></tr>
+            <tr><td>False Positives (FP)</td><td><strong style="color: #ef4444;">{{ detection_metrics.fp }}</strong></td></tr>
+            <tr><td>True Negatives (TN)</td><td>{{ detection_metrics.tn }}</td></tr>
+            <tr><td>False Negatives (FN)</td><td><strong style="color: #f59e0b;">{{ detection_metrics.fn }}</strong></td></tr>
+            {% if detection_metrics.auc_roc %}
+            <tr><td>AUC-ROC</td><td>{{ "%.4f" | format(detection_metrics.auc_roc) }}</td></tr>
+            {% endif %}
+            {% if detection_metrics.auc_pr %}
+            <tr><td>AUC-PR</td><td>{{ "%.4f" | format(detection_metrics.auc_pr) }}</td></tr>
+            {% endif %}
+        </table>
+        {% endif %}
+        
         {% if concept_aware_enabled %}
         <div class="feature-section">
             <h3>Concept-Aware Detection</h3>
@@ -439,6 +477,7 @@ def generate_html_report(
         concept_hub_count=concept_hub_count,
         cross_modal_count=cross_modal_count,
         modalities_found=modalities_found,
+        detection_metrics=json_report.get("detection_metrics"),
     )
     
     return html
