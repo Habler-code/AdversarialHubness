@@ -33,6 +33,7 @@ def run_benchmark(
     dataset_dir: Path,
     config_path: Path,
     output_dir: Path,
+    query_embeddings_path: Optional[Path] = None,
     ranking_methods: Optional[List[str]] = None,
     enable_concept_aware: bool = False,
     enable_modality_aware: bool = False,
@@ -105,6 +106,18 @@ def run_benchmark(
     config.input.embeddings_path = str(dataset_dir / "embeddings.npy")
     config.input.metadata_path = str(dataset_dir / "metadata.json")
     config.output.out_dir = str(output_dir)
+
+    # If query embeddings are provided (or exist in dataset), use real query sampling.
+    # This enables paper-style evaluation where queries != documents (e.g., text->image retrieval).
+    if query_embeddings_path is None:
+        candidate = dataset_dir / "query_embeddings.npy"
+        if candidate.exists():
+            query_embeddings_path = candidate
+
+    if query_embeddings_path is not None:
+        config.scan.query_sampling = "real_queries"
+        config.scan.query_embeddings_path = str(query_embeddings_path)
+        print(f"Using real query embeddings: {query_embeddings_path}")
     
     # Enable concept/modality-aware detection if requested
     if enable_concept_aware or has_concept_hubs:
@@ -484,6 +497,12 @@ def main():
         help="Output directory for results",
     )
     parser.add_argument(
+        "--query-embeddings",
+        type=str,
+        default=None,
+        help="Optional path to query embeddings (.npy). If omitted, will use <dataset>/query_embeddings.npy if present.",
+    )
+    parser.add_argument(
         "--ranking-methods",
         nargs="+",
         choices=["vector", "hybrid", "lexical", "vector+rerank", "hybrid+rerank"],
@@ -506,6 +525,7 @@ def main():
         dataset_dir=Path(args.dataset),
         config_path=Path(args.config),
         output_dir=Path(args.output),
+        query_embeddings_path=Path(args.query_embeddings) if args.query_embeddings else None,
         ranking_methods=args.ranking_methods,
         enable_concept_aware=args.enable_concept_aware,
         enable_modality_aware=args.enable_modality_aware,
