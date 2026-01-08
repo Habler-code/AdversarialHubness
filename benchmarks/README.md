@@ -109,6 +109,51 @@ python benchmarks/scripts/pretty_print_benchmark_results.py \
   --results benchmarks/results/mscoco_captions/benchmark_results.json
 ```
 
+## Paper-style poisoned dataset (adv_hub) → HubScan scan (text queries → image docs)
+
+If you run the paper code to generate poisoned **images** (adversarial hubs) for MSCOCO,
+you can export the resulting poisoned corpus into HubScan’s benchmark format and then run
+HubScan against **real query embeddings** (text), matching the paper’s retrieval direction.
+
+### 1) Run adv_hub to generate poisoned images
+
+Follow `adv_hub`’s instructions to run e.g.:
+
+```bash
+python hubness_mscoco.py mscoco/imagebind
+```
+
+This produces an `x_advs.npy` in the configured `output_dir` (see `configs/mscoco/imagebind.toml`).
+
+### 2) Export to HubScan benchmark format
+
+```bash
+python benchmarks/scripts/export_adv_hub_mscoco_to_hubscan.py \
+  --adv-hub-root /path/to/adv_hub \
+  --coco-val-images-dir /path/to/coco/images/val2017 \
+  --coco-val-captions-json /path/to/coco/annotations/captions_val2017.json \
+  --adv-x-advs /path/to/adv_hub/outputs/mscoco/imagebind/naive/x_advs.npy \
+  --output benchmarks/data/adv_hub_mscoco_imagebind/
+```
+
+This creates:
+- `embeddings.npy` (docs: clean images + poisoned images)
+- `query_embeddings.npy` (queries: caption text embeddings)
+- `metadata.json` with `is_adversarial` labels
+- `ground_truth.json`
+
+### 3) Run HubScan benchmark using query embeddings
+
+`run_benchmark.py` will automatically use `<dataset>/query_embeddings.npy` if present:
+
+```bash
+python benchmarks/scripts/run_benchmark.py \
+  --dataset benchmarks/data/adv_hub_mscoco_imagebind/ \
+  --config benchmarks/configs/multimodal.yaml \
+  --output benchmarks/results/adv_hub_mscoco_imagebind/ \
+  --enable-modality-aware
+```
+
 ## Usage Examples
 
 ### CLI Usage
