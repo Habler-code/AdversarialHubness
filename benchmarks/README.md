@@ -71,6 +71,37 @@ python run_benchmark.py \
     --output ../results/multimodal/
 ```
 
+## Using Datasets from the "adv_hub" Paper (arXiv:2412.14113)
+
+The paper repo ([`Tingwei-Zhang/adv_hub`](https://github.com/Tingwei-Zhang/adv_hub)) uses standard retrieval benchmarks (e.g., MSCOCO).
+That repo does not include precomputed embeddings, so to benchmark HubScan you must:
+
+- download a dataset (e.g., COCO captions annotations)
+- build `embeddings.npy` + `metadata.json` in HubScan's benchmark format
+- optionally plant hubs and evaluate
+
+### Example: MSCOCO captions (text-only)
+
+1) Download COCO captions annotations (example path shown below):
+
+- `captions_val2017.json` (from MSCOCO 2017)
+
+2) Create a HubScan dataset folder:
+
+```bash
+python benchmarks/scripts/create_mscoco_captions_benchmark.py \
+  --coco-captions /path/to/captions_val2017.json \
+  --output benchmarks/data/mscoco_captions/ \
+  --max-captions 50000
+```
+
+3) Plant hubs and run the benchmark:
+
+```bash
+python benchmarks/scripts/plant_hubs.py --dataset benchmarks/data/mscoco_captions/ --strategy all --rate 0.02
+python benchmarks/scripts/run_benchmark.py --dataset benchmarks/data/mscoco_captions/ --config benchmarks/configs/concept_modality.yaml --output benchmarks/results/mscoco_captions/
+```
+
 ## Usage Examples
 
 ### CLI Usage
