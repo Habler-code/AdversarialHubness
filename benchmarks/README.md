@@ -102,6 +102,13 @@ python benchmarks/scripts/plant_hubs.py --dataset benchmarks/data/mscoco_caption
 python benchmarks/scripts/run_benchmark.py --dataset benchmarks/data/mscoco_captions/ --config benchmarks/configs/concept_modality.yaml --output benchmarks/results/mscoco_captions/
 ```
 
+4) Pretty-print results for an "Evaluation" section:
+
+```bash
+python benchmarks/scripts/pretty_print_benchmark_results.py \
+  --results benchmarks/results/mscoco_captions/benchmark_results.json
+```
+
 ## Usage Examples
 
 ### CLI Usage
